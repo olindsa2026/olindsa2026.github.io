@@ -1,0 +1,504 @@
+<!doctype html>
+<!--
+  Minimal Mistakes Jekyll Theme 4.17.2 by Michael Rose
+  Copyright 2013-2019 Michael Rose - mademistakes.com | @mmistakes
+  Free for personal and commercial use under the MIT license
+  https://github.com/mmistakes/minimal-mistakes/blob/master/LICENSE
+-->
+<html lang="en" class="no-js">
+  <head>
+    <meta charset="utf-8">
+
+<script>
+class AnchorNoProxy extends HTMLElement {
+  constructor() {
+    super();
+    this.attachShadow({ mode: "open" });
+    this._$a = null;
+  }
+  connectedCallback() {
+    const href = this.getAttribute("href") || "#";
+    if (this.dataset.hasOwnProperty('canvas')) {
+        const canvasURL = this.dataset.canvas;
+        this.shadowRoot.innerHTML = `<style>a:hover, a:active { outline: 0; }\na { color: #5197ad; }\na:visited { color: #5197ad; }\na:hover { color: #266477; outline: 0; }</style><a href="${href}" data-canvas="${canvasURL}"><slot></slot></a>`;
+    } else {
+        this.shadowRoot.innerHTML = `<style>a:hover, a:active { outline: 0; }\na { color: #5197ad; }\na:visited { color: #5197ad; }\na:hover { color: #266477; outline: 0; }</style><a href="${href}"><slot></slot></a>`;
+    }
+    this._$a = this.shadowRoot.querySelector("a");
+    this._$a.addEventListener("click", e => {
+      var url = this.getAttribute('href');
+      e.preventDefault();
+      if (document.referrer.startsWith('https://lms.hypothes.is') && this.dataset.hasOwnProperty('canvas')) {
+        // get rid of proxy if it was added
+        var n = this.dataset.canvas.search('https://olin.instructure.com');
+        window.open(this.dataset.canvas.substring(n), '_blank');
+      } else {
+        window.open(url, '_blank');
+      }
+    });
+  }
+  static get observedAttributes() { return ["href"]; }
+  attributeChangedCallback(name, oldValue, newValue) {
+    if (oldValue !== newValue) {
+      if (this._$a === null) return;
+      this._$a.setAttribute("href", newValue);
+    }
+  }
+}
+
+customElements.define("a-no-proxy", AnchorNoProxy);
+
+class NoProxy extends HTMLAnchorElement {
+  connectedCallback() {
+    this.addEventListener("click", e => {
+      e.preventDefault();
+      if (document.referrer.startsWith('https://lms.hypothes.is') && this.dataset.hasOwnProperty('canvas')) {
+        // get rid of proxy if it was added
+        var n = this.dataset.canvas.search('https://olin.instructure.com');
+      	window.open(this.dataset.canvas.substring(n), '_blank');
+      } else {
+      	window.open(this.href, '_blank');
+      }
+    });
+  }
+}
+
+customElements.define("no-proxy", NoProxy, { extends: "a" });
+
+class ConfirmLink extends HTMLAnchorElement {
+  connectedCallback() {
+    this.addEventListener("click", e => {
+      const result = confirm(`Are you sure you want to go to '${this.href}'?`);
+      if (!result) e.preventDefault();
+    });
+  }
+}
+
+customElements.define("confirm-link", ConfirmLink, { extends: "a" });
+
+</script>
+
+<!-- begin _includes/seo.html --><title>Day 9: More Sorting and More Divide and Conquer - Data Structures Fall 2026 @ Olin College</title>
+<meta name="description" content="">
+
+
+
+<meta property="og:type" content="website">
+<meta property="og:locale" content="en_US">
+<meta property="og:site_name" content="Data Structures Fall 2026 @ Olin College">
+<meta property="og:title" content="Day 9: More Sorting and More Divide and Conquer">
+<meta property="og:url" content="/in_class/day09.html">
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="canonical" href="/in_class/day09.html">
+
+
+
+
+<script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    
+      "@type": "Person",
+      "name": null,
+      "url": "/"
+    
+  }
+</script>
+
+
+
+
+
+
+<!-- end _includes/seo.html -->
+
+
+<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="Data Structures Fall 2026 @ Olin College Feed">
+
+<!-- https://t.co/dKP3o1e -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script>
+  document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/g, '') + ' js ';
+</script>
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="/assets/css/main.css">
+
+<!--[if IE]>
+  <style>
+    /* old IE unsupported flexbox fixes */
+    .greedy-nav .site-title {
+      padding-right: 3em;
+    }
+    .greedy-nav button {
+      position: absolute;
+      top: 0;
+      right: 0;
+      height: 100%;
+    }
+  </style>
+<![endif]-->
+
+
+
+    <!-- start custom head snippets -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11.9.0/dist/mermaid.min.js"></script>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.28/dist/katex.min.css" integrity="sha384-Wsr4Nh3yrvMf2KCebJchRJoVo1gTU6kcP05uRSh5NV3sj9+a8IomuJoQzf3sMq4T" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.28/dist/katex.min.js" integrity="sha384-+W9OcrYK2/bD7BmUAk+xeFAyKp0QjyRQUCxeU31dfyTt/FrPsUgaBTLLkVf33qWt" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.28/dist/contrib/auto-render.min.js" integrity="sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh" crossorigin="anonymous"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", async function () {
+  // Render Mermaid first, from untouched source.
+  mermaid.initialize({ startOnLoad: false });
+  await mermaid.run(); // renders all .mermaid blocks
+
+  // render KaTeX
+  renderMathInElement(document.body, {
+          delimiters: [
+              {left: '$$', right: '$$', display: true},
+              {left: '$', right: '$', display: false},
+              {left: '\\(', right: '\\)', display: false},
+              {left: '\\[', right: '\\]', display: true}
+          ],
+    throwOnError: false,
+  });
+});
+</script>
+
+<script type="text/javascript">
+function HideShowElement(divID) {
+    const x = document.getElementById(divID);
+    if (x.style.display === "none") {
+        x.style.display = "block";
+    } else {
+        x.style.display = "none";
+    }
+}
+</script>
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+
+<!-- insert favicons. use https://realfavicongenerator.net/ -->
+
+<!-- end custom head snippets -->
+
+  </head>
+
+  <body class="layout--single">
+    <nav class="skip-links">
+  <h2 class="screen-reader-text">Skip links</h2>
+  <ul>
+    <li><a href="#site-nav" class="screen-reader-shortcut">Skip to primary navigation</a></li>
+    <li><a href="#main" class="screen-reader-shortcut">Skip to content</a></li>
+    <li><a href="#footer" class="screen-reader-shortcut">Skip to footer</a></li>
+  </ul>
+</nav>
+
+    <!--[if lt IE 9]>
+<div class="notice--danger align-center" style="margin: 0;">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience.</div>
+<![endif]-->
+
+    
+
+<div class="masthead">
+  <div class="masthead__inner-wrap">
+    <div class="masthead__menu">
+      <nav id="site-nav" class="greedy-nav">
+        
+          <a class="site-logo" href="/"><img src="https://qeacourse.github.io/RoboNinjaWarrior/website_graphics/olinlogo.png" alt=""></a>
+        
+        <a class="site-title" href="/">
+          Data Structures Fall 2026 @ Olin College
+          
+        </a>
+        <ul class="visible-links"></ul>
+        
+        <button class="greedy-nav__toggle hidden" type="button">
+          <span class="visually-hidden">Toggle menu</span>
+          <div class="navicon"></div>
+        </button>
+        <ul class="hidden-links hidden"></ul>
+      </nav>
+    </div>
+  </div>
+</div>
+
+
+    <div class="initial-content">
+      
+
+
+
+<div id="main" role="main">
+  
+
+  <article class="page" itemscope itemtype="https://schema.org/CreativeWork">
+    <meta itemprop="headline" content="Day 9: More Sorting and More Divide and Conquer">
+    
+    
+    
+
+    <div class="page__inner-wrap">
+      
+        <header>
+          <h1 id="page-title" class="page__title" itemprop="headline">Day 9: More Sorting and More Divide and Conquer
+</h1>
+          
+        </header>
+      
+
+      <section class="page__content" itemprop="text">
+        
+          <aside class="sidebar__right sticky">
+            <nav class="toc">
+              <header><h4 class="nav__title"><i class="fas fa-file-alt"></i> On this page</h4></header>
+	      
+                <ul class="toc__menu">
+  <li><a href="#oral-quizzes">Oral Quizzes</a></li>
+  <li><a href="#class-overview">Class Overview</a></li>
+  <li><a href="#master-theorem">Master Theorem</a></li>
+  <li><a href="#quick-sort">Quick Sort</a></li>
+  <li><a href="#radix-sort">Radix Sort</a></li>
+  <li><a href="#the-speed-limit-for-comparison-based-sorting">The Speed Limit for Comparison-Based Sorting</a></li>
+</ul>
+	      	
+            </nav>
+          </aside>
+        
+        <h2 id="oral-quizzes">Oral Quizzes</h2>
+
+<p>Our first oral quiz will be assigned next Thursday (the 9th) and due the Thursday after that.  This is not at all required, but I will open up some practice spots for people if they want to get a flavor for what the oral quizzes will be like.  Look for those to be posted tomorrow and be scheduled for early next week.</p>
+
+<h2 id="class-overview">Class Overview</h2>
+
+<p>Last class we saw heap sort, merge sort, and selection sort, but there are many more to learn about. Today we’ll learn a few more sorting algorithms, but we’ll also formally introduce the master theorem as a generalizable way to find $\Theta$ for divide and conquer algorithms.  There’s an optional section at the end on the speed limit of sorting (if you are interested).  That content is not part of the assignments or oral quizzes.</p>
+
+<h2 id="master-theorem">Master Theorem</h2>
+
+<p>A generalizable recipe for analyzing divide and conquer algorithms is the <a href="https://en.wikipedia.org/wiki/Master_theorem_(analysis_of_algorithms)">master theorem</a>.  Remember, by divide and conquer all we mean is that we divide the problem into smaller subproblems, solve the subproblems recursively, and use the solutions to the subproblems to determine the solution to the original problem.</p>
+
+<p>Let’s see if we can apply this to determining the complexity of merge sort from last class.  Before applying the master theorem, we need to make sure we are comfortable with the idea of a recurrence relation.  A recurrence relation relates the runtime of an algorithm on input of size $n$ (denoted as $T(n)$) to the runtime of the algorithm on smaller problem sizes (less than $n$).  For example, in the case of merge sort we can write the following recurrence relation.</p>
+
+<blockquote class="notice--warning">
+  <p>$T(n) = 2 T(\frac{n}{2}) + n$</p>
+</blockquote>
+
+<p>Let’s make sure we understand this exactly.  The term on the left is the runtime of sorting $n$ items with merge sort.  The runtime is based on two parts.  The first part is the recursive piece, which consists of merge sorting two lists of size $\frac{n}{2}$.  The second part is the work needed to reassemble the sorted lists back into an overall sorted list (the merge step), which takes time $n$.</p>
+
+<p>The master theorem provides a recipe for us to solve this recurrence relation (meaning determine a function $T(n)$ that satisfies the equation).  The master theorem solves recurrence relations of the following form.</p>
+
+<blockquote class="notice--warning">
+  <p>$T(n) = a T(\frac{n}{b}) + f(n)$</p>
+</blockquote>
+
+<p>You should see that for merge sort, $a=2$, $b=2$, and $f(n) = n$.
+In order to apply the master theorem, we compute a value called $c_{crit} = \log_{b}{a}$.  Plugging in $a=2$ and $b=2$, we get $c_{crit} = \log_2{2} = 1$.</p>
+
+<p>Now, we have to determine which of the three cases of the master theorem applies. Before doing so, let’s remember our order of growth.</p>
+
+<blockquote class="notice--warning">
+  <p><strong>Refresher: $O, \Omega, \Theta$</strong></p>
+
+  <p>Let’s make sure we remember what our old friend $O$, $\Omega$, and $O$ mean.  I’ll state these definitions somewhat loosely, trusting you to go back to the original definitions for the exact meanings.</p>
+  <ul>
+    <li>$f(n) = O(g(n))$ means that $g(n)$ bounds $f(n)$ from above for large $n$.</li>
+    <li>$f(n) = \Omega(g(n))$ means that $g(n)$ bounds $f(n)$ from below for large $n$.</li>
+    <li>$f(n) = \Theta(g(n))$ means that $g(n)$ bounds $f(n)$ from both above and below (meaning $f(n) = O(g(n))$ and $f(n) = \Omega(g(n))$).</li>
+  </ul>
+</blockquote>
+
+<p>Okay, so here are the three cases of the master theorem.  I’ll list the condition, state if merge sort meets it, and if it does, show the runtime.  To apply this to other problems, you will need to look back at the more general versions of these cases.</p>
+
+<p>Case 1: $n = O(n^c)$ for some $c &lt; 1$.  <strong>Nope can’t be true.  If $c$ is less than 1, it grows more slowly than $n$ and cannot be bounded from above.</strong></p>
+
+<p>Case 2: $n = \Theta(n (\log n)^k)$ for some $k \geq 0$.  <strong>Yes!  If we set $k=0$, then the $\log$ drops out, and we are left with $n = \Theta(n)$, which is true.</strong></p>
+
+<p>Case 3: $n = \Omega(n^c)$ for some $c &gt; 1$.  <strong>Nope.  If we set $c$ bigger than 1, it will grow faster than $n$ and won’t bound $n$ from below.</strong></p>
+
+<p>Okay, so case 2 is the winner.  The runtime as dictated by case 2 is $T(n) = \Theta(n^{c_{crit}} (\log n)^{k+1}) = \Theta(n \log n)$ (since $c_{crit} = 1$ and $k = 0$).</p>
+
+<blockquote class="notice--success">
+  <p><strong>Exercise 1:</strong> Reanalyze binary search using the master theorem.  Hint: first find a recurrence relation, and then try to find the case that matches.</p>
+</blockquote>
+
+<p>At first the formulas for the master theorem might seem a bit strange, but one quantity that comes up, $n^{c_{crit}}$, is related to the number of nodes in the recursive tree when you apply a divide and conquer strategy.  For example, if we had $a = 4$ and $b=2$, the following tree would have approximately $n^2$ nodes.</p>
+
+<div class="mermaid">
+graph TD
+  r[n] --&gt; b[n/2]
+  r --&gt; c[n/2]
+  r --&gt; d[n/2]
+  r --&gt; f[n/2]
+  b --&gt; g[n/4]
+  b --&gt; h[n/4]
+  b --&gt; i[n/4]
+  b --&gt; j[n/4]
+  c --&gt; k[n/4]
+  c --&gt; l[n/4]
+  c --&gt; m[n/4]
+  c --&gt; n[n/4]
+  d --&gt; o[n/4]
+  d --&gt; p[n/4]
+  d --&gt; q[n/4]
+  d --&gt; s[n/4]
+  f --&gt; t[n/4]
+  f --&gt; u[n/4]
+  f --&gt; v[n/4]
+  f --&gt; w[n/4]
+</div>
+
+<blockquote class="notice--success">
+  <p><strong>Exercise 2:</strong> Choose a few problems from the homework and do them together.  If you want to hit each case at least once, try these three.</p>
+  <ul>
+    <li>Problem 1-5</li>
+    <li>Problem 1-21</li>
+    <li>Problem 1-23</li>
+  </ul>
+</blockquote>
+
+<h2 id="quick-sort">Quick Sort</h2>
+
+<p><a href="https://en.wikipedia.org/wiki/Quicksort">Quick Sort</a> is one of the most commonly used sorting algorithms.</p>
+
+<p>There are quite a few ways to implement Quick Sort, but the general idea is the following:</p>
+<ul>
+  <li>For an unsorted list, choose an element of the list as your pivot value, $p$.</li>
+  <li>Iterate through the elements of your list ($x_1, x_2, \ldots, x_n$), swapping as needed, until the pivot element is located at index $i$ and $x_j &lt; x_i$ if $j &lt; i$ and $a_j \geq a_i$ if $j \geq i$.</li>
+  <li>Sort range of elements that are before the pivot in the list and those after the pivot recursively.</li>
+</ul>
+
+<p>Let’s look at the <a href="https://visualgo.net/en/sorting">algorithm visualization</a> (you can choose quick or <code class="language-plaintext highlighter-rouge">quick sort</code> or <code class="language-plaintext highlighter-rouge">random quick sort</code>).</p>
+
+<p>Analyzing the runtime of this algorithm is a bit tricky.  Let’s consider a specific case of always choosing the first element as the pivot.  Let’s see what happens with quick sort with this pivot selection rule.</p>
+
+<h2 id="radix-sort">Radix Sort</h2>
+
+<p><a href="https://en.wikipedia.org/wiki/Radix_sort">Radix sort</a> (also called bucket sort) is an interesting algorithm where we don’t perform an explicit comparisons between elements in our list.  We instead sort, e.g. if we are sorting integers, based on comparing the ones digits, then the tens digit, etc.  Let’s check out <a href="https://visualgo.net/en/sorting">the visualization of Radix sort</a> at our favorite website!  Choose Rad, and then click the sort button.</p>
+
+<p>The complexity of radix sort is $\Theta(nk)$ where $k$ is the number of digits (or chunks) that each element can be broken into (e.g., if our list had numbers with 4 or fewer digits, $k$ would be $4$).</p>
+
+<h2 id="the-speed-limit-for-comparison-based-sorting">The Speed Limit for Comparison-Based Sorting</h2>
+
+<blockquote class="notice--warning">
+  <p>This is an optional writeup for those that are interested in going through the details.  To understand this, you need to know some basic facts from discrete math.  I’ll highlight those in the writeup.  I will not be going over the details in class.</p>
+</blockquote>
+
+<p>There’s a theorem that states that any algorithm for sorting that works by comparing elements of the list to each other has a running time of $\Omega(n \log n)$ (i.e., the running time can be bounded below by $n \log n$).  We can think of $n \log n$ as a speed limit for any sorting algorithm that relies on comparisons.</p>
+
+<p>The basic idea is to shift how you think about sorting a list of $n$ items.  Instead of thinking of reordering the items such that the list is sorted, let’s think about sorting as the problem of determining a function that maps indices from the unsorted list to where they should go in the sorted list.  Here’s an example.</p>
+
+<p>Suppose we have a list $x = [3, 9, 2, 10]$.  A function that sorts the list specifies a mapping from the original indices ($0, 1, 2, 3$) to their positions in the sorted list.  A function $f$ that achieves thi goal could be defined as follows.</p>
+
+\[\begin{align*}
+f(0) &amp;= 1,~\text{since 3 would appear at index 1 in the sorted list} \\
+f(1) &amp;= 2,~\text{since 9 would appear at index 2 in the sorted list} \\
+f(2) &amp;= 0,~\text{since 2 would appear at index 0 in the sorted list} \\
+f(3) &amp;= 3,~\text{since 10 would appear at index 3 in the sorted list}
+\end{align*}\]
+
+<p>With this new definition of sorting in mind, let’s think about how many possible functions $f$ there are as a function of $n$.  To determine this, we can imagine that for $f(0)$ there are $n$ possible choices, for $f(1)$ there are $n-1$ possible choices (since we can’t repeat what we chose for $f(0)$), for $f(2)$ there are $n-2$ possible choices, etc.  Overall, we have that the number of choices is $n (n-1)(n-2)\ldots 1 = n!$.  If you took Discrete, you might recognize this as the number of ways to permute $n$ items (which should line up intuitively with what we are doing here).</p>
+
+<p>Now let’s think about what happens when we perform some comparison $x_i &lt; x_j$ for the purposes of determining which of the $n!$ functions will sort our list.  Some proportion will return true to this comparison the others will return false.  By this logic, if you think of the worst case scenario (which is what we consider when thinking about runtime complexity), at best we are left with half as many possible permutations that we are still considering (as compared to before the comparison).</p>
+
+<p>Let’s say our sorting algorithm perfectly divides the number of possible permutations that are consistent with each comparison it performs. We can represent this scenario as a tree where at each level of the tree we perform a comparison to try to eliminate some of the $n!$ possible permutations.  The number written on the node in the tree represents the number of permutations that are still under consideration after performing a particular comparison.</p>
+
+<div class="mermaid">
+graph TD
+  r[n!] --&gt; b[n!/2]
+  r --&gt; c[n!/2]
+  b --&gt; e[n!/4]
+  b --&gt; f[n!/4]
+  c --&gt; g[n!/4]
+  c --&gt; h[n!/4]
+</div>
+
+<p>If we were to extend this tree, eventually we would reach leaf nodes where there is exactly $1$ permutation remaining (this would allow us to sort our list).  What is the runtime of this sorting algorithm?  Well, it has to be the number of comparisons, which is given by the height of the tree.  The height of the tree would be $\log_2(n!)$ (since each level reduces the number of consistent permutations by a factor of $2$).  This shows that the fastest sorting algorithm based on comparisons has to perform at least $\log_2(n!)$ operations in the worst case.  We could stop here, but we’d like to derive our desired result, which states that all sorting algorithms are $\Omega(n \log n)$.</p>
+
+<p>To accomplish our goal, we now show that $\log_2(n!) = \Omega (n \log n)$.  To do this we need to find a value $n_0$ and a constant $c$ such that $\log_2(n!) &gt; c n \log_2 n$ for $n \geq n_0$.  Note: I’m using $\log_2$ here to make it clearer in the proof coming up, but the base of the log doesn’t matter since it’s just a constant factor (that doesn’t affect $\Omega$).</p>
+
+<p>The first fact we use is that $n! &gt; \left(\frac{n}{2}\right)^\frac{n}{2}$.  This is because the first $\frac{n}{2}$ terms of $n!$ are all bigger than $\frac{n}{2}$.</p>
+
+\[\begin{align*}
+\log_2(n!) &amp;&gt; \log_2\left (\frac{n}{2} \right)^\frac{n}{2}\\
+&amp;= \frac{n}{2} (\log_2(n) - 1) \\
+&amp;\geq c n \log_2(n), \text{for }n\geq 4, \text{and }c=\frac{1}{4}
+\end{align*}\]
+
+<p>That’s it!  We’ve shown that $\log_2(n!) = \Omega(n \log_2 n)$, and we have proven our speed limit.</p>
+
+        
+      </section>
+
+      <footer class="page__meta">
+        
+        
+
+
+        
+      </footer>
+
+      
+
+      
+    </div>
+
+    
+  </article>
+
+  
+  
+</div>
+
+    </div>
+
+    
+
+    <div id="footer" class="page__footer">
+      <footer>
+        <!-- start custom footer snippets -->
+
+<!-- end custom footer snippets -->
+        <div class="page__footer-follow">
+  <ul class="social-icons">
+    
+
+    
+  </ul>
+</div>
+
+<div class="page__footer-copyright">&copy; 2026 Data Structures Fall 2026 @ Olin College.</div>
+
+      </footer>
+    </div>
+
+    <script src="/assets/js/copyCode.js"></script>
+
+
+  <script src="/assets/js/main.min.js"></script>
+  <script src="https://kit.fontawesome.com/4eee35f757.js"></script>
+
+
+
+
+
+
+
+
+
+
+  </body>
+</html>

@@ -1,0 +1,570 @@
+<!doctype html>
+<!--
+  Minimal Mistakes Jekyll Theme 4.17.2 by Michael Rose
+  Copyright 2013-2019 Michael Rose - mademistakes.com | @mmistakes
+  Free for personal and commercial use under the MIT license
+  https://github.com/mmistakes/minimal-mistakes/blob/master/LICENSE
+-->
+<html lang="en" class="no-js">
+  <head>
+    <meta charset="utf-8">
+
+<script>
+class AnchorNoProxy extends HTMLElement {
+  constructor() {
+    super();
+    this.attachShadow({ mode: "open" });
+    this._$a = null;
+  }
+  connectedCallback() {
+    const href = this.getAttribute("href") || "#";
+    if (this.dataset.hasOwnProperty('canvas')) {
+        const canvasURL = this.dataset.canvas;
+        this.shadowRoot.innerHTML = `<style>a:hover, a:active { outline: 0; }\na { color: #5197ad; }\na:visited { color: #5197ad; }\na:hover { color: #266477; outline: 0; }</style><a href="${href}" data-canvas="${canvasURL}"><slot></slot></a>`;
+    } else {
+        this.shadowRoot.innerHTML = `<style>a:hover, a:active { outline: 0; }\na { color: #5197ad; }\na:visited { color: #5197ad; }\na:hover { color: #266477; outline: 0; }</style><a href="${href}"><slot></slot></a>`;
+    }
+    this._$a = this.shadowRoot.querySelector("a");
+    this._$a.addEventListener("click", e => {
+      var url = this.getAttribute('href');
+      e.preventDefault();
+      if (document.referrer.startsWith('https://lms.hypothes.is') && this.dataset.hasOwnProperty('canvas')) {
+        // get rid of proxy if it was added
+        var n = this.dataset.canvas.search('https://olin.instructure.com');
+        window.open(this.dataset.canvas.substring(n), '_blank');
+      } else {
+        window.open(url, '_blank');
+      }
+    });
+  }
+  static get observedAttributes() { return ["href"]; }
+  attributeChangedCallback(name, oldValue, newValue) {
+    if (oldValue !== newValue) {
+      if (this._$a === null) return;
+      this._$a.setAttribute("href", newValue);
+    }
+  }
+}
+
+customElements.define("a-no-proxy", AnchorNoProxy);
+
+class NoProxy extends HTMLAnchorElement {
+  connectedCallback() {
+    this.addEventListener("click", e => {
+      e.preventDefault();
+      if (document.referrer.startsWith('https://lms.hypothes.is') && this.dataset.hasOwnProperty('canvas')) {
+        // get rid of proxy if it was added
+        var n = this.dataset.canvas.search('https://olin.instructure.com');
+      	window.open(this.dataset.canvas.substring(n), '_blank');
+      } else {
+      	window.open(this.href, '_blank');
+      }
+    });
+  }
+}
+
+customElements.define("no-proxy", NoProxy, { extends: "a" });
+
+class ConfirmLink extends HTMLAnchorElement {
+  connectedCallback() {
+    this.addEventListener("click", e => {
+      const result = confirm(`Are you sure you want to go to '${this.href}'?`);
+      if (!result) e.preventDefault();
+    });
+  }
+}
+
+customElements.define("confirm-link", ConfirmLink, { extends: "a" });
+
+</script>
+
+<!-- begin _includes/seo.html --><title>Day 6: Graph data structures, depth-first and breadth-first search - Data Structures Fall 2026 @ Olin College</title>
+<meta name="description" content="">
+
+
+
+<meta property="og:type" content="website">
+<meta property="og:locale" content="en_US">
+<meta property="og:site_name" content="Data Structures Fall 2026 @ Olin College">
+<meta property="og:title" content="Day 6: Graph data structures, depth-first and breadth-first search">
+<meta property="og:url" content="/in_class/day06.html">
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="canonical" href="/in_class/day06.html">
+
+
+
+
+<script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    
+      "@type": "Person",
+      "name": null,
+      "url": "/"
+    
+  }
+</script>
+
+
+
+
+
+
+<!-- end _includes/seo.html -->
+
+
+<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="Data Structures Fall 2026 @ Olin College Feed">
+
+<!-- https://t.co/dKP3o1e -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script>
+  document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/g, '') + ' js ';
+</script>
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="/assets/css/main.css">
+
+<!--[if IE]>
+  <style>
+    /* old IE unsupported flexbox fixes */
+    .greedy-nav .site-title {
+      padding-right: 3em;
+    }
+    .greedy-nav button {
+      position: absolute;
+      top: 0;
+      right: 0;
+      height: 100%;
+    }
+  </style>
+<![endif]-->
+
+
+
+    <!-- start custom head snippets -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11.9.0/dist/mermaid.min.js"></script>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.28/dist/katex.min.css" integrity="sha384-Wsr4Nh3yrvMf2KCebJchRJoVo1gTU6kcP05uRSh5NV3sj9+a8IomuJoQzf3sMq4T" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.28/dist/katex.min.js" integrity="sha384-+W9OcrYK2/bD7BmUAk+xeFAyKp0QjyRQUCxeU31dfyTt/FrPsUgaBTLLkVf33qWt" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.28/dist/contrib/auto-render.min.js" integrity="sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh" crossorigin="anonymous"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", async function () {
+  // Render Mermaid first, from untouched source.
+  mermaid.initialize({ startOnLoad: false });
+  await mermaid.run(); // renders all .mermaid blocks
+
+  // render KaTeX
+  renderMathInElement(document.body, {
+          delimiters: [
+              {left: '$$', right: '$$', display: true},
+              {left: '$', right: '$', display: false},
+              {left: '\\(', right: '\\)', display: false},
+              {left: '\\[', right: '\\]', display: true}
+          ],
+    throwOnError: false,
+  });
+});
+</script>
+
+<script type="text/javascript">
+function HideShowElement(divID) {
+    const x = document.getElementById(divID);
+    if (x.style.display === "none") {
+        x.style.display = "block";
+    } else {
+        x.style.display = "none";
+    }
+}
+</script>
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+
+<!-- insert favicons. use https://realfavicongenerator.net/ -->
+
+<!-- end custom head snippets -->
+
+  </head>
+
+  <body class="layout--single">
+    <nav class="skip-links">
+  <h2 class="screen-reader-text">Skip links</h2>
+  <ul>
+    <li><a href="#site-nav" class="screen-reader-shortcut">Skip to primary navigation</a></li>
+    <li><a href="#main" class="screen-reader-shortcut">Skip to content</a></li>
+    <li><a href="#footer" class="screen-reader-shortcut">Skip to footer</a></li>
+  </ul>
+</nav>
+
+    <!--[if lt IE 9]>
+<div class="notice--danger align-center" style="margin: 0;">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience.</div>
+<![endif]-->
+
+    
+
+<div class="masthead">
+  <div class="masthead__inner-wrap">
+    <div class="masthead__menu">
+      <nav id="site-nav" class="greedy-nav">
+        
+          <a class="site-logo" href="/"><img src="https://qeacourse.github.io/RoboNinjaWarrior/website_graphics/olinlogo.png" alt=""></a>
+        
+        <a class="site-title" href="/">
+          Data Structures Fall 2026 @ Olin College
+          
+        </a>
+        <ul class="visible-links"></ul>
+        
+        <button class="greedy-nav__toggle hidden" type="button">
+          <span class="visually-hidden">Toggle menu</span>
+          <div class="navicon"></div>
+        </button>
+        <ul class="hidden-links hidden"></ul>
+      </nav>
+    </div>
+  </div>
+</div>
+
+
+    <div class="initial-content">
+      
+
+
+
+<div id="main" role="main">
+  
+
+  <article class="page" itemscope itemtype="https://schema.org/CreativeWork">
+    <meta itemprop="headline" content="Day 6: Graph data structures, depth-first and breadth-first search">
+    
+    
+    
+
+    <div class="page__inner-wrap">
+      
+        <header>
+          <h1 id="page-title" class="page__title" itemprop="headline">Day 6: Graph data structures, depth-first and breadth-first search
+</h1>
+          
+        </header>
+      
+
+      <section class="page__content" itemprop="text">
+        
+          <aside class="sidebar__right sticky">
+            <nav class="toc">
+              <header><h4 class="nav__title"><i class="fas fa-file-alt"></i> On this page</h4></header>
+	      
+                <ul class="toc__menu">
+  <li><a href="#adjacency-lists">Adjacency Lists</a></li>
+  <li><a href="#graph-traversal">Graph Traversal</a></li>
+  <li><a href="#graph-properties">Graph Properties</a></li>
+  <li><a href="#sample-solutions">Sample Solutions</a></li>
+</ul>
+	      	
+            </nav>
+          </aside>
+        
+        <h2 id="adjacency-lists">Adjacency Lists</h2>
+
+<p>Last time, I asked you to think about the <a href="https://en.wikipedia.org/wiki/Adjacency_list">adjacency list</a>, which is a particular way to represent graphs in a computer program.</p>
+
+<p>Let’s take a few minutes as a class to make sure we understand what we mean by adjacency list.</p>
+
+<p>To get us on the same page let’s use the following definition of a Graph.  We’ve made a small adjustment here to use sets instead of lists to represent our connections.</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">class</span> <span class="nc">Graph</span><span class="p">&lt;</span><span class="nc">VertexType</span><span class="p">&gt;</span> <span class="p">{</span>
+    <span class="k">private</span> <span class="kd">var</span> <span class="py">vertices</span><span class="p">:</span> <span class="nc">MutableSet</span><span class="p">&lt;</span><span class="nc">VertexType</span><span class="p">&gt;</span> <span class="p">=</span> <span class="nf">mutableSetOf</span><span class="p">()</span>
+    <span class="k">private</span> <span class="kd">var</span> <span class="py">edges</span><span class="p">:</span> <span class="nc">MutableMap</span><span class="p">&lt;</span><span class="nc">VertexType</span><span class="p">,</span> <span class="nc">MutableSet</span><span class="p">&lt;</span><span class="nc">VertexType</span><span class="p">&gt;&gt;</span> <span class="p">=</span> <span class="nf">mutableMapOf</span><span class="p">()</span>
+
+    <span class="cm">/**
+     * Add the vertex [v] to the graph
+     * @param v the vertex to add
+     * @return true if the vertex is successfully added, false if the vertex
+     *   was already in the graph
+     */</span>
+    <span class="k">fun</span> <span class="nf">addVertex</span><span class="p">(</span><span class="n">v</span><span class="p">:</span> <span class="nc">VertexType</span><span class="p">):</span> <span class="nc">Boolean</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">vertices</span><span class="p">.</span><span class="nf">contains</span><span class="p">(</span><span class="n">v</span><span class="p">))</span> <span class="p">{</span>
+            <span class="k">return</span> <span class="k">false</span>
+        <span class="p">}</span>
+        <span class="n">vertices</span><span class="p">.</span><span class="nf">add</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+        <span class="k">return</span> <span class="k">true</span>
+    <span class="p">}</span>
+
+    <span class="cm">/**
+     * Add an edge between vertex [from] connecting to vertex [to]
+     * @param from the vertex for the edge to originate from
+     * @param to the vertex to connect the edge to
+     * @return true if the edge is successfully added and false if the edge
+     *     can't be added or already exists
+     */</span>
+    <span class="k">fun</span> <span class="nf">addEdge</span><span class="p">(</span><span class="n">from</span><span class="p">:</span> <span class="nc">VertexType</span><span class="p">,</span> <span class="n">to</span><span class="p">:</span> <span class="nc">VertexType</span><span class="p">):</span> <span class="nc">Boolean</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(!</span><span class="n">vertices</span><span class="p">.</span><span class="nf">contains</span><span class="p">(</span><span class="n">from</span><span class="p">)</span> <span class="p">||</span> <span class="p">!</span><span class="n">vertices</span><span class="p">.</span><span class="nf">contains</span><span class="p">(</span><span class="n">to</span><span class="p">))</span> <span class="p">{</span>
+            <span class="k">return</span> <span class="k">false</span>
+        <span class="p">}</span>
+        <span class="n">edges</span><span class="p">[</span><span class="n">from</span><span class="p">]</span><span class="o">?.</span><span class="nf">also</span> <span class="p">{</span> <span class="n">currentAdjacent</span> <span class="p">-&gt;</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">currentAdjacent</span><span class="p">.</span><span class="nf">contains</span><span class="p">(</span><span class="n">to</span><span class="p">))</span> <span class="p">{</span>
+                <span class="k">return</span> <span class="k">false</span>
+            <span class="p">}</span>
+            <span class="n">currentAdjacent</span><span class="p">.</span><span class="nf">add</span><span class="p">(</span><span class="n">to</span><span class="p">)</span>
+        <span class="p">}</span> <span class="o">?:</span> <span class="nf">run</span> <span class="p">{</span>
+            <span class="n">edges</span><span class="p">[</span><span class="n">from</span><span class="p">]</span> <span class="p">=</span> <span class="nf">mutableSetOf</span><span class="p">(</span><span class="n">to</span><span class="p">)</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="k">true</span>
+    <span class="p">}</span>
+
+    <span class="cm">/**
+     * Clear all vertices and edges
+     */</span>
+    <span class="k">fun</span> <span class="nf">clear</span><span class="p">()</span> <span class="p">{</span>
+        <span class="n">vertices</span> <span class="p">=</span> <span class="nf">mutableSetOf</span><span class="p">()</span>
+        <span class="n">edges</span> <span class="p">=</span> <span class="nf">mutableMapOf</span><span class="p">()</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h2 id="graph-traversal">Graph Traversal</h2>
+
+<p>One of the most important graph algorithms is the concept of searching for a path that connects two nodes within a graph.  This concept is known as <a href="https://en.wikipedia.org/wiki/Graph_traversal">Graph Traversal</a> or Graph Search.</p>
+
+<p>Within the space of graph traversal, there are a number of useful problems we might solve.</p>
+<ul>
+  <li><a href="https://en.wikipedia.org/wiki/Shortest_path_problem">Shortest path</a> (finding the path between two nodes with the least cost)</li>
+  <li><a href="https://en.wikipedia.org/wiki/Travelling_salesman_problem">Traveling salesman problem</a></li>
+  <li><a href="https://en.wikipedia.org/wiki/Hamiltonian_path">Hamiltonian path</a></li>
+  <li><a href="https://en.wikipedia.org/wiki/Eulerian_path">Eulerian path</a></li>
+  <li>… (many more)</li>
+</ul>
+
+<p>In this class we will be mainly concerned with the shortest path problem.</p>
+
+<p>There are tons of problems that can be cast as graph traversal problems.  Let’s think of a few as a class.  To get us started what are some problems that can be converted into graphs?</p>
+
+<p>We’re going to learn about four different methods for graph traversal in this class: breadth-first search, depth-first search, Dijkstra’s algorithm, and A-Star search. Today, we’ll talk about the first two.</p>
+
+<h3 id="breadth-first-search-bfs">Breadth-First Search (BFS)</h3>
+
+<p>Starting from some node in our graph, let’s call it <code class="language-plaintext highlighter-rouge">root</code>, we want to keep following edges until we find our node <code class="language-plaintext highlighter-rouge">target</code>.  Our search proceeds by following all edges from the current node.  Once we’ve followed all of those edges, we follow edges from current to the next node, we follow edges from that set of nodes, etc. We do this until we find <code class="language-plaintext highlighter-rouge">target</code> or run out of nodes to visit.</p>
+
+<h3 id="depth-first-search-dfs">Depth-First Search (DFS)</h3>
+
+<p>Starting from some node in our graph, let’s call it <code class="language-plaintext highlighter-rouge">root</code>, we want to keep following edges until we find our node <code class="language-plaintext highlighter-rouge">target</code>.  Our search proceeds by continuously following edges until we reach a point where no edges are available to traverse.  At that point, we can back track on our path and visit the next edge.</p>
+
+<h3 id="general-approach-to-graph-traversal">General Approach to Graph Traversal</h3>
+
+<p>Our algorithms for graph traversal are all fairly similar.  The two we’re going to learn about today can be described using the following framework.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>toVisit ← {}
+priorityList ← []
+
+priorityList.add(root)
+toVisit.add(root)
+
+while priorityList is not empty:
+    n ← priorityList.popHighestPriorityElement()
+    if n == target:
+        return true // path exists
+    for m in nodesConnectedTo(n):
+        if m is not in toVisit:
+            priorityList.add(m)
+            toVisit.add(m)
+
+return false // no path
+</code></pre></div></div>
+
+<blockquote class="notice--success">
+  <p><strong>Exercise 1:</strong></p>
+
+  <p>Looking at the pseudocode above, what is the role of the variable <code class="language-plaintext highlighter-rouge">toVisit</code>?  What might happen if we removed it?</p>
+</blockquote>
+
+<blockquote class="notice--success">
+  <p><strong>Exercise 2:</strong>
+Sometimes it’s also useful to be able to return the actual path that would be needed to go from the starting <code class="language-plaintext highlighter-rouge">root</code> to <code class="language-plaintext highlighter-rouge">target</code>.
+How could we modify the pseudocode to be able to return the path from <code class="language-plaintext highlighter-rouge">root</code> to <code class="language-plaintext highlighter-rouge">target</code>?
+   <button onclick="HideShowElement('HideShow0')">Show / Hide Hint</button></p>
+  <div id="HideShow0" style="display:none">
+         You may find MutableMap to be useful here.
+   </div>
+</blockquote>
+
+<blockquote class="notice--success">
+  <p><strong>Exercise 3:</strong></p>
+
+  <p>Given the pseudocode above and the <code class="language-plaintext highlighter-rouge">Graph</code> class, implement breadth-first search (BFS).  You can choose how you define your function, but perhaps add it as a new function of <code class="language-plaintext highlighter-rouge">Graph</code>.  I recommend you start with some pseudocode before firing up IntelliJ.  Here is a potential function signature for <code class="language-plaintext highlighter-rouge">bfs</code></p>
+  <div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/**
+ * Search through a graph using a breadth-first search
+ * @param start the node to start the search
+ * @param target the node to search for
+ * @return true if and only if path exists between [start] and [target]
+ */</span>
+<span class="k">fun</span> <span class="nf">bfs</span><span class="p">(</span><span class="n">start</span><span class="p">:</span> <span class="nc">VertexType</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="nc">VertexType</span><span class="p">):</span> <span class="nc">Boolean</span>
+</code></pre></div>  </div>
+  <p>For added challenge, you can return the path from <code class="language-plaintext highlighter-rouge">start</code> to <code class="language-plaintext highlighter-rouge">target</code> (rather than just indicating if it is possible).</p>
+  <div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/**
+ * Search through a graph using a breadth-first search
+ * @param start the node to start the search
+ * @param target the node to search for
+ * @return the path from start to target (if one exists) and null otherwise
+*/</span>
+<span class="k">fun</span> <span class="nf">bfs</span><span class="p">(</span><span class="n">start</span><span class="p">:</span> <span class="nc">VertexType</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="nc">VertexType</span><span class="p">):</span> <span class="nc">List</span><span class="p">&lt;</span><span class="nc">VertexType</span><span class="p">&gt;?</span>
+</code></pre></div>  </div>
+  <p><button onclick="HideShowElement('HideShow1')">Show / Hide Hint</button></p>
+  <div id="HideShow1" style="display:none">
+         Think about which data structures you've learned about would achieve the desired prioritization of nodes.
+   </div>
+</blockquote>
+
+<blockquote class="notice--success">
+  <p><strong>Exercise 4:</strong></p>
+
+  <p>Given the pseudocode above and the <code class="language-plaintext highlighter-rouge">Graph</code> class, implement depth-first search (DFS).  You can choose how you define your function, but perhaps add it as a new function of <code class="language-plaintext highlighter-rouge">Graph</code>.  I recommend you start with some pseudocode before firing up IntelliJ.  Here is a potential function signature for <code class="language-plaintext highlighter-rouge">dfs</code></p>
+  <div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/**
+ * Search through a graph using a depth-first search
+ * @param start the node to start the search
+ * @param target the node to search for
+ * @return true if and only if path exists between [start] and [target]
+*/</span>
+<span class="k">fun</span> <span class="nf">dfs</span><span class="p">(</span><span class="n">start</span><span class="p">:</span> <span class="nc">VertexType</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="nc">VertexType</span><span class="p">):</span> <span class="nc">Bool</span>
+</code></pre></div>  </div>
+  <p>For added challenge, you can return the path from <code class="language-plaintext highlighter-rouge">start</code> to <code class="language-plaintext highlighter-rouge">target</code> (rather than just indicating if it is possible).</p>
+  <div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/**
+ * Search through a graph using a depth-first search
+ * @param start the node to start the search
+ * @param target the node to search for
+ * @return the path from start to target (if one exists) and null otherwise
+*/</span>
+<span class="k">fun</span> <span class="nf">dfs</span><span class="p">(</span><span class="n">start</span><span class="p">:</span> <span class="nc">VertexType</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="nc">VertexType</span><span class="p">):</span> <span class="nc">List</span><span class="p">&lt;</span><span class="nc">VertexType</span><span class="p">&gt;?</span>
+</code></pre></div>  </div>
+  <p><button onclick="HideShowElement('HideShow2')">Show / Hide Hint</button></p>
+  <div id="HideShow2" style="display:none">
+         Think about which data structures you've learned about would achieve the desired prioritization of nodes.
+   </div>
+</blockquote>
+
+<h3 id="visualizations-of-graph-traversal">Visualizations of Graph Traversal</h3>
+
+<p>Here are some resources for visualizing graph searching algorithms.</p>
+<ul>
+  <li><a href="https://cs.stanford.edu/people/abisee/tutorial/bfs.html">Stanford SAILORS tutorial on breadth-first search</a></li>
+  <li><a href="https://cs.stanford.edu/people/abisee/tutorial/dfs.html">Stanford SAILORS tutorial on depth-first search</a></li>
+  <li><a href="https://cs.stanford.edu/people/abisee/tutorial/bfsdfs.html">Stanford SAILORS tutorial on comparing DFS and BFS</a></li>
+</ul>
+
+<h2 id="graph-properties">Graph Properties</h2>
+
+<p>We probably won’t have a ton of time to work with these during class today, but here are some useful properties of graphs.  If you have time, go ahead and implement (either in pseudocode or Kotlin) one or more of them.</p>
+
+<h3 id="number-of-connected-components">Number of Connected Components</h3>
+
+<p>For an undirected graph (where <code class="language-plaintext highlighter-rouge">A</code> connected to be <code class="language-plaintext highlighter-rouge">B</code> is implies <code class="language-plaintext highlighter-rouge">B</code> connected to <code class="language-plaintext highlighter-rouge">A</code>), a connected component is a set of vertices such that there is a path between any two vertices in the set.  If all vertices in a graph are connected, we would say the graph has 1 connected component.  On the other hand, if there are some vertices that are not reachable from each other, that would create additional components.</p>
+
+<p>Suppose you were given a <code class="language-plaintext highlighter-rouge">Graph</code> object where you were guaranteed that all edges were symmetric (<code class="language-plaintext highlighter-rouge">A</code> connected to <code class="language-plaintext highlighter-rouge">B</code> implies <code class="language-plaintext highlighter-rouge">B</code> connected to <code class="language-plaintext highlighter-rouge">A</code>).  Write pseudocode to determine the number of connected components in your graph.</p>
+
+<h3 id="dags-directed-acyclic-graph">DAGs (Directed, Acyclic Graph)</h3>
+
+<p>A directed graph is acyclic if it contains no cycles.  A cycle is a path that starts at a given node and returns to that same node.</p>
+
+<p>There are several algorithms to determine if a graph is a Directed Acyclic Graph (DAG).  One of the easier ones to understand is Kahn’s algorithm, which has the following description from <a href="https://en.wikipedia.org/wiki/Topological_sorting">the Wikipedia page on Topological Sorting</a>. It turns out that a graph is a DAG if and only if there is a valid topological sorting of the nodes in the DAG.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>L ← Empty list that will contain the sorted elements
+S ← Set of all nodes with no incoming edge
+
+while S is not empty do
+    remove a node n from S
+    add n to L
+    for each node m with an edge e from n to m do
+        remove edge e from the graph
+        if m has no other incoming edges then
+            insert m into S
+
+if graph has edges then
+    return error   (graph has at least one cycle)
+else 
+    return L   (a topologically sorted order)
+</code></pre></div></div>
+
+<h3 id="trees">Trees</h3>
+
+<p>An undirected graph is a tree if there is exactly one path between any pair of nodes.  This is guaranteed if the graph is connected and the total number of edges if equal to the number of vertices minus 1.</p>
+
+<p>A directed graph is a tree if it is acyclic and the graph the results from making the edges undirected is a tree.</p>
+
+<h2 id="sample-solutions">Sample Solutions</h2>
+
+<p>Sample solutions for today are in <a href="https://github.com/OlinDSA2024/DSA2024InClass">the Github repo</a> as a module.</p>
+
+        
+      </section>
+
+      <footer class="page__meta">
+        
+        
+
+
+        
+      </footer>
+
+      
+
+      
+    </div>
+
+    
+  </article>
+
+  
+  
+</div>
+
+    </div>
+
+    
+
+    <div id="footer" class="page__footer">
+      <footer>
+        <!-- start custom footer snippets -->
+
+<!-- end custom footer snippets -->
+        <div class="page__footer-follow">
+  <ul class="social-icons">
+    
+
+    
+  </ul>
+</div>
+
+<div class="page__footer-copyright">&copy; 2026 Data Structures Fall 2026 @ Olin College.</div>
+
+      </footer>
+    </div>
+
+    <script src="/assets/js/copyCode.js"></script>
+
+
+  <script src="/assets/js/main.min.js"></script>
+  <script src="https://kit.fontawesome.com/4eee35f757.js"></script>
+
+
+
+
+
+
+
+
+
+
+  </body>
+</html>

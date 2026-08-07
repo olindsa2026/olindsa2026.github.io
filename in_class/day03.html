@@ -1,0 +1,487 @@
+<!doctype html>
+<!--
+  Minimal Mistakes Jekyll Theme 4.17.2 by Michael Rose
+  Copyright 2013-2019 Michael Rose - mademistakes.com | @mmistakes
+  Free for personal and commercial use under the MIT license
+  https://github.com/mmistakes/minimal-mistakes/blob/master/LICENSE
+-->
+<html lang="en" class="no-js">
+  <head>
+    <meta charset="utf-8">
+
+<script>
+class AnchorNoProxy extends HTMLElement {
+  constructor() {
+    super();
+    this.attachShadow({ mode: "open" });
+    this._$a = null;
+  }
+  connectedCallback() {
+    const href = this.getAttribute("href") || "#";
+    if (this.dataset.hasOwnProperty('canvas')) {
+        const canvasURL = this.dataset.canvas;
+        this.shadowRoot.innerHTML = `<style>a:hover, a:active { outline: 0; }\na { color: #5197ad; }\na:visited { color: #5197ad; }\na:hover { color: #266477; outline: 0; }</style><a href="${href}" data-canvas="${canvasURL}"><slot></slot></a>`;
+    } else {
+        this.shadowRoot.innerHTML = `<style>a:hover, a:active { outline: 0; }\na { color: #5197ad; }\na:visited { color: #5197ad; }\na:hover { color: #266477; outline: 0; }</style><a href="${href}"><slot></slot></a>`;
+    }
+    this._$a = this.shadowRoot.querySelector("a");
+    this._$a.addEventListener("click", e => {
+      var url = this.getAttribute('href');
+      e.preventDefault();
+      if (document.referrer.startsWith('https://lms.hypothes.is') && this.dataset.hasOwnProperty('canvas')) {
+        // get rid of proxy if it was added
+        var n = this.dataset.canvas.search('https://olin.instructure.com');
+        window.open(this.dataset.canvas.substring(n), '_blank');
+      } else {
+        window.open(url, '_blank');
+      }
+    });
+  }
+  static get observedAttributes() { return ["href"]; }
+  attributeChangedCallback(name, oldValue, newValue) {
+    if (oldValue !== newValue) {
+      if (this._$a === null) return;
+      this._$a.setAttribute("href", newValue);
+    }
+  }
+}
+
+customElements.define("a-no-proxy", AnchorNoProxy);
+
+class NoProxy extends HTMLAnchorElement {
+  connectedCallback() {
+    this.addEventListener("click", e => {
+      e.preventDefault();
+      if (document.referrer.startsWith('https://lms.hypothes.is') && this.dataset.hasOwnProperty('canvas')) {
+        // get rid of proxy if it was added
+        var n = this.dataset.canvas.search('https://olin.instructure.com');
+      	window.open(this.dataset.canvas.substring(n), '_blank');
+      } else {
+      	window.open(this.href, '_blank');
+      }
+    });
+  }
+}
+
+customElements.define("no-proxy", NoProxy, { extends: "a" });
+
+class ConfirmLink extends HTMLAnchorElement {
+  connectedCallback() {
+    this.addEventListener("click", e => {
+      const result = confirm(`Are you sure you want to go to '${this.href}'?`);
+      if (!result) e.preventDefault();
+    });
+  }
+}
+
+customElements.define("confirm-link", ConfirmLink, { extends: "a" });
+
+</script>
+
+<!-- begin _includes/seo.html --><title>Day 3: Arrays, Linked Lists, and Intro to Abstract Datatypes - Data Structures Fall 2026 @ Olin College</title>
+<meta name="description" content="">
+
+
+
+<meta property="og:type" content="website">
+<meta property="og:locale" content="en_US">
+<meta property="og:site_name" content="Data Structures Fall 2026 @ Olin College">
+<meta property="og:title" content="Day 3: Arrays, Linked Lists, and Intro to Abstract Datatypes">
+<meta property="og:url" content="/in_class/day03.html">
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="canonical" href="/in_class/day03.html">
+
+
+
+
+<script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    
+      "@type": "Person",
+      "name": null,
+      "url": "/"
+    
+  }
+</script>
+
+
+
+
+
+
+<!-- end _includes/seo.html -->
+
+
+<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="Data Structures Fall 2026 @ Olin College Feed">
+
+<!-- https://t.co/dKP3o1e -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script>
+  document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/g, '') + ' js ';
+</script>
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="/assets/css/main.css">
+
+<!--[if IE]>
+  <style>
+    /* old IE unsupported flexbox fixes */
+    .greedy-nav .site-title {
+      padding-right: 3em;
+    }
+    .greedy-nav button {
+      position: absolute;
+      top: 0;
+      right: 0;
+      height: 100%;
+    }
+  </style>
+<![endif]-->
+
+
+
+    <!-- start custom head snippets -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11.9.0/dist/mermaid.min.js"></script>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.28/dist/katex.min.css" integrity="sha384-Wsr4Nh3yrvMf2KCebJchRJoVo1gTU6kcP05uRSh5NV3sj9+a8IomuJoQzf3sMq4T" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.28/dist/katex.min.js" integrity="sha384-+W9OcrYK2/bD7BmUAk+xeFAyKp0QjyRQUCxeU31dfyTt/FrPsUgaBTLLkVf33qWt" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.28/dist/contrib/auto-render.min.js" integrity="sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh" crossorigin="anonymous"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", async function () {
+  // Render Mermaid first, from untouched source.
+  mermaid.initialize({ startOnLoad: false });
+  await mermaid.run(); // renders all .mermaid blocks
+
+  // render KaTeX
+  renderMathInElement(document.body, {
+          delimiters: [
+              {left: '$$', right: '$$', display: true},
+              {left: '$', right: '$', display: false},
+              {left: '\\(', right: '\\)', display: false},
+              {left: '\\[', right: '\\]', display: true}
+          ],
+    throwOnError: false,
+  });
+});
+</script>
+
+<script type="text/javascript">
+function HideShowElement(divID) {
+    const x = document.getElementById(divID);
+    if (x.style.display === "none") {
+        x.style.display = "block";
+    } else {
+        x.style.display = "none";
+    }
+}
+</script>
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+
+<!-- insert favicons. use https://realfavicongenerator.net/ -->
+
+<!-- end custom head snippets -->
+
+  </head>
+
+  <body class="layout--single">
+    <nav class="skip-links">
+  <h2 class="screen-reader-text">Skip links</h2>
+  <ul>
+    <li><a href="#site-nav" class="screen-reader-shortcut">Skip to primary navigation</a></li>
+    <li><a href="#main" class="screen-reader-shortcut">Skip to content</a></li>
+    <li><a href="#footer" class="screen-reader-shortcut">Skip to footer</a></li>
+  </ul>
+</nav>
+
+    <!--[if lt IE 9]>
+<div class="notice--danger align-center" style="margin: 0;">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience.</div>
+<![endif]-->
+
+    
+
+<div class="masthead">
+  <div class="masthead__inner-wrap">
+    <div class="masthead__menu">
+      <nav id="site-nav" class="greedy-nav">
+        
+          <a class="site-logo" href="/"><img src="https://qeacourse.github.io/RoboNinjaWarrior/website_graphics/olinlogo.png" alt=""></a>
+        
+        <a class="site-title" href="/">
+          Data Structures Fall 2026 @ Olin College
+          
+        </a>
+        <ul class="visible-links"></ul>
+        
+        <button class="greedy-nav__toggle hidden" type="button">
+          <span class="visually-hidden">Toggle menu</span>
+          <div class="navicon"></div>
+        </button>
+        <ul class="hidden-links hidden"></ul>
+      </nav>
+    </div>
+  </div>
+</div>
+
+
+    <div class="initial-content">
+      
+
+
+
+<div id="main" role="main">
+  
+
+  <article class="page" itemscope itemtype="https://schema.org/CreativeWork">
+    <meta itemprop="headline" content="Day 3: Arrays, Linked Lists, and Intro to Abstract Datatypes">
+    
+    
+    
+
+    <div class="page__inner-wrap">
+      
+        <header>
+          <h1 id="page-title" class="page__title" itemprop="headline">Day 3: Arrays, Linked Lists, and Intro to Abstract Datatypes
+</h1>
+          
+        </header>
+      
+
+      <section class="page__content" itemprop="text">
+        
+          <aside class="sidebar__right sticky">
+            <nav class="toc">
+              <header><h4 class="nav__title"><i class="fas fa-file-alt"></i> On this page</h4></header>
+	      
+                <ul class="toc__menu">
+  <li><a href="#homework-debrief">Homework Debrief</a></li>
+  <li><a href="#meeting-our-first-data-structures">Meeting Our First Data Structures</a></li>
+  <li><a href="#arrays">Arrays</a></li>
+  <li><a href="#linked-lists">Linked Lists</a></li>
+  <li><a href="#abstract-data-types">Abstract Data Types</a></li>
+  <li><a href="#stacks-vs-queues">Stacks vs. Queues</a></li>
+  <li><a href="#kotlin-interfaces">Kotlin Interfaces</a></li>
+</ul>
+	      	
+            </nav>
+          </aside>
+        
+        <h2 id="homework-debrief">Homework Debrief</h2>
+
+<p>How did the assignment go?  Do a quick check-in with those around you and see if you can surface 1-2 questions that are still unresolved for you.</p>
+
+<h2 id="meeting-our-first-data-structures">Meeting Our First Data Structures</h2>
+
+<p>Today we’re going to meet our first data structures of the semester: the array and the linked list.  We’ll talk about tradeoffs in terms of runtime of various operations on these data structures.  We’ll also introduce the concept of <strong>abstract data types (ADTs)</strong> as a tool for separating the implementation of a data structure from the operations it supports.</p>
+
+<h2 id="arrays">Arrays</h2>
+
+<p>As we mentioned on day one, data structures represent different approaches to organizing data in some digital storage system.  In this course, we’re going to learn about a bunch of different data structures (e.g., linked lists, arrays, binary trees, graphs, etc.).  To help us wrap our minds around the big ideas of data structures, let’s consider a very useful data structure: an array.</p>
+
+<p>Depending on your programming background, perhaps you haven’t encountered an array yet.  An array is an ordered collection of values (usually of a particular type).  Arrays are typically implemented in a computer using a contiguous block of memory (e.g., stored in the computer’s RAM).</p>
+
+<p>When we create an array, we have to specify the capacity that we’d like our array to have (that is the size that we’d like to reserve for our array in the computer’s memory).  Upon requesting an array of a particular size, we will be allocated a contiguous region in the computer’s memory to store our values.  We can assume that requesting and being assigned a region in memory is relatively efficient (think of this as taking a constant number of operations).  Further, we can assume that we can efficiently write and read values from an array (think of these as taking a constant number of operations).</p>
+
+<h3 id="time-complexity-of-various-array-operations">Time Complexity of Various Array Operations</h3>
+
+<p>As stated above, for these operations we can assume that requesting new memory, reading a single value, and writing a single value for our array takes a constant number of operations.</p>
+
+<blockquote class="notice--success">
+  <p><strong>Exercise 1:</strong> Suppose you have an array with $M$ elements and there is space for $C$ elements in the block of memory allocated to your array (with $M &lt; C$).  Assume that the $M$ elements are stored such that they occupy the first $M$ slots of memory allocated to the array.  How many steps would it take to add a new element to the end of your array? Going back to our discussion of order-of-growth, what is the running time of this operation in terms of $\Theta$?</p>
+</blockquote>
+
+<blockquote class="notice--success">
+  <p><strong>Exercise 2:</strong> Now, suppose you’d like to add an element to the beginning of your array.  If there are currently $M$ elements in your array, how many operations would it take to add an element to the beginning of the array?  What is $\Theta$ for this operation?</p>
+</blockquote>
+
+<blockquote class="notice--success">
+  <p><strong>Exercise 3:</strong> Now, suppose you want to add an element ot the end of your array but the number of elements stored in the array is equal to the current capacity $M = C$.  How many operations would it take to perform the following steps: request a size $M+1$ block of memory, copy the first $M$ elements to the new memory block, and then add the new element to the array?  Suppose you start $M = C = 1$ (an empty array with no capacity).  How many operations would it take to add $N$ elements to the end of this array if you added them one-by-one?  Determine $\Theta$ of the time complexity of adding these $N$ elements.</p>
+
+  <p><button onclick="HideShowElement('HideShow1')">Show / Hide Hint</button></p>
+  <div id="HideShow1" style="display:none">If you add up the time it takes to add each element, what sort of series do you get?  How do you calculate the sum of this type of series?</div>
+</blockquote>
+
+<blockquote class="notice--success">
+  <p><strong>Exercise 4:</strong> Similar to the previous problem, suppose you want to add $N$ elements to the end of an array in a one-by-one fashion.  Let’s see if we can do better than we did in problem 3.  Instead of adding 1 unit of capacity every time we run out of space in our array, we’re going to multiply our capacity by a factor of 2 (e.g., starting we start with capacity 1, then go to capacity 2, then capacity 4, and so on).  How many operations would it take to add $N$ elements to the end of this array if you added them one-by-one and follow the strategy of doubling the capacity of the array each time you run out of space (for simplicity you can assume that $N$ is a power of 2)?  Determine $\Theta$ of the time complexity of adding these $N$ elements in this fashion.</p>
+
+  <p><button onclick="HideShowElement('HideShow2')">Show / Hide Hint</button></p>
+  <div id="HideShow2" style="display:none">If you add up the time it takes to create each of these expanded arrays, what sort of series do you get?  How do you calculate the sum of this type of series?</div>
+</blockquote>
+
+<h2 id="linked-lists">Linked Lists</h2>
+
+<p>Next, we’re going to learn about a data structure that excels at many of the operations that arrays are slow at and lags behind in areas where arrays are fast.  This data structure is the linked list.</p>
+
+<p>A linked list is another way to represent an ordered collection of values.  Instead of storing our collection in a contiguous block of memory, instead we store data in nodes that each contain a value and a reference to both the next node and the previous node in our list (this sort of linked list is called a doubly linked list).  In addition to these nodes, we also maintain a reference to the first element (or the head of the linked list) and a reference to the last element (or tail of the linked list).  Let’s draw a picture of what this looks like on the board together.</p>
+
+<p><img src="/images/DLL1.png" alt="A doubly linked list" /> <em>figure from geeksforgeeks</em></p>
+
+<p>Now let’s do some problems to understand the time complexity of various operations on our linked list.  For the purposes of these exercises, let’s assume that we can request memory to store a new linked list node in constant time ($\Theta(1)$).</p>
+
+<blockquote class="notice--success">
+  <p><strong>Exercise 5:</strong> With folks around you, determine the time complexity ($\Theta$) of each of these operations on a linked list.  For each of these, make a list of the steps you’d have to do in order to accomplish each of these operations.  Count up the number of operations.  What is $\Theta$ for this count?</p>
+  <ol>
+    <li>Add an element to the beginning of the list</li>
+    <li>Delete an element from the beginning of the list</li>
+    <li>Add an element to the back of the list</li>
+    <li>Delete an element from the back of the list</li>
+    <li>Print out the middle element of the list</li>
+  </ol>
+</blockquote>
+
+<blockquote class="notice--success">
+  <p><strong>Exercise 6:</strong> A singly linked list is a linked list where each node only has a reference to the next element in the list.  In such a list, would the $\Theta$ of any of these operations in problem 5 be different?  If so, which would be different and what are their new $\Theta$ running times?s</p>
+</blockquote>
+
+<h2 id="abstract-data-types">Abstract Data Types</h2>
+
+<p>A common strategy for managing complexity in software is to separate the details of how a piece of software works (the implementation) from the functions that the software performs (the interface).  You may have seen this when you encountered object-oriented programming in Software Design.  When you created Python classes, you would define methods on those classes that could then be called to perform some operation.  The details of how these operations were carried out, were opaque to the caller (e.g., another class in our program).  In our study of data structures, we will make a similar distinction between the operations that a data type performs, and the specific underlying data structure that is used to implement this data type.</p>
+
+<p>We call the specification of a set of operations (or semantics) for a data type an <a href="https://en.wikipedia.org/wiki/Abstract_data_type">Abstract Data Type</a> (or ADT).  For instance, we might specify an ADT to represent an ordered collection with the following operations:</p>
+<ul>
+  <li>Insert at a new element at position $i$</li>
+  <li>Delete element at position $i$</li>
+  <li>Access element at position $i$</li>
+  <li>Append an element to the end of the list</li>
+  <li>etc.</li>
+</ul>
+
+<p>The actual implementation of this abstract data type (called a concrete data type) could use a linked list or an array (or something more exotic) as the underlying data structure.  Determining what concrete data type to use to implement a specific ADT will depend on the operations are most important for your application (you’ll want to make those fast).  Perhaps, you could even create different implementations of the same ADT for different use cases (e.g., if you care about accessing elements quickly or adding new elements).</p>
+
+<blockquote class="notice--success">
+  <p><strong>Exercise 7:</strong> For example, the Python tutorial on lists states that while accessing elements in the list, appending an element ot the end of the list, or removing an element from the end fo the list is fast, adding or deleting an element at the beginning of the list is slow.  Based on what you worked out earlier in class, what underlying concrete data structure do you think Python uses for its list class?  Do some research to see if you are right.</p>
+</blockquote>
+
+<h2 id="stacks-vs-queues">Stacks vs. Queues</h2>
+
+<p>In the next assignment, you will be implementing both a stack and a queue.  Each of these data structures will be built on top of a linked list, but stacks and queues will differ with respect to some of their behaviors.  Specifically, stacks use what is called a LIFO (last in first out) ordering whereas queues utilize a FIFO ordering (first in first out).  You’ll get a bunch of practice using your stacks and queues to solve problems in the assignment, but you might also want to check out this <a href="https://www.geeksforgeeks.org/dsa/difference-between-stack-and-queue-data-structures/">short article comparing the two data structures</a>.</p>
+
+<h2 id="kotlin-interfaces">Kotlin Interfaces</h2>
+
+<p>Let’s learn about Kotlin interfaces and why they are a useful way to define abstract datatypes.</p>
+
+<p>Let’s say we want to design a simple 2D geometry library.  We may want to define the abstract datatype shape as one that supports a set of operations.  Perhaps each shape can compute its area and perimeter.  We can formalize this idea using a Kotlin interface.</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">interface</span> <span class="nc">Shape</span> <span class="p">{</span>
+    <span class="k">fun</span> <span class="nf">area</span><span class="p">():</span> <span class="nc">Double</span>
+    <span class="k">fun</span> <span class="nf">perimeter</span><span class="p">():</span> <span class="nc">Double</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>This interface is like a contract that any class that implement the <code class="language-plaintext highlighter-rouge">Shape</code> interface must fulfill.  For example, we could create a class called circle in the following way.</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">class</span> <span class="nc">Circle</span><span class="p">(</span><span class="k">private</span> <span class="kd">val</span> <span class="py">radius</span><span class="p">:</span> <span class="nc">Double</span><span class="p">)</span> <span class="p">:</span> <span class="nc">Shape</span> <span class="p">{</span>
+    <span class="k">override</span> <span class="k">fun</span> <span class="nf">area</span><span class="p">():</span> <span class="nc">Double</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="nc">Math</span><span class="p">.</span><span class="nc">PI</span> <span class="p">*</span> <span class="n">radius</span> <span class="p">*</span> <span class="n">radius</span>
+    <span class="p">}</span>
+    <span class="k">override</span> <span class="k">fun</span> <span class="nf">perimeter</span><span class="p">():</span> <span class="nc">Double</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="mf">2.0</span> <span class="p">*</span> <span class="nc">Math</span><span class="p">.</span><span class="nc">PI</span> <span class="p">*</span> <span class="n">radius</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>We might define a rectangle in the following way.</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">class</span> <span class="nc">Rectangle</span><span class="p">(</span><span class="k">private</span> <span class="kd">val</span> <span class="py">width</span><span class="p">:</span> <span class="nc">Double</span><span class="p">,</span>
+                <span class="k">private</span> <span class="kd">val</span> <span class="py">height</span><span class="p">:</span> <span class="nc">Double</span><span class="p">)</span> <span class="p">:</span> <span class="nc">Shape</span> <span class="p">{</span>
+    <span class="k">override</span> <span class="k">fun</span> <span class="nf">area</span><span class="p">():</span> <span class="nc">Double</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="n">width</span><span class="p">*</span><span class="n">height</span>
+    <span class="p">}</span>
+    <span class="k">override</span> <span class="k">fun</span> <span class="nf">perimeter</span><span class="p">():</span> <span class="nc">Double</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="mf">2.0</span> <span class="p">*</span> <span class="p">(</span><span class="n">width</span> <span class="p">+</span> <span class="n">height</span><span class="p">)</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>The nice thing is that we can write functions that operate on any class that implements this particular interface.</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">fun</span> <span class="nf">totalArea</span><span class="p">(</span><span class="n">shapes</span><span class="p">:</span> <span class="nc">List</span><span class="p">&lt;</span><span class="nc">Shape</span><span class="p">&gt;):</span> <span class="nc">Double</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="n">shapes</span><span class="p">.</span><span class="nf">sumOf</span> <span class="p">{</span> <span class="n">it</span><span class="p">.</span><span class="nf">area</span><span class="p">()</span> <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>This lets us do things like:</p>
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">fun</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="nf">println</span><span class="p">(</span>
+        <span class="nf">totalArea</span><span class="p">(</span><span class="nf">listOf</span><span class="p">(</span><span class="nc">Circle</span><span class="p">(</span><span class="mf">5.0</span><span class="p">),</span>
+                         <span class="nc">Rectangle</span><span class="p">(</span><span class="mf">2.0</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">)))</span>
+    <span class="p">)</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+        
+      </section>
+
+      <footer class="page__meta">
+        
+        
+
+
+        
+      </footer>
+
+      
+
+      
+    </div>
+
+    
+  </article>
+
+  
+  
+</div>
+
+    </div>
+
+    
+
+    <div id="footer" class="page__footer">
+      <footer>
+        <!-- start custom footer snippets -->
+
+<!-- end custom footer snippets -->
+        <div class="page__footer-follow">
+  <ul class="social-icons">
+    
+
+    
+  </ul>
+</div>
+
+<div class="page__footer-copyright">&copy; 2026 Data Structures Fall 2026 @ Olin College.</div>
+
+      </footer>
+    </div>
+
+    <script src="/assets/js/copyCode.js"></script>
+
+
+  <script src="/assets/js/main.min.js"></script>
+  <script src="https://kit.fontawesome.com/4eee35f757.js"></script>
+
+
+
+
+
+
+
+
+
+
+  </body>
+</html>

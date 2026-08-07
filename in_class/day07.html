@@ -1,0 +1,575 @@
+<!doctype html>
+<!--
+  Minimal Mistakes Jekyll Theme 4.17.2 by Michael Rose
+  Copyright 2013-2019 Michael Rose - mademistakes.com | @mmistakes
+  Free for personal and commercial use under the MIT license
+  https://github.com/mmistakes/minimal-mistakes/blob/master/LICENSE
+-->
+<html lang="en" class="no-js">
+  <head>
+    <meta charset="utf-8">
+
+<script>
+class AnchorNoProxy extends HTMLElement {
+  constructor() {
+    super();
+    this.attachShadow({ mode: "open" });
+    this._$a = null;
+  }
+  connectedCallback() {
+    const href = this.getAttribute("href") || "#";
+    if (this.dataset.hasOwnProperty('canvas')) {
+        const canvasURL = this.dataset.canvas;
+        this.shadowRoot.innerHTML = `<style>a:hover, a:active { outline: 0; }\na { color: #5197ad; }\na:visited { color: #5197ad; }\na:hover { color: #266477; outline: 0; }</style><a href="${href}" data-canvas="${canvasURL}"><slot></slot></a>`;
+    } else {
+        this.shadowRoot.innerHTML = `<style>a:hover, a:active { outline: 0; }\na { color: #5197ad; }\na:visited { color: #5197ad; }\na:hover { color: #266477; outline: 0; }</style><a href="${href}"><slot></slot></a>`;
+    }
+    this._$a = this.shadowRoot.querySelector("a");
+    this._$a.addEventListener("click", e => {
+      var url = this.getAttribute('href');
+      e.preventDefault();
+      if (document.referrer.startsWith('https://lms.hypothes.is') && this.dataset.hasOwnProperty('canvas')) {
+        // get rid of proxy if it was added
+        var n = this.dataset.canvas.search('https://olin.instructure.com');
+        window.open(this.dataset.canvas.substring(n), '_blank');
+      } else {
+        window.open(url, '_blank');
+      }
+    });
+  }
+  static get observedAttributes() { return ["href"]; }
+  attributeChangedCallback(name, oldValue, newValue) {
+    if (oldValue !== newValue) {
+      if (this._$a === null) return;
+      this._$a.setAttribute("href", newValue);
+    }
+  }
+}
+
+customElements.define("a-no-proxy", AnchorNoProxy);
+
+class NoProxy extends HTMLAnchorElement {
+  connectedCallback() {
+    this.addEventListener("click", e => {
+      e.preventDefault();
+      if (document.referrer.startsWith('https://lms.hypothes.is') && this.dataset.hasOwnProperty('canvas')) {
+        // get rid of proxy if it was added
+        var n = this.dataset.canvas.search('https://olin.instructure.com');
+      	window.open(this.dataset.canvas.substring(n), '_blank');
+      } else {
+      	window.open(this.href, '_blank');
+      }
+    });
+  }
+}
+
+customElements.define("no-proxy", NoProxy, { extends: "a" });
+
+class ConfirmLink extends HTMLAnchorElement {
+  connectedCallback() {
+    this.addEventListener("click", e => {
+      const result = confirm(`Are you sure you want to go to '${this.href}'?`);
+      if (!result) e.preventDefault();
+    });
+  }
+}
+
+customElements.define("confirm-link", ConfirmLink, { extends: "a" });
+
+</script>
+
+<!-- begin _includes/seo.html --><title>Day 7: DAGs, Dijkstra’s Algorithm, and Heaps - Data Structures Fall 2026 @ Olin College</title>
+<meta name="description" content="">
+
+
+
+<meta property="og:type" content="website">
+<meta property="og:locale" content="en_US">
+<meta property="og:site_name" content="Data Structures Fall 2026 @ Olin College">
+<meta property="og:title" content="Day 7: DAGs, Dijkstra’s Algorithm, and Heaps">
+<meta property="og:url" content="/in_class/day07.html">
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="canonical" href="/in_class/day07.html">
+
+
+
+
+<script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    
+      "@type": "Person",
+      "name": null,
+      "url": "/"
+    
+  }
+</script>
+
+
+
+
+
+
+<!-- end _includes/seo.html -->
+
+
+<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="Data Structures Fall 2026 @ Olin College Feed">
+
+<!-- https://t.co/dKP3o1e -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script>
+  document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/g, '') + ' js ';
+</script>
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="/assets/css/main.css">
+
+<!--[if IE]>
+  <style>
+    /* old IE unsupported flexbox fixes */
+    .greedy-nav .site-title {
+      padding-right: 3em;
+    }
+    .greedy-nav button {
+      position: absolute;
+      top: 0;
+      right: 0;
+      height: 100%;
+    }
+  </style>
+<![endif]-->
+
+
+
+    <!-- start custom head snippets -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11.9.0/dist/mermaid.min.js"></script>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.28/dist/katex.min.css" integrity="sha384-Wsr4Nh3yrvMf2KCebJchRJoVo1gTU6kcP05uRSh5NV3sj9+a8IomuJoQzf3sMq4T" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.28/dist/katex.min.js" integrity="sha384-+W9OcrYK2/bD7BmUAk+xeFAyKp0QjyRQUCxeU31dfyTt/FrPsUgaBTLLkVf33qWt" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.28/dist/contrib/auto-render.min.js" integrity="sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh" crossorigin="anonymous"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", async function () {
+  // Render Mermaid first, from untouched source.
+  mermaid.initialize({ startOnLoad: false });
+  await mermaid.run(); // renders all .mermaid blocks
+
+  // render KaTeX
+  renderMathInElement(document.body, {
+          delimiters: [
+              {left: '$$', right: '$$', display: true},
+              {left: '$', right: '$', display: false},
+              {left: '\\(', right: '\\)', display: false},
+              {left: '\\[', right: '\\]', display: true}
+          ],
+    throwOnError: false,
+  });
+});
+</script>
+
+<script type="text/javascript">
+function HideShowElement(divID) {
+    const x = document.getElementById(divID);
+    if (x.style.display === "none") {
+        x.style.display = "block";
+    } else {
+        x.style.display = "none";
+    }
+}
+</script>
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+
+<!-- insert favicons. use https://realfavicongenerator.net/ -->
+
+<!-- end custom head snippets -->
+
+  </head>
+
+  <body class="layout--single">
+    <nav class="skip-links">
+  <h2 class="screen-reader-text">Skip links</h2>
+  <ul>
+    <li><a href="#site-nav" class="screen-reader-shortcut">Skip to primary navigation</a></li>
+    <li><a href="#main" class="screen-reader-shortcut">Skip to content</a></li>
+    <li><a href="#footer" class="screen-reader-shortcut">Skip to footer</a></li>
+  </ul>
+</nav>
+
+    <!--[if lt IE 9]>
+<div class="notice--danger align-center" style="margin: 0;">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience.</div>
+<![endif]-->
+
+    
+
+<div class="masthead">
+  <div class="masthead__inner-wrap">
+    <div class="masthead__menu">
+      <nav id="site-nav" class="greedy-nav">
+        
+          <a class="site-logo" href="/"><img src="https://qeacourse.github.io/RoboNinjaWarrior/website_graphics/olinlogo.png" alt=""></a>
+        
+        <a class="site-title" href="/">
+          Data Structures Fall 2026 @ Olin College
+          
+        </a>
+        <ul class="visible-links"></ul>
+        
+        <button class="greedy-nav__toggle hidden" type="button">
+          <span class="visually-hidden">Toggle menu</span>
+          <div class="navicon"></div>
+        </button>
+        <ul class="hidden-links hidden"></ul>
+      </nav>
+    </div>
+  </div>
+</div>
+
+
+    <div class="initial-content">
+      
+
+
+
+<div id="main" role="main">
+  
+
+  <article class="page" itemscope itemtype="https://schema.org/CreativeWork">
+    <meta itemprop="headline" content="Day 7: DAGs, Dijkstra’s Algorithm, and Heaps">
+    
+    
+    
+
+    <div class="page__inner-wrap">
+      
+        <header>
+          <h1 id="page-title" class="page__title" itemprop="headline">Day 7: DAGs, Dijkstra’s Algorithm, and Heaps
+</h1>
+          
+        </header>
+      
+
+      <section class="page__content" itemprop="text">
+        
+          <aside class="sidebar__right sticky">
+            <nav class="toc">
+              <header><h4 class="nav__title"><i class="fas fa-file-alt"></i> On this page</h4></header>
+	      
+                <ul class="toc__menu">
+  <li><a href="#a-few-things-regarding-the-current-assignment">A Few Things Regarding the Current Assignment</a></li>
+  <li><a href="#directed-acyclic-graphs">Directed-Acyclic Graphs</a></li>
+  <li><a href="#dijkstras-algorithm">Dijkstra’s Algorithm</a></li>
+  <li><a href="#min-heaps">Min-Heaps</a></li>
+</ul>
+	      	
+            </nav>
+          </aside>
+        
+        <h2 id="a-few-things-regarding-the-current-assignment">A Few Things Regarding the Current Assignment</h2>
+
+<ol>
+  <li>I added a tips and tricks section (currently just one there). Let me know if you want me to add anything to it.</li>
+  <li>I added an assignment submission checklist to the Canvas page</li>
+</ol>
+
+<h2 id="directed-acyclic-graphs">Directed-Acyclic Graphs</h2>
+
+<p>A directed graph is acyclic if it contains no cycles.  A cycle is a path that starts at a given node and returns to that same node.  We use the acronym DAG (directed, acyclic graph) to refer ot this type of graph.  Here is an example of such a graph.</p>
+
+<div class="mermaid">
+graph LR
+  A --&gt; B
+  B --&gt; C
+  A --&gt; C
+  C --&gt; D
+  B --&gt; D
+  A --&gt; E
+</div>
+
+<p>As was included in the day materials last time (although there was not enough time to get to it), there are several algorithms to determine if a graph is a DAG.  One of the easier ones to understand is Kahn’s algorithm, which has the following description from <a href="https://en.wikipedia.org/wiki/Topological_sorting">the Wikipedia page on Topological Sorting</a>. It turns out that a graph is a DAG if and only if there is a valid topological sorting of the nodes in the DAG.</p>
+
+<blockquote class="notice--warning">
+  <p>A topological sorting of a directed graph consisting of vertices $V$ and edges $E$ consists of an ordering of the vertices $v_1, v_2, \ldots, v_n$ such that the edge $v_i \rightarrow v_j$ exists in $E$ if and only if $i &lt; j$.</p>
+</blockquote>
+
+<p>Let’s work as a class to determine a valid topological sorting of the graph above.  Is the sorting unique?</p>
+
+<p><button onclick="HideShowElement('HideShow1')">Show Solution</button></p>
+<div id="HideShow1" style="display:none">
+     A valid solution would consist of the order $A, E, B, C, D$.  For this graph, another valid topological sorting would be $A, B, C, D, E$.  (other sortings exist as well)
+</div>
+
+<p>Kahn’s algorithm can be used to determine if a directed graph has cycles or not.  The pseudocode for Kahn’s algorithm is below.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>L ← Empty list that will contain the sorted elements
+S ← Set of all nodes with no incoming edge
+
+while S is not empty do
+    remove a node n from S
+    add n to L
+    for each node m with an edge e from n to m do
+        remove edge e from the graph
+        if m has no other incoming edges then
+            insert m into S
+
+if graph has edges then
+    return error   (graph has at least one cycle)
+else 
+    return L   (a topologically sorted order)
+</code></pre></div></div>
+
+<p>Let’s go through this example together to see how Kahn’s algorithm works.</p>
+
+<p>Let’s try Kahn’s algorithm on a graph that does contain a cycle to see what happens.</p>
+
+<p>Input graph:</p>
+<div class="mermaid">
+graph LR
+  A --&gt; B
+  B --&gt; C
+  C --&gt; D
+  C --&gt; B
+  A --&gt; D
+</div>
+<p>$L = []$, $S = [A]$</p>
+
+<p>After step 1:
+$L = [A], S = []$</p>
+<div class="mermaid">
+graph LR
+  A
+  B --&gt; C
+  C --&gt; D
+  C --&gt; B
+</div>
+
+<p>Question for us to work through together: How would we prove that Kahn’s algorithm is correct?</p>
+
+<h2 id="dijkstras-algorithm">Dijkstra’s Algorithm</h2>
+
+<p>I have some companion slides to go along with the presentation of <a href="https://en.wikipedia.org/wiki/Dijkstra%27s_algorithm">Dijkstra’s algorithm</a>.  I’ll have these up on the projector, but you can <a href="/in_class/day07_slides.pptx">access the slides in PPTX</a> or <a href="/in_class/day07_slides.pdf">PDF form</a>.  Don’t pull them up just yet.</p>
+
+<p>Before we introduce Dijkstra’s algorithm, we need to briefly introduce the idea of weighted graphs.  Imagine that in addition to storing the neighbors of each vertex in our graph, we also store an edge weight.  Here is what a graph might look like with edge weights added.</p>
+
+<div class="mermaid">
+graph LR
+  A --2--&gt; B
+  B --3--&gt; C
+  A --4--&gt; C
+  C --3--&gt; D
+  B --1--&gt; D
+  A --10--&gt; E
+  D --7--&gt; E
+</div>
+
+<p>As an aside, edge weights could encode a bunch of different things in our graph.  In computer vision, edge weights can encode the dissimilarity between neighboring parts of an image and this graph can then be processed to segment the image into regions.  Another classical example is graph traversal where we might want to find the shortest path through a graph connecting $v_{start}$ to $v_{goal}$. In this setting, the cost of a path is defined by the sum of edge weights along the path.  This is what we will learn about next.</p>
+
+<p>Dijkstra’s algorithm gives us a way to compute the shortest path (defined in terms of the lowest sum of edges) to move between a given source node and any destination node.  In order for Dijkstra’s algorithm to work, none of the edges in the network can have a negative weight (or cost).</p>
+
+<p>Looking at our sample graph, let’s calculate a few shortest paths.</p>
+
+<p>Dijkstra’s algorithm gives us a way to compute the shortest path in a systematic fashion.  The pseudocode for the algorithm is defined below.  Before we go through the algorithm, let’s make sure we understand the role of two maps (or, if you prefer, dictionaries) that we will be creating.  The first is called <code class="language-plaintext highlighter-rouge">prev</code> and it is used to reconstruct the shortest path once we find it.  The second is called <code class="language-plaintext highlighter-rouge">dist</code> and you can think of this as a tentative cost to travel from the start node to any particular node.  We’ll also maintain a queue of nodes that we plan to visit.  This queue will be pretty similar to the one you implemented on the last assignment, but it will have an additional feature of adding elements with a particular priority.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>for each vertex, v that is not the source:
+    prev[v] ← UNDEFINED
+    dist[v] ← INFINITY
+    queue.addWithPriority(v, INFINITY)
+
+dist[source] ← 0
+queue.addWithPriority(source, 0)
+
+while queue is not empty:
+    u ← vertex in queue with min priority
+    remove u from queue
+    for each neighbor v of u still in queue:
+        alt ← dist[u] + edgecost(u, v)
+        if alt &lt; dist[v]:
+            dist[v] ← alt
+            queue.changePriority(v, alt)
+            prev[v] ← u
+// reconstruct shortest path from prev
+</code></pre></div></div>
+<p>Now that we’ve seen this pseudocode, let’s go through <a href="/in_class/graphsearch_slides.pdf">our slides</a> to see an example of it in action.</p>
+
+<blockquote class="notice--success">
+  <p><strong>Exercise 1</strong></p>
+
+  <p>(a) How does this pseudocode differ from the approach we used last class (for DFS and BFS)?</p>
+
+  <p>(b) Suppose the pseudocode above has finished running, how would you reconstruct the shortest path from the vertex <code class="language-plaintext highlighter-rouge">source</code> to a vertex <code class="language-plaintext highlighter-rouge">target</code> using <code class="language-plaintext highlighter-rouge">prev</code>?</p>
+</blockquote>
+
+<h2 id="min-heaps">Min-Heaps</h2>
+
+<p>A <a href="https://en.wikipedia.org/wiki/Binary_heap">binary heap</a> is a data structure that is very useful for implementing the priority queue will need for Dijkstra’s algorithm.</p>
+
+<p>A heap is a special type of graph called a binary tree.</p>
+
+<p><strong>Definition</strong> A tree is a graph where there is a root node (one that has no incoming edges) and each vertex, besides the root, has exactly one incoming edge.  For a given node, $v$, if there exists an edge $p \rightarrow v$ we call $p$ the parent of $v$.  Nodes with no outgoing edges are called <strong>leaves</strong>.  The maximum length path (defined in terms of number of edges) from the root to any leaf is called the <strong>height</strong> of the tree.</p>
+
+<p><strong>Definition</strong> A binary tree is a tree where each node has at most two outgoing edges.  For a vertex, $v$, if $v \rightarrow u$ and $v \rightarrow q$ then we say that $u$ and $q$ are children of $v$. Sometimes we think of these children as ordered, and we’ll refer to them as the left or right child of $v$.</p>
+
+<p>An example of a binary tree is given below.</p>
+
+<div class="mermaid">
+graph TB
+  A --&gt; B
+  A --&gt; C
+  B --&gt; D
+  B --&gt; E
+  C --&gt; F
+  C --&gt; G
+</div>
+
+<p>A heap extends the concept of a binary tree by adding a number that accompanies each node.  Let’s suppose in our example that each of the letters A through F in our sample graph above were assigned the following values (A: 5, B: 3, C: 4, D: 9, E: 1, F: 6).  The following would be a valid heap.</p>
+
+<div class="mermaid">
+graph TB
+E[E, 1] --&gt; B[B, 3]
+E --&gt; C[C, 4]
+B --&gt; A[A, 5]
+B --&gt; F[F, 6]
+C --&gt; D[D, 9]
+</div>
+
+<blockquote class="notice--warning">
+  <p>The binary tree above is a heap because it meets two conditions.</p>
+
+  <p><strong>Condition 1</strong> the binary tree maintains the “heap-invariant”, which is that for any two nodes, $u, v$ in the tree such that the edge $u \rightarrow v$ the number stored with $u$ is less than the number stored with $v$.  In plain-speak, for any node in the graph the number written next to it will be less than the numbers written next to any nodes below it.</p>
+
+  <p><strong>Condition 2</strong> the binary tree is nearly complete meaning that it has the minimum height for a tree with the specific number of nodes.</p>
+</blockquote>
+
+<h3 id="implementation-inserting-an-element-into-the-heap">Implementation: Inserting an element into the heap</h3>
+
+<p>When inserting an element into the heap, we put it in the tree at the lowest level in the first available spot (starting from the left).  Once we place it in the heap, we check to see if this placement has violated the heap invariant (condition 1).  If so, we swap the node with its parent.  We the nodes new parent to make sure the heap invariant is satisfied (swapping if it’s not) and so on.  This procedure is called “bubbling up”.</p>
+
+<p>We’ll do a quick example of bubbling up on the board.</p>
+
+<h3 id="implementation-finding-the-vertex-with-the-minimum-corresponding-number">Implementation: Finding the vertex with the minimum corresponding number</h3>
+
+<p>This is super easy!  We just look at the root node.  It’s guaranteed to be the minimum.  Quick understanding check: why is that?</p>
+
+<h3 id="implementation-removing-the-minimum">Implementation: Removing the minimum</h3>
+
+<p>To remove the minimum value we first replace the root node with the right most element of the lowest level of our tree.  We then perform a procedure called “bubbling down” where we check to see if the new root violates the heap invariant (condition 1).  If it is larger, then we swap it with the child with the smaller number.  After the swap we continue bubbling the element down until it no longer violates the heap invariant (condition 1).</p>
+
+<p>We’ll do a quick example of bubbling down on the board.</p>
+
+<h3 id="binary-heap-operations-complexity">Binary Heap Operations Complexity</h3>
+
+<p>Now that we know what a heap is, let’s talk about the running time of various operations on a heap.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Operation</th>
+      <th>Runtime</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Insert</td>
+      <td>$\Theta(\log n)$</td>
+    </tr>
+    <tr>
+      <td>Delete min</td>
+      <td>$\Theta(\log n)$</td>
+    </tr>
+    <tr>
+      <td>Find min</td>
+      <td>$\Theta(1)$</td>
+    </tr>
+  </tbody>
+</table>
+
+<blockquote class="notice--success">
+  <p><strong>Exercise 2</strong> Why are these runtimes attractive from the perspective of implementing Dijkstra’s algorithm?</p>
+</blockquote>
+
+<blockquote class="notice--success">
+  <p><strong>Exercise 3</strong> What operation needed for Dijkstra’s algorithm is not present in the list above?  How would you implement it?</p>
+</blockquote>
+
+<blockquote class="notice--success">
+  <p><strong>Exercise 4</strong> Show why delete min, insert, and change heap number are all $\Theta(\log n)$.</p>
+</blockquote>
+
+<h3 id="implementation-considerations">Implementation considerations</h3>
+
+<p>Since this is part of the extra credit, I’ll leave it to you to look into the details of this (there’s a lot of explanations on the web / videos to watch).  Binary heaps are often implemented by storing the vertices of the heap in a list.  This might seem counterintuitive, but it presents a really elegant solution to some challenging aspects of implementing the heap: finding parents and children of a node, quickly swapping nodes in the tree, and inserting new values in such a way that condition 2 is maintained.</p>
+
+        
+      </section>
+
+      <footer class="page__meta">
+        
+        
+
+
+        
+      </footer>
+
+      
+
+      
+    </div>
+
+    
+  </article>
+
+  
+  
+</div>
+
+    </div>
+
+    
+
+    <div id="footer" class="page__footer">
+      <footer>
+        <!-- start custom footer snippets -->
+
+<!-- end custom footer snippets -->
+        <div class="page__footer-follow">
+  <ul class="social-icons">
+    
+
+    
+  </ul>
+</div>
+
+<div class="page__footer-copyright">&copy; 2026 Data Structures Fall 2026 @ Olin College.</div>
+
+      </footer>
+    </div>
+
+    <script src="/assets/js/copyCode.js"></script>
+
+
+  <script src="/assets/js/main.min.js"></script>
+  <script src="https://kit.fontawesome.com/4eee35f757.js"></script>
+
+
+
+
+
+
+
+
+
+
+  </body>
+</html>

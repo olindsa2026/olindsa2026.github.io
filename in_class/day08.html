@@ -1,0 +1,514 @@
+<!doctype html>
+<!--
+  Minimal Mistakes Jekyll Theme 4.17.2 by Michael Rose
+  Copyright 2013-2019 Michael Rose - mademistakes.com | @mmistakes
+  Free for personal and commercial use under the MIT license
+  https://github.com/mmistakes/minimal-mistakes/blob/master/LICENSE
+-->
+<html lang="en" class="no-js">
+  <head>
+    <meta charset="utf-8">
+
+<script>
+class AnchorNoProxy extends HTMLElement {
+  constructor() {
+    super();
+    this.attachShadow({ mode: "open" });
+    this._$a = null;
+  }
+  connectedCallback() {
+    const href = this.getAttribute("href") || "#";
+    if (this.dataset.hasOwnProperty('canvas')) {
+        const canvasURL = this.dataset.canvas;
+        this.shadowRoot.innerHTML = `<style>a:hover, a:active { outline: 0; }\na { color: #5197ad; }\na:visited { color: #5197ad; }\na:hover { color: #266477; outline: 0; }</style><a href="${href}" data-canvas="${canvasURL}"><slot></slot></a>`;
+    } else {
+        this.shadowRoot.innerHTML = `<style>a:hover, a:active { outline: 0; }\na { color: #5197ad; }\na:visited { color: #5197ad; }\na:hover { color: #266477; outline: 0; }</style><a href="${href}"><slot></slot></a>`;
+    }
+    this._$a = this.shadowRoot.querySelector("a");
+    this._$a.addEventListener("click", e => {
+      var url = this.getAttribute('href');
+      e.preventDefault();
+      if (document.referrer.startsWith('https://lms.hypothes.is') && this.dataset.hasOwnProperty('canvas')) {
+        // get rid of proxy if it was added
+        var n = this.dataset.canvas.search('https://olin.instructure.com');
+        window.open(this.dataset.canvas.substring(n), '_blank');
+      } else {
+        window.open(url, '_blank');
+      }
+    });
+  }
+  static get observedAttributes() { return ["href"]; }
+  attributeChangedCallback(name, oldValue, newValue) {
+    if (oldValue !== newValue) {
+      if (this._$a === null) return;
+      this._$a.setAttribute("href", newValue);
+    }
+  }
+}
+
+customElements.define("a-no-proxy", AnchorNoProxy);
+
+class NoProxy extends HTMLAnchorElement {
+  connectedCallback() {
+    this.addEventListener("click", e => {
+      e.preventDefault();
+      if (document.referrer.startsWith('https://lms.hypothes.is') && this.dataset.hasOwnProperty('canvas')) {
+        // get rid of proxy if it was added
+        var n = this.dataset.canvas.search('https://olin.instructure.com');
+      	window.open(this.dataset.canvas.substring(n), '_blank');
+      } else {
+      	window.open(this.href, '_blank');
+      }
+    });
+  }
+}
+
+customElements.define("no-proxy", NoProxy, { extends: "a" });
+
+class ConfirmLink extends HTMLAnchorElement {
+  connectedCallback() {
+    this.addEventListener("click", e => {
+      const result = confirm(`Are you sure you want to go to '${this.href}'?`);
+      if (!result) e.preventDefault();
+    });
+  }
+}
+
+customElements.define("confirm-link", ConfirmLink, { extends: "a" });
+
+</script>
+
+<!-- begin _includes/seo.html --><title>Day 8: A-Star Search and Intro to Sorting - Data Structures Fall 2026 @ Olin College</title>
+<meta name="description" content="">
+
+
+
+<meta property="og:type" content="website">
+<meta property="og:locale" content="en_US">
+<meta property="og:site_name" content="Data Structures Fall 2026 @ Olin College">
+<meta property="og:title" content="Day 8: A-Star Search and Intro to Sorting">
+<meta property="og:url" content="/in_class/day08.html">
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="canonical" href="/in_class/day08.html">
+
+
+
+
+<script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    
+      "@type": "Person",
+      "name": null,
+      "url": "/"
+    
+  }
+</script>
+
+
+
+
+
+
+<!-- end _includes/seo.html -->
+
+
+<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="Data Structures Fall 2026 @ Olin College Feed">
+
+<!-- https://t.co/dKP3o1e -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script>
+  document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/g, '') + ' js ';
+</script>
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="/assets/css/main.css">
+
+<!--[if IE]>
+  <style>
+    /* old IE unsupported flexbox fixes */
+    .greedy-nav .site-title {
+      padding-right: 3em;
+    }
+    .greedy-nav button {
+      position: absolute;
+      top: 0;
+      right: 0;
+      height: 100%;
+    }
+  </style>
+<![endif]-->
+
+
+
+    <!-- start custom head snippets -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11.9.0/dist/mermaid.min.js"></script>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.28/dist/katex.min.css" integrity="sha384-Wsr4Nh3yrvMf2KCebJchRJoVo1gTU6kcP05uRSh5NV3sj9+a8IomuJoQzf3sMq4T" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.28/dist/katex.min.js" integrity="sha384-+W9OcrYK2/bD7BmUAk+xeFAyKp0QjyRQUCxeU31dfyTt/FrPsUgaBTLLkVf33qWt" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.28/dist/contrib/auto-render.min.js" integrity="sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh" crossorigin="anonymous"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", async function () {
+  // Render Mermaid first, from untouched source.
+  mermaid.initialize({ startOnLoad: false });
+  await mermaid.run(); // renders all .mermaid blocks
+
+  // render KaTeX
+  renderMathInElement(document.body, {
+          delimiters: [
+              {left: '$$', right: '$$', display: true},
+              {left: '$', right: '$', display: false},
+              {left: '\\(', right: '\\)', display: false},
+              {left: '\\[', right: '\\]', display: true}
+          ],
+    throwOnError: false,
+  });
+});
+</script>
+
+<script type="text/javascript">
+function HideShowElement(divID) {
+    const x = document.getElementById(divID);
+    if (x.style.display === "none") {
+        x.style.display = "block";
+    } else {
+        x.style.display = "none";
+    }
+}
+</script>
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+
+<!-- insert favicons. use https://realfavicongenerator.net/ -->
+
+<!-- end custom head snippets -->
+
+  </head>
+
+  <body class="layout--single">
+    <nav class="skip-links">
+  <h2 class="screen-reader-text">Skip links</h2>
+  <ul>
+    <li><a href="#site-nav" class="screen-reader-shortcut">Skip to primary navigation</a></li>
+    <li><a href="#main" class="screen-reader-shortcut">Skip to content</a></li>
+    <li><a href="#footer" class="screen-reader-shortcut">Skip to footer</a></li>
+  </ul>
+</nav>
+
+    <!--[if lt IE 9]>
+<div class="notice--danger align-center" style="margin: 0;">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience.</div>
+<![endif]-->
+
+    
+
+<div class="masthead">
+  <div class="masthead__inner-wrap">
+    <div class="masthead__menu">
+      <nav id="site-nav" class="greedy-nav">
+        
+          <a class="site-logo" href="/"><img src="https://qeacourse.github.io/RoboNinjaWarrior/website_graphics/olinlogo.png" alt=""></a>
+        
+        <a class="site-title" href="/">
+          Data Structures Fall 2026 @ Olin College
+          
+        </a>
+        <ul class="visible-links"></ul>
+        
+        <button class="greedy-nav__toggle hidden" type="button">
+          <span class="visually-hidden">Toggle menu</span>
+          <div class="navicon"></div>
+        </button>
+        <ul class="hidden-links hidden"></ul>
+      </nav>
+    </div>
+  </div>
+</div>
+
+
+    <div class="initial-content">
+      
+
+
+
+<div id="main" role="main">
+  
+
+  <article class="page" itemscope itemtype="https://schema.org/CreativeWork">
+    <meta itemprop="headline" content="Day 8: A-Star Search and Intro to Sorting">
+    
+    
+    
+
+    <div class="page__inner-wrap">
+      
+        <header>
+          <h1 id="page-title" class="page__title" itemprop="headline">Day 8: A-Star Search and Intro to Sorting
+</h1>
+          
+        </header>
+      
+
+      <section class="page__content" itemprop="text">
+        
+          <aside class="sidebar__right sticky">
+            <nav class="toc">
+              <header><h4 class="nav__title"><i class="fas fa-file-alt"></i> On this page</h4></header>
+	      
+                <ul class="toc__menu">
+  <li><a href="#a-quick-reminder-about-genai-policy">A quick reminder about GenAI policy</a></li>
+  <li><a href="#how-fast-is-dijkstra">How fast is Dijkstra?</a></li>
+  <li><a href="#a-star-search">A-Star Search</a></li>
+  <li><a href="#sorting">Sorting</a></li>
+  <li><a href="#complexity-of-sorting-algorithms">Complexity of Sorting Algorithms</a></li>
+</ul>
+	      	
+            </nav>
+          </aside>
+        
+        <h2 id="a-quick-reminder-about-genai-policy">A quick reminder about GenAI policy</h2>
+
+<blockquote>
+  <p>If you feel it is consistent with what helps you learn, you may use generative AI tools (e.g., ChatGPT) to help you complete the work in this course.  When using these tools, please disclose how you used generative AI in preparing your work.  Please do not use generative AI in a way that makes your contribution to the work negligible.  The design of the oral quizzes is designed around idea that you should be able to explain how the code that was created by generative AI works and what each line is doing.  You might also strive to be able to rewrite the code without generative AI.</p>
+</blockquote>
+
+<h2 id="how-fast-is-dijkstra">How fast is Dijkstra?</h2>
+
+<p>Let’s start with an easy to state, but not so easy to answer problem.</p>
+
+<blockquote class="notice--success">
+  <p><strong>Exercise 1</strong></p>
+
+  <p>What is the runtime complexity ($\Theta$) of Dijkstra’s algorithm?  Your answer should be in terms of the number of nodes $n$ and the number of edges $m$.</p>
+</blockquote>
+
+<h2 id="a-star-search">A-Star Search</h2>
+
+<p>Before we turn the page to the next topic of the course, sorting, I want to talk about a really another graph traversal algorithm, <a href="https://en.wikipedia.org/wiki/A*_search_algorithm">A-star</a> search.</p>
+
+<p>What’s beautiful about a-star search is that it can drastically speed up dijkstra’s algorithm in certain cases by cutting down on search certain paths.</p>
+
+<p>Before showing the algorithm, we should realize that A-star is solving a bit different problem than Dijkstra’s.  A-star is specifically solving finding a path from a given start vertex to the goal (rather than to any possible destination as we did in Dijkstra’s).</p>
+
+<p>The key insight of A-star is to make use of a heuristic function that serves as a lower in terms of the cost to move from a particular node in the graph to the goal.  Let’s do some work at the board to understand what a heuristic means and under what conditions it can work with A-star (this is known as the <a href="https://en.wikipedia.org/wiki/Admissible_heuristic">admissibility condition</a>).</p>
+
+<p>We use the notation $h(v)$ denotes the lower bound on traversing from $v$ to the goal node.  Given this construction, we can modify our pseudocode for Dijkstra’s algorithm from last time to get the A-star algorithm.</p>
+
+<p>Before stating our pseudocode, let’s define what each variable in the program will represent.</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">source</code> is our starting vertex in the graph for searching</li>
+  <li><code class="language-plaintext highlighter-rouge">goal</code> is the vertex we are trying to reach</li>
+  <li><code class="language-plaintext highlighter-rouge">prev</code> will be used to reconstruct the optimal path and will map from a vertex to the vertex immediately preceding it on the optimal path from <code class="language-plaintext highlighter-rouge">source</code> to <code class="language-plaintext highlighter-rouge">goal</code>.</li>
+  <li><code class="language-plaintext highlighter-rouge">dist</code> maps from a vertex to the currently known minimum cost path from the start to that vertex</li>
+  <li><code class="language-plaintext highlighter-rouge">queue</code> is our priority queue that we will use to keep track of which vertex to expand next</li>
+</ul>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>for each vertex, v that is not the source:
+    prev[v] ← UNDEFINED
+    dist[v] ← INFINITY
+
+dist[source] ← 0    // note: this is called g in some writeups
+queue.addWithPriority(source, h(source))
+
+while queue is not empty:
+    u ← queue.popMin()  // gets min and removes it
+    if u == goal:
+        // reconstruct shortest path from prev
+        return
+    for each neighbor v of u:
+        alt ← dist[u] + edgecost(u, v)
+        if alt &lt; dist[v]:
+            dist[v] ← alt
+            if v in queue:
+                queue.changePriority(v, alt + h(v))
+            else:
+                queue.addWithPriority(v, alt + h(v))
+            prev[v] ← u
+</code></pre></div></div>
+
+<p>Key differences with Dijkstra’s algorithm.</p>
+<ul>
+  <li>In A-star, nodes can be expanded multiple times (in Dijkstra’s they can only be expanded once)</li>
+  <li>We make use of a heuristic function to prioritize our search (this can save us time)</li>
+</ul>
+
+<p>Example to do on the board (this is from <a href="https://www.youtube.com/watch?v=DhtSZhakyOo">Pieter Abbeel’s course at Berkeley</a>):</p>
+
+<div class="mermaid">
+graph LR
+  S --1--&gt; A
+  S --4--&gt; B
+  A --5--&gt; C
+  A --2--&gt; B
+  B --2--&gt; C
+  C --3--&gt; G
+  A --12--&gt; G
+</div>
+<blockquote>
+
+</blockquote>
+
+<p>This graph has the following heuristic.</p>
+
+<table>
+  <tbody>
+    <tr>
+      <td>Vertex</td>
+      <td>h</td>
+    </tr>
+    <tr>
+      <td>$S$</td>
+      <td>7</td>
+    </tr>
+    <tr>
+      <td>$A$</td>
+      <td>6</td>
+    </tr>
+    <tr>
+      <td>$B$</td>
+      <td>2</td>
+    </tr>
+    <tr>
+      <td>$C$</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>$G$</td>
+      <td>0</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Let’s try to understand why this could make your problem more efficient.</p>
+
+<h2 id="sorting">Sorting</h2>
+
+<p>The <a href="https://en.wikipedia.org/wiki/Sorting_algorithm">sorting problem</a> typically involves taking an input list of items and rearranging them so that the resultant list contains the items in some order.  A simple example would be arranging numbers in ascending order.  There are many variants and settings to this problem, but for this part of the class, let’s imagine that we are simply taking lists of integers and sorting them in ascending order.</p>
+
+<p>We’re going to learn about three of the many sorting algorithms today.</p>
+
+<h3 id="selection-sort">Selection sort</h3>
+
+<p><a href="https://en.wikipedia.org/wiki/Selection_sort">Selection sort</a> is a very simple algorithm.  We continuously look for the minimum value in the part of the list that is unsorted and then place that element at the front.  Let’s develop the pseudocode for this and prove that the algorithm yields a sorted list.  You can see a visualization of this algorithm by going to <a href="https://visualgo.net/en/sorting">visualgo.net/en/sorting</a> and choosing selection sort.</p>
+
+<h3 id="merge-sort">Merge sort</h3>
+
+<p><a href="https://en.wikipedia.org/wiki/Merge_sort">Merge sort</a> is a divide and conquer approach to sorting a list.  We’ll develop some pseudocode for this one together.</p>
+
+<p>The basic idea is to chop our list in two, sort both halves, and then reassemble the two sorted halves into a sorted whole.  You can see a visualization of this algorithm by going to <a href="https://visualgo.net/en/sorting">visualgo.net/en/sorting</a> and choosing merge sort.</p>
+
+<h3 id="heap-sort">Heap sort</h3>
+
+<p>This one is pretty awesome.  You just insert all of your values into a binary min heap and then take them all out using the <code class="language-plaintext highlighter-rouge">getMin()</code> function.</p>
+
+<h2 id="complexity-of-sorting-algorithms">Complexity of Sorting Algorithms</h2>
+
+<blockquote class="notice--success">
+  <p><strong>Exercise 2:</strong> Analyzing Selection Sort</p>
+
+  <p>Let’s start as a group by analyzing the worst case running time of selection sort.  Compute the number of operations necessary to run selection sort in the worst case.  Determine $\Theta$.</p>
+</blockquote>
+
+<h3 id="analyzing-heap-sort">Analyzing Heap Sort</h3>
+
+<blockquote class="notice--success">
+  <p><strong>Exercise 3:</strong> Determine the $\Theta$ of heap sort.</p>
+</blockquote>
+
+<h3 id="analyzing-merge-sort">Analyzing Merge Sort</h3>
+
+<blockquote class="notice--success">
+  <p><strong>Exercise 4:</strong> Determine the $\Theta$ of merge sort by drawing a tree diagram that shows how the problem of size $n$ is divided into subproblems (this will form a tree).  Keep track of how much work you would do at each level of this tree.</p>
+</blockquote>
+
+<h3 id="master-theorem">Master Theorem</h3>
+
+<p>A generalizable recipe for analyzing recursive algorithms like this is the <a href="https://en.wikipedia.org/wiki/Master_theorem_(analysis_of_algorithms)">master theorem</a>.</p>
+
+<blockquote class="notice--success">
+  <p><strong>Exercise 5:</strong> Reanalyze merge sort using the <a href="https://en.wikipedia.org/wiki/Master_theorem_(analysis_of_algorithms)">master theorem</a>.</p>
+</blockquote>
+
+<p>You may find the following special cases of the master theorem useful (we’ll discuss the more general form next class).</p>
+
+<p>$T(n) = a T(n/b) + n$</p>
+
+<p>Has a run time $\Theta(n^{\log_{b}{a}})$ if $\log_{b}{a} &gt; 1$.</p>
+
+<p>Has a run time $\Theta(n \log^{k+1} n)$ if $n^{\log_{b}{a}} \log{k} = \Theta(n)$.</p>
+
+        
+      </section>
+
+      <footer class="page__meta">
+        
+        
+
+
+        
+      </footer>
+
+      
+
+      
+    </div>
+
+    
+  </article>
+
+  
+  
+</div>
+
+    </div>
+
+    
+
+    <div id="footer" class="page__footer">
+      <footer>
+        <!-- start custom footer snippets -->
+
+<!-- end custom footer snippets -->
+        <div class="page__footer-follow">
+  <ul class="social-icons">
+    
+
+    
+  </ul>
+</div>
+
+<div class="page__footer-copyright">&copy; 2026 Data Structures Fall 2026 @ Olin College.</div>
+
+      </footer>
+    </div>
+
+    <script src="/assets/js/copyCode.js"></script>
+
+
+  <script src="/assets/js/main.min.js"></script>
+  <script src="https://kit.fontawesome.com/4eee35f757.js"></script>
+
+
+
+
+
+
+
+
+
+
+  </body>
+</html>

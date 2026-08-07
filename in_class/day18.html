@@ -1,0 +1,462 @@
+<!doctype html>
+<!--
+  Minimal Mistakes Jekyll Theme 4.17.2 by Michael Rose
+  Copyright 2013-2019 Michael Rose - mademistakes.com | @mmistakes
+  Free for personal and commercial use under the MIT license
+  https://github.com/mmistakes/minimal-mistakes/blob/master/LICENSE
+-->
+<html lang="en" class="no-js">
+  <head>
+    <meta charset="utf-8">
+
+<script>
+class AnchorNoProxy extends HTMLElement {
+  constructor() {
+    super();
+    this.attachShadow({ mode: "open" });
+    this._$a = null;
+  }
+  connectedCallback() {
+    const href = this.getAttribute("href") || "#";
+    if (this.dataset.hasOwnProperty('canvas')) {
+        const canvasURL = this.dataset.canvas;
+        this.shadowRoot.innerHTML = `<style>a:hover, a:active { outline: 0; }\na { color: #5197ad; }\na:visited { color: #5197ad; }\na:hover { color: #266477; outline: 0; }</style><a href="${href}" data-canvas="${canvasURL}"><slot></slot></a>`;
+    } else {
+        this.shadowRoot.innerHTML = `<style>a:hover, a:active { outline: 0; }\na { color: #5197ad; }\na:visited { color: #5197ad; }\na:hover { color: #266477; outline: 0; }</style><a href="${href}"><slot></slot></a>`;
+    }
+    this._$a = this.shadowRoot.querySelector("a");
+    this._$a.addEventListener("click", e => {
+      var url = this.getAttribute('href');
+      e.preventDefault();
+      if (document.referrer.startsWith('https://lms.hypothes.is') && this.dataset.hasOwnProperty('canvas')) {
+        // get rid of proxy if it was added
+        var n = this.dataset.canvas.search('https://olin.instructure.com');
+        window.open(this.dataset.canvas.substring(n), '_blank');
+      } else {
+        window.open(url, '_blank');
+      }
+    });
+  }
+  static get observedAttributes() { return ["href"]; }
+  attributeChangedCallback(name, oldValue, newValue) {
+    if (oldValue !== newValue) {
+      if (this._$a === null) return;
+      this._$a.setAttribute("href", newValue);
+    }
+  }
+}
+
+customElements.define("a-no-proxy", AnchorNoProxy);
+
+class NoProxy extends HTMLAnchorElement {
+  connectedCallback() {
+    this.addEventListener("click", e => {
+      e.preventDefault();
+      if (document.referrer.startsWith('https://lms.hypothes.is') && this.dataset.hasOwnProperty('canvas')) {
+        // get rid of proxy if it was added
+        var n = this.dataset.canvas.search('https://olin.instructure.com');
+      	window.open(this.dataset.canvas.substring(n), '_blank');
+      } else {
+      	window.open(this.href, '_blank');
+      }
+    });
+  }
+}
+
+customElements.define("no-proxy", NoProxy, { extends: "a" });
+
+class ConfirmLink extends HTMLAnchorElement {
+  connectedCallback() {
+    this.addEventListener("click", e => {
+      const result = confirm(`Are you sure you want to go to '${this.href}'?`);
+      if (!result) e.preventDefault();
+    });
+  }
+}
+
+customElements.define("confirm-link", ConfirmLink, { extends: "a" });
+
+</script>
+
+<!-- begin _includes/seo.html --><title>Day 18: Nearest Neighbor Search and K-d Trees - Data Structures Fall 2026 @ Olin College</title>
+<meta name="description" content="">
+
+
+
+<meta property="og:type" content="website">
+<meta property="og:locale" content="en_US">
+<meta property="og:site_name" content="Data Structures Fall 2026 @ Olin College">
+<meta property="og:title" content="Day 18: Nearest Neighbor Search and K-d Trees">
+<meta property="og:url" content="/in_class/day18.html">
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="canonical" href="/in_class/day18.html">
+
+
+
+
+<script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    
+      "@type": "Person",
+      "name": null,
+      "url": "/"
+    
+  }
+</script>
+
+
+
+
+
+
+<!-- end _includes/seo.html -->
+
+
+<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="Data Structures Fall 2026 @ Olin College Feed">
+
+<!-- https://t.co/dKP3o1e -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script>
+  document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/g, '') + ' js ';
+</script>
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="/assets/css/main.css">
+
+<!--[if IE]>
+  <style>
+    /* old IE unsupported flexbox fixes */
+    .greedy-nav .site-title {
+      padding-right: 3em;
+    }
+    .greedy-nav button {
+      position: absolute;
+      top: 0;
+      right: 0;
+      height: 100%;
+    }
+  </style>
+<![endif]-->
+
+
+
+    <!-- start custom head snippets -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11.9.0/dist/mermaid.min.js"></script>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.28/dist/katex.min.css" integrity="sha384-Wsr4Nh3yrvMf2KCebJchRJoVo1gTU6kcP05uRSh5NV3sj9+a8IomuJoQzf3sMq4T" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.28/dist/katex.min.js" integrity="sha384-+W9OcrYK2/bD7BmUAk+xeFAyKp0QjyRQUCxeU31dfyTt/FrPsUgaBTLLkVf33qWt" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.28/dist/contrib/auto-render.min.js" integrity="sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh" crossorigin="anonymous"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", async function () {
+  // Render Mermaid first, from untouched source.
+  mermaid.initialize({ startOnLoad: false });
+  await mermaid.run(); // renders all .mermaid blocks
+
+  // render KaTeX
+  renderMathInElement(document.body, {
+          delimiters: [
+              {left: '$$', right: '$$', display: true},
+              {left: '$', right: '$', display: false},
+              {left: '\\(', right: '\\)', display: false},
+              {left: '\\[', right: '\\]', display: true}
+          ],
+    throwOnError: false,
+  });
+});
+</script>
+
+<script type="text/javascript">
+function HideShowElement(divID) {
+    const x = document.getElementById(divID);
+    if (x.style.display === "none") {
+        x.style.display = "block";
+    } else {
+        x.style.display = "none";
+    }
+}
+</script>
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+
+<!-- insert favicons. use https://realfavicongenerator.net/ -->
+
+<!-- end custom head snippets -->
+
+  </head>
+
+  <body class="layout--single">
+    <nav class="skip-links">
+  <h2 class="screen-reader-text">Skip links</h2>
+  <ul>
+    <li><a href="#site-nav" class="screen-reader-shortcut">Skip to primary navigation</a></li>
+    <li><a href="#main" class="screen-reader-shortcut">Skip to content</a></li>
+    <li><a href="#footer" class="screen-reader-shortcut">Skip to footer</a></li>
+  </ul>
+</nav>
+
+    <!--[if lt IE 9]>
+<div class="notice--danger align-center" style="margin: 0;">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience.</div>
+<![endif]-->
+
+    
+
+<div class="masthead">
+  <div class="masthead__inner-wrap">
+    <div class="masthead__menu">
+      <nav id="site-nav" class="greedy-nav">
+        
+          <a class="site-logo" href="/"><img src="https://qeacourse.github.io/RoboNinjaWarrior/website_graphics/olinlogo.png" alt=""></a>
+        
+        <a class="site-title" href="/">
+          Data Structures Fall 2026 @ Olin College
+          
+        </a>
+        <ul class="visible-links"></ul>
+        
+        <button class="greedy-nav__toggle hidden" type="button">
+          <span class="visually-hidden">Toggle menu</span>
+          <div class="navicon"></div>
+        </button>
+        <ul class="hidden-links hidden"></ul>
+      </nav>
+    </div>
+  </div>
+</div>
+
+
+    <div class="initial-content">
+      
+
+
+
+<div id="main" role="main">
+  
+
+  <article class="page" itemscope itemtype="https://schema.org/CreativeWork">
+    <meta itemprop="headline" content="Day 18: Nearest Neighbor Search and K-d Trees">
+    
+    
+    
+
+    <div class="page__inner-wrap">
+      
+        <header>
+          <h1 id="page-title" class="page__title" itemprop="headline">Day 18: Nearest Neighbor Search and K-d Trees
+</h1>
+          
+        </header>
+      
+
+      <section class="page__content" itemprop="text">
+        
+          <aside class="sidebar__right sticky">
+            <nav class="toc">
+              <header><h4 class="nav__title"><i class="fas fa-file-alt"></i> On this page</h4></header>
+	      
+                <ul class="toc__menu">
+  <li><a href="#nearest-neighbor-search">Nearest Neighbor Search</a></li>
+  <li><a href="#k-d-trees-construction">K-d Trees (construction)</a></li>
+  <li><a href="#k-d-tree-search">k-D Tree Search</a></li>
+  <li><a href="#approximate-nearest-neighbor-ann-search">Approximate Nearest Neighbor (ANN) Search</a></li>
+</ul>
+	      	
+            </nav>
+          </aside>
+        
+        <h2 id="nearest-neighbor-search">Nearest Neighbor Search</h2>
+
+<blockquote>
+  <p>Nearest neighbor search (NNS), as a form of proximity search, is the optimization problem of finding the point in a given set that is closest (or most similar) to a given point. Closeness is typically expressed in terms of a dissimilarity function: the less similar the objects, the larger the function values.
+ – <a href="https://en.wikipedia.org/wiki/Nearest_neighbor_search">Wikipedia page on Nearest Neighbor Search</a></p>
+</blockquote>
+
+<p>This algorithm is handy in a wide variety of data analysis, computer graphics, video game, computer vision, and machine learning tasks.  Specific examples include data classification, clustering, template matching, photogrammetry, and 3D modeling.</p>
+
+<p>The nearest neighbor algorithm consists of a set of training points $x_1, \ldots, x_n$ with each $x_i \in \mathbb{R}^k$ (i.e., each point has $k$-dimensions).</p>
+
+<p>Given a query point, $x_q$ (with $x_q \in \mathbb{R}^k$), the nearest neighbor is defined as the closest point in our set of training points, where closeness is given by some distance function.  The distance function could be Euclidean distance, Manhattan distance, or something more exotic.</p>
+
+<blockquote class="notice--success">
+  <p><strong>Exercise 1</strong></p>
+
+  <p>What is the time complexity, $\Theta$, of finding the nearest neighbor to the query point in terms of the number of training points $n$ and the dimensionality $k$ of the data?</p>
+
+  <p>How does this time complexity compare to the special case of using a red-black tree for the special case of $k=1$?</p>
+</blockquote>
+
+<h2 id="k-d-trees-construction">K-d Trees (construction)</h2>
+
+<p>Given the fact that we were able to dramatically speed up our search for the closest point in 1-dimension with the Red-Black tree, it is natural to ask the of question of whether there is a way to use the same ideas to speed up the search for the nearest neighbor to some query point.  The answer to this question is “yes… maybe”.  Next, we’ll see a structured called <a href="https://en.wikipedia.org/wiki/K-d_tree">K-d trees</a>, which can, in some conditions, speed up nearest neighbor search.</p>
+
+<blockquote class="notice--warning">
+  <p><strong>To build a K-d tree</strong>, we are given a set of $k$ dimensional points (e.g., represented in Kotlin as an <code class="language-plaintext highlighter-rouge">Array</code> of <code class="language-plaintext highlighter-rouge">DoubleArray</code> objects). The algorithm works as follows.</p>
+
+  <p>Compute the median along dimension 0.  Divide your points into two sets.  The first set consts of those points whose value along the $0$th dimension is less than the median.  The second set consists of those points whose value along the $0$th dimension is greater than or equal to the median.</p>
+
+  <p>Recurse on each of the two sets.  That is, you will want to repeat the procedure above but use only those points in a particular set and this time choose the $1$st dimension to split on.</p>
+
+  <p>Continue recursing until there is just a single in a set.  As you recurse increment the dimension to split on by 1.  If you run out of dimensions, split on dimension 0 again.</p>
+</blockquote>
+
+<blockquote class="notice--success">
+  <p><strong>Exercise 2</strong></p>
+
+  <p>Create a k-D tree from given the following points.  Sketch your result on a whiteboard.
+$x_1 = (1, 5), x_2 = (-1, 2), x_3 = (4, 4), x_4 = (2, 0), x_5 = (-3, -3), x_6 = (9, 1), x_7 = (4, 1), x_8 = (3, 8)$</p>
+
+  <div id="plot"></div>
+  <script>
+  // Define the points
+  const points = {
+     x1: [1, 5],
+     x2: [-1, 2],
+     x3: [4, 4],
+     x4: [2, 0],
+     x5: [-3, -3],
+     x6: [9, 1],
+     x7: [4, 1],
+     x8: [3, 8]
+  };
+  // Extract x, y, and labels
+  const xs = Object.values(points).map(p => p[0]);
+  const ys = Object.values(points).map(p => p[1]);
+  const labels = Object.keys(points);
+  // Create the scatter plot trace
+  const trace = {
+    x: xs,
+    y: ys,
+   text: labels, // optional: subscript style
+   mode: 'markers+text',
+   textposition: 'top center',
+   marker: { size: 10, color: 'blue' },
+  type: 'scatter'
+  };
+  const layout = {
+    title: '2D Points for k-D Tree Construction',
+  autosize: false, // prevent Plotly from resizing layout dynamically
+  width: 600,
+  height: 600,
+    xaxis: { title: 'x₁', scaleanchor: 'y', scaleratio: 1, range: [-5, 10], fixedrange: true },
+    yaxis: { title: 'x₂', scaleanchor: 'x', scaleratio: 1, range: [-5, 10]},
+  };
+  Plotly.newPlot('plot', [trace], layout);
+   </script>
+
+</blockquote>
+
+<blockquote class="notice--success">
+  <p><strong>Exercise 3</strong></p>
+
+  <p>How would you represent this tree in Kotlin?  What classes would you use?  What would the basic flow be of your function to construct the tree? Don’t start coding!  Sketch it out with people around you.</p>
+</blockquote>
+
+<h2 id="k-d-tree-search">k-D Tree Search</h2>
+
+<p>Next we’re going to work on the problem of how to search through a k-D tree to find the closest point to a query.  Instead of giving you the procedure, let’s go through a series of exercises to discover it ourselves.</p>
+
+<blockquote class="notice--success">
+  <p><strong>Exercise 4</strong></p>
+
+  <p>Let’s start by searching using a strategy similar to how we would search through a binary search tree.  Given a query point $x_q$, go through your tree by comparing the appropriate dimensions of $x_q$ to the median computed along that dimension when constructing the tree.  When you arrive at a leaf node, return the point stored there as your nearest neighbor.</p>
+
+  <p>Given the points in exercise 3 (or come up with your own), show the result of running that procedure on some input.</p>
+
+  <p>Can you construct an input where the procedure would return the incorrect nearest neighbor?</p>
+</blockquote>
+
+<blockquote class="notice--success">
+  <p><strong>Exercise 5</strong></p>
+
+  <p>In order to fix the procedure in exercise 4, we are going to have to consider searching through other branches of our tree.</p>
+
+  <p>Suppose you follow your procedure from exercise 4, and when you get to a leaf, you store the point and the distance from the query to that point.  Now pop up to the previous node, determine a test you can perform to see if it’s worth searching the branch you haven’t searched yet.</p>
+</blockquote>
+
+<h2 id="approximate-nearest-neighbor-ann-search">Approximate Nearest Neighbor (ANN) Search</h2>
+
+<p>You might ask whether there is a way to get a speedup to your nearest neighbor search even when the data dimensionality is large.  It turns out that there is a very active field of research into <em>approximate nearest neighbor search</em> (ANN).  If you are willing to live give up the guarantee that the value returned will always be the closest point, you can get <a href="https://ann-benchmarks.com/glove-100-angular_10_angular.html">a substantial speedup</a>.</p>
+
+<p>The graph linked on this page shows the recall rate and the number of queries per second for a given algorithm.  In this experiment, recall means the probability that one of the actually 100 nearest neighbors to a point was included in the list of the 100 nearest neighbors returned by a particular ANN algorithm (1.0 is perfect).  Higher queries per second (y-axis indicates better efficiency).</p>
+
+<p>How do these techniques work?  It is an area that I don’t have a lot of familiarity with, so I can only tell you a bit (maybe this could be a topic for a final project?).  One technique that I did want to highlight since it touches on the course material, is <a href="https://en.wikipedia.org/wiki/Locality-sensitive_hashing">locality-sensitive hashing</a>.  There is a really nice writeup of doing <a href="https://www.pinecone.io/learn/series/faiss/locality-sensitive-hashing/">locality-sensitive hashing on text data at Pinecone.io</a>.</p>
+
+<p>The one thing I wanted to highlight is the difference between locality-sensitive hashing (LSH) and the sort of hashing we do in the creation of a hash map.  In direct opposition to what you want in creating a hash map, In the case of LSH you want to maximize the chance of collision (when you have similar data).  By maximizing collisions between similar inputs, you have a chance can quickly narrow down your nearest neighbor search by applying your hash function and looking in the returned bin.</p>
+
+<p>I have created a <a href="https://colab.research.google.com/drive/1krShfv89NyK4a7kB59EVvIQst4B09Yi9?usp=sharing">Colab notebook</a> to explore the performance of Meta’s library <code class="language-plaintext highlighter-rouge">faiss</code> for exact and approximate nearest neighbor.</p>
+
+        
+      </section>
+
+      <footer class="page__meta">
+        
+        
+
+
+        
+      </footer>
+
+      
+
+      
+    </div>
+
+    
+  </article>
+
+  
+  
+</div>
+
+    </div>
+
+    
+
+    <div id="footer" class="page__footer">
+      <footer>
+        <!-- start custom footer snippets -->
+
+<!-- end custom footer snippets -->
+        <div class="page__footer-follow">
+  <ul class="social-icons">
+    
+
+    
+  </ul>
+</div>
+
+<div class="page__footer-copyright">&copy; 2026 Data Structures Fall 2026 @ Olin College.</div>
+
+      </footer>
+    </div>
+
+    <script src="/assets/js/copyCode.js"></script>
+
+
+  <script src="/assets/js/main.min.js"></script>
+  <script src="https://kit.fontawesome.com/4eee35f757.js"></script>
+
+
+
+
+
+
+
+
+
+
+  </body>
+</html>

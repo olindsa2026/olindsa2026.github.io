@@ -1,0 +1,428 @@
+<!doctype html>
+<!--
+  Minimal Mistakes Jekyll Theme 4.17.2 by Michael Rose
+  Copyright 2013-2019 Michael Rose - mademistakes.com | @mmistakes
+  Free for personal and commercial use under the MIT license
+  https://github.com/mmistakes/minimal-mistakes/blob/master/LICENSE
+-->
+<html lang="en" class="no-js">
+  <head>
+    <meta charset="utf-8">
+
+<script>
+class AnchorNoProxy extends HTMLElement {
+  constructor() {
+    super();
+    this.attachShadow({ mode: "open" });
+    this._$a = null;
+  }
+  connectedCallback() {
+    const href = this.getAttribute("href") || "#";
+    if (this.dataset.hasOwnProperty('canvas')) {
+        const canvasURL = this.dataset.canvas;
+        this.shadowRoot.innerHTML = `<style>a:hover, a:active { outline: 0; }\na { color: #5197ad; }\na:visited { color: #5197ad; }\na:hover { color: #266477; outline: 0; }</style><a href="${href}" data-canvas="${canvasURL}"><slot></slot></a>`;
+    } else {
+        this.shadowRoot.innerHTML = `<style>a:hover, a:active { outline: 0; }\na { color: #5197ad; }\na:visited { color: #5197ad; }\na:hover { color: #266477; outline: 0; }</style><a href="${href}"><slot></slot></a>`;
+    }
+    this._$a = this.shadowRoot.querySelector("a");
+    this._$a.addEventListener("click", e => {
+      var url = this.getAttribute('href');
+      e.preventDefault();
+      if (document.referrer.startsWith('https://lms.hypothes.is') && this.dataset.hasOwnProperty('canvas')) {
+        // get rid of proxy if it was added
+        var n = this.dataset.canvas.search('https://olin.instructure.com');
+        window.open(this.dataset.canvas.substring(n), '_blank');
+      } else {
+        window.open(url, '_blank');
+      }
+    });
+  }
+  static get observedAttributes() { return ["href"]; }
+  attributeChangedCallback(name, oldValue, newValue) {
+    if (oldValue !== newValue) {
+      if (this._$a === null) return;
+      this._$a.setAttribute("href", newValue);
+    }
+  }
+}
+
+customElements.define("a-no-proxy", AnchorNoProxy);
+
+class NoProxy extends HTMLAnchorElement {
+  connectedCallback() {
+    this.addEventListener("click", e => {
+      e.preventDefault();
+      if (document.referrer.startsWith('https://lms.hypothes.is') && this.dataset.hasOwnProperty('canvas')) {
+        // get rid of proxy if it was added
+        var n = this.dataset.canvas.search('https://olin.instructure.com');
+      	window.open(this.dataset.canvas.substring(n), '_blank');
+      } else {
+      	window.open(this.href, '_blank');
+      }
+    });
+  }
+}
+
+customElements.define("no-proxy", NoProxy, { extends: "a" });
+
+class ConfirmLink extends HTMLAnchorElement {
+  connectedCallback() {
+    this.addEventListener("click", e => {
+      const result = confirm(`Are you sure you want to go to '${this.href}'?`);
+      if (!result) e.preventDefault();
+    });
+  }
+}
+
+customElements.define("confirm-link", ConfirmLink, { extends: "a" });
+
+</script>
+
+<!-- begin _includes/seo.html --><title>Getting Set With Kotlin - Data Structures Fall 2026 @ Olin College</title>
+<meta name="description" content="">
+
+
+
+<meta property="og:type" content="website">
+<meta property="og:locale" content="en_US">
+<meta property="og:site_name" content="Data Structures Fall 2026 @ Olin College">
+<meta property="og:title" content="Getting Set With Kotlin">
+<meta property="og:url" content="/how_to/setting_up_kotlin.html">
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="canonical" href="/how_to/setting_up_kotlin.html">
+
+
+
+
+<script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    
+      "@type": "Person",
+      "name": null,
+      "url": "/"
+    
+  }
+</script>
+
+
+
+
+
+
+<!-- end _includes/seo.html -->
+
+
+<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="Data Structures Fall 2026 @ Olin College Feed">
+
+<!-- https://t.co/dKP3o1e -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script>
+  document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/g, '') + ' js ';
+</script>
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="/assets/css/main.css">
+
+<!--[if IE]>
+  <style>
+    /* old IE unsupported flexbox fixes */
+    .greedy-nav .site-title {
+      padding-right: 3em;
+    }
+    .greedy-nav button {
+      position: absolute;
+      top: 0;
+      right: 0;
+      height: 100%;
+    }
+  </style>
+<![endif]-->
+
+
+
+    <!-- start custom head snippets -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11.9.0/dist/mermaid.min.js"></script>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.28/dist/katex.min.css" integrity="sha384-Wsr4Nh3yrvMf2KCebJchRJoVo1gTU6kcP05uRSh5NV3sj9+a8IomuJoQzf3sMq4T" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.28/dist/katex.min.js" integrity="sha384-+W9OcrYK2/bD7BmUAk+xeFAyKp0QjyRQUCxeU31dfyTt/FrPsUgaBTLLkVf33qWt" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.28/dist/contrib/auto-render.min.js" integrity="sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh" crossorigin="anonymous"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", async function () {
+  // Render Mermaid first, from untouched source.
+  mermaid.initialize({ startOnLoad: false });
+  await mermaid.run(); // renders all .mermaid blocks
+
+  // render KaTeX
+  renderMathInElement(document.body, {
+          delimiters: [
+              {left: '$$', right: '$$', display: true},
+              {left: '$', right: '$', display: false},
+              {left: '\\(', right: '\\)', display: false},
+              {left: '\\[', right: '\\]', display: true}
+          ],
+    throwOnError: false,
+  });
+});
+</script>
+
+<script type="text/javascript">
+function HideShowElement(divID) {
+    const x = document.getElementById(divID);
+    if (x.style.display === "none") {
+        x.style.display = "block";
+    } else {
+        x.style.display = "none";
+    }
+}
+</script>
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+
+<!-- insert favicons. use https://realfavicongenerator.net/ -->
+
+<!-- end custom head snippets -->
+
+  </head>
+
+  <body class="layout--single">
+    <nav class="skip-links">
+  <h2 class="screen-reader-text">Skip links</h2>
+  <ul>
+    <li><a href="#site-nav" class="screen-reader-shortcut">Skip to primary navigation</a></li>
+    <li><a href="#main" class="screen-reader-shortcut">Skip to content</a></li>
+    <li><a href="#footer" class="screen-reader-shortcut">Skip to footer</a></li>
+  </ul>
+</nav>
+
+    <!--[if lt IE 9]>
+<div class="notice--danger align-center" style="margin: 0;">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience.</div>
+<![endif]-->
+
+    
+
+<div class="masthead">
+  <div class="masthead__inner-wrap">
+    <div class="masthead__menu">
+      <nav id="site-nav" class="greedy-nav">
+        
+          <a class="site-logo" href="/"><img src="https://qeacourse.github.io/RoboNinjaWarrior/website_graphics/olinlogo.png" alt=""></a>
+        
+        <a class="site-title" href="/">
+          Data Structures Fall 2026 @ Olin College
+          
+        </a>
+        <ul class="visible-links"></ul>
+        
+        <button class="greedy-nav__toggle hidden" type="button">
+          <span class="visually-hidden">Toggle menu</span>
+          <div class="navicon"></div>
+        </button>
+        <ul class="hidden-links hidden"></ul>
+      </nav>
+    </div>
+  </div>
+</div>
+
+
+    <div class="initial-content">
+      
+
+
+
+<div id="main" role="main">
+  
+
+  <article class="page" itemscope itemtype="https://schema.org/CreativeWork">
+    <meta itemprop="headline" content="Getting Set With Kotlin">
+    
+    
+    
+
+    <div class="page__inner-wrap">
+      
+        <header>
+          <h1 id="page-title" class="page__title" itemprop="headline">Getting Set With Kotlin
+</h1>
+          
+        </header>
+      
+
+      <section class="page__content" itemprop="text">
+        
+          <aside class="sidebar__right sticky">
+            <nav class="toc">
+              <header><h4 class="nav__title"><i class="fas fa-file-alt"></i> On this page</h4></header>
+	      
+                <ul class="toc__menu">
+  <li><a href="#install-intellij-ide">Install IntelliJ IDE</a></li>
+  <li><a href="#hello-world">Hello World</a></li>
+  <li><a href="#adding-a-dependency-on-a-library">Adding a Dependency on a Library</a></li>
+  <li><a href="#a-note-about-variation-in-setup">A Note about Variation in Setup</a></li>
+</ul>
+	      	
+            </nav>
+          </aside>
+        
+        <h2 id="install-intellij-ide">Install IntelliJ IDE</h2>
+
+<p>We’ll be working with the <a href="https://kotlinlang.org/">Kotlin language</a> (more information and history of the language available <a href="https://en.wikipedia.org/wiki/Kotlin_(programming_language)">through Wikipedia</a>.  The best way to get Kotlin for your computer it install the IntelliJ IDE by JetBrains.  While you can use other IDEs with Kotlin (e.g., VS Code), we strongly recommend you stick IntellIJ (as that is the official IDE for Kotlin).  You can get a free license for Jetbrains since you are part of an academic institution.</p>
+
+<p>The <a href="https://kotlinlang.org/docs/getting-started.html">Getting Started page</a> on the Kotlin website is the place to go to get started on your journey.  As you go through the instructions, make sure to click on the link that says <code class="language-plaintext highlighter-rouge">IntelliJ IDE</code>.</p>
+
+<p>You should also take advantage of the fact that students can get free access to IntelliJ Ultimate.  This page has some <a href="https://www.jetbrains.com/academy/student-pack/">information on how to get started with accessing these student benefits</a>.</p>
+
+<h2 id="hello-world">Hello World</h2>
+
+<p>Let’s work together to create our first Kotlin Program.  Open up IntellJ, select <code class="language-plaintext highlighter-rouge">File</code> then <code class="language-plaintext highlighter-rouge">New</code> then <code class="language-plaintext highlighter-rouge">Project</code>.</p>
+
+<p>Next, make sure you’ve selected  <code class="language-plaintext highlighter-rouge">Kotlin</code> as your language  and <code class="language-plaintext highlighter-rouge">Add sample code</code> should be checked.  Your JDK may look different from what is shown here, that’s probably fine (but let me know if you run into issues).  For <code class="language-plaintext highlighter-rouge">Build System</code>, you can select any of them but Maven seems to work well in my experience).  See below for a screenshot of the new project dialog.</p>
+
+<p><img src="/images/new_project.png" alt="A screenshot of the IntelliJ IDE showing the selection of Kotlin as the programming language" /></p>
+
+<p>After you click <code class="language-plaintext highlighter-rouge">Create</code>, a window will open up with your new project.  It should look something like this.</p>
+
+<p><img src="/images/configured_project.png" alt="A screenshot of the IntelliJ IDE showing the default project code" />.</p>
+
+<p>To run this program, click the arrow button near the <code class="language-plaintext highlighter-rouge">Current File</code> drop down.  You should get output that looks like this.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>"/Applications/IntelliJ IDEA.app/Contents/jbr/Contents/Home/bin/java" -javaagent:/Applications/IntelliJ IDEA.app/Contents/lib/idea_rt.jar=61644 -Dfile.encoding=UTF-8 -Dsun.stdout.encoding=UTF-8 -Dsun.stderr.encoding=UTF-8 -classpath /Users/pruvolo/Downloads/HelloWorld/out/production/HelloWorld:/Users/pruvolo/.m2/repository/org/jetbrains/kotlin/kotlin-stdlib/2.2.0/kotlin-stdlib-2.2.0.jar:/Users/pruvolo/.m2/repository/org/jetbrains/annotations/13.0/annotations-13.0.jar MainKt
+Hello, Kotlin!
+i = 1
+i = 2
+i = 3
+i = 4
+i = 5
+
+Process finished with exit code 0
+</code></pre></div></div>
+<p>You might be wondering what the red circle is for.  This is a breakpoint that would stop execution of your program if you were to run it under the debugger.  To test this out, click the icon of the bug (right next to the arrow).  IntelliJ will now look like this.</p>
+
+<p><img src="/images/debugger.png" alt="The IntelliJ debugger stopped a breakpoint" /></p>
+
+<p>Note that the values of the local variables are shown along with the line of code we are executing.  You can continue execution of the program using the <code class="language-plaintext highlighter-rouge">resume program</code> button.  For a more indepth look at the debugger, consult <a href="https://www.jetbrains.com/help/idea/debugging-code.html">the IntelliJ documentation on debugging</a>.</p>
+
+<h2 id="adding-a-dependency-on-a-library">Adding a Dependency on a Library</h2>
+
+<p>The process for adding a dependency on a third party library (e.g., to add some functionality not present in the Kotlin standard library) will depend on the build system.  Here is an example of how to add a dependency for the <code class="language-plaintext highlighter-rouge">Maven</code> build system (as selected in the previous section).  This should also work for <code class="language-plaintext highlighter-rouge">Gradle</code> as well.</p>
+
+<blockquote>
+  <p>Before getting started, configure IntelliJ to automatically download documentation and source for any imported dependencies.  You can do this by going to <code class="language-plaintext highlighter-rouge">Settings</code> -&gt; <code class="language-plaintext highlighter-rouge">Build, Execution, &amp; Deployment</code> -&gt; <code class="language-plaintext highlighter-rouge">Build Tools</code> -&gt; <code class="language-plaintext highlighter-rouge">Maven</code> -&gt; <code class="language-plaintext highlighter-rouge">Importing</code> and then checking Automatically download <code class="language-plaintext highlighter-rouge">Sources</code>, <code class="language-plaintext highlighter-rouge">Documentation</code>, and <code class="language-plaintext highlighter-rouge">Annotations</code>.</p>
+</blockquote>
+
+<p>You can approach this in two ways.  First, you can do an ordinary Google search to find your dependency.  For example, if I want to do linear algebra things in Kotlin, I could search `Linear algebra kotlin library’.  From this list, I can usually find some instructions on how to add the library as a dependency.  Alternatively, you can search for the dependency you want to add using the official <a href="https://search.maven.org/?eh=">Maven Search engine</a> or, if you want a more user-friendly experience, a community-managed <a href="https://mvnrepository.com/">Maven Search Engine Alternative</a>.  If I type in Linear Algebra to the site above, I get the following output.</p>
+
+<p><img src="/images/maven_search.png" alt="The search output from mvnrepository.com" /></p>
+
+<p>Next, I can pick the library I want by clicking on it and choosing a version.  Let’s choose the EJML Simple Library and select the latest version (<code class="language-plaintext highlighter-rouge">0.44</code>).  There will be a selector to choose the build system you are using.  In our example of using Maven build system we can add the dependency by selecting <code class="language-plaintext highlighter-rouge">Maven</code> from the tabbed selector, copying the XML fragment (which should look like the following), and pasting it into the <code class="language-plaintext highlighter-rouge">&lt;dependencies&gt;&lt;/dependencies&gt;</code> section of <code class="language-plaintext highlighter-rouge">pom.xml</code>.</p>
+
+<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">&lt;!-- https://mvnrepository.com/artifact/org.ejml/ejml-simple --&gt;</span>
+<span class="nt">&lt;dependency&gt;</span>
+    <span class="nt">&lt;groupId&gt;</span>org.ejml<span class="nt">&lt;/groupId&gt;</span>
+    <span class="nt">&lt;artifactId&gt;</span>ejml-simple<span class="nt">&lt;/artifactId&gt;</span>
+    <span class="nt">&lt;version&gt;</span>0.44.0<span class="nt">&lt;/version&gt;</span>
+<span class="nt">&lt;/dependency&gt;</span>
+</code></pre></div></div>
+
+<p>You will need to click the <code class="language-plaintext highlighter-rouge">Reload</code> button to complete the process.</p>
+
+<p>To work with our dependency, let’s modify our code.  If we know a type in the imported module we want to use, we can type it and the editor will automatically suggest the appropriate class to import.  Go ahead and add the following lines to the top of main</p>
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">val</span> <span class="py">q</span> <span class="p">=</span> <span class="nc">SimpleMatrix</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+<span class="n">q</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span> <span class="p">=</span> <span class="mf">3.0</span>
+<span class="nf">print</span><span class="p">(</span><span class="n">q</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>Initially, the word <code class="language-plaintext highlighter-rouge">SimpleMatrix</code> will be red since it is not imported.  You can right-click on it and select <code class="language-plaintext highlighter-rouge">Context Actions</code> and choose <code class="language-plaintext highlighter-rouge">Import SimpleMatrix</code>.  This will add the appropriate import at the top of your code.</p>
+
+<p>What does this code actually do?  Let’s access the documentation.  If you click on SimpleMatrix, you should see a pop-up with documentation of what that command does (in this case it creates a matrix with all 0’s).  You can further explore the documentation by interacting with the links in the documentation snippet.</p>
+
+<p>Some useful keyboard shortcuts for interacting with the documentation and discovering how external libraries work is as follows.</p>
+
+<ul>
+  <li>Search Everywhere: Shift Shift</li>
+  <li>Quick Doc (automatically show documentation in a sidebar): macOS F1 (or Ctrl+J), Win/Linux Ctrl+Q</li>
+  <li>Go to Declaration / Implementation: ⌘B / ⌥⌘B (Win/Linux Ctrl+B / Ctrl+Alt+B)</li>
+  <li>Show Usages: ⌥⌘F7 (Win/Linux Alt+F7)</li>
+  <li>Parameter Info: ⌘P (Win/Linux Ctrl+P)</li>
+  <li>Navigate Class / Symbol: ⌘O / ⌥⌘O (Win/Linux Ctrl+N / Ctrl+Alt+Shift+N)</li>
+</ul>
+
+<h2 id="a-note-about-variation-in-setup">A Note about Variation in Setup</h2>
+
+<p>If you would like to configure your workflow differently to these steps, that is totally fine.  I leave it to you to make this decision, and I’ll do my best to support you should you run into road blocks.</p>
+
+        
+      </section>
+
+      <footer class="page__meta">
+        
+        
+
+
+        
+      </footer>
+
+      
+
+      
+    </div>
+
+    
+  </article>
+
+  
+  
+</div>
+
+    </div>
+
+    
+
+    <div id="footer" class="page__footer">
+      <footer>
+        <!-- start custom footer snippets -->
+
+<!-- end custom footer snippets -->
+        <div class="page__footer-follow">
+  <ul class="social-icons">
+    
+
+    
+  </ul>
+</div>
+
+<div class="page__footer-copyright">&copy; 2026 Data Structures Fall 2026 @ Olin College.</div>
+
+      </footer>
+    </div>
+
+    <script src="/assets/js/copyCode.js"></script>
+
+
+  <script src="/assets/js/main.min.js"></script>
+  <script src="https://kit.fontawesome.com/4eee35f757.js"></script>
+
+
+
+
+
+
+
+
+
+
+  </body>
+</html>

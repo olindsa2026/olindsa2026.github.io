@@ -1,0 +1,515 @@
+<!doctype html>
+<!--
+  Minimal Mistakes Jekyll Theme 4.17.2 by Michael Rose
+  Copyright 2013-2019 Michael Rose - mademistakes.com | @mmistakes
+  Free for personal and commercial use under the MIT license
+  https://github.com/mmistakes/minimal-mistakes/blob/master/LICENSE
+-->
+<html lang="en" class="no-js">
+  <head>
+    <meta charset="utf-8">
+
+<script>
+class AnchorNoProxy extends HTMLElement {
+  constructor() {
+    super();
+    this.attachShadow({ mode: "open" });
+    this._$a = null;
+  }
+  connectedCallback() {
+    const href = this.getAttribute("href") || "#";
+    if (this.dataset.hasOwnProperty('canvas')) {
+        const canvasURL = this.dataset.canvas;
+        this.shadowRoot.innerHTML = `<style>a:hover, a:active { outline: 0; }\na { color: #5197ad; }\na:visited { color: #5197ad; }\na:hover { color: #266477; outline: 0; }</style><a href="${href}" data-canvas="${canvasURL}"><slot></slot></a>`;
+    } else {
+        this.shadowRoot.innerHTML = `<style>a:hover, a:active { outline: 0; }\na { color: #5197ad; }\na:visited { color: #5197ad; }\na:hover { color: #266477; outline: 0; }</style><a href="${href}"><slot></slot></a>`;
+    }
+    this._$a = this.shadowRoot.querySelector("a");
+    this._$a.addEventListener("click", e => {
+      var url = this.getAttribute('href');
+      e.preventDefault();
+      if (document.referrer.startsWith('https://lms.hypothes.is') && this.dataset.hasOwnProperty('canvas')) {
+        // get rid of proxy if it was added
+        var n = this.dataset.canvas.search('https://olin.instructure.com');
+        window.open(this.dataset.canvas.substring(n), '_blank');
+      } else {
+        window.open(url, '_blank');
+      }
+    });
+  }
+  static get observedAttributes() { return ["href"]; }
+  attributeChangedCallback(name, oldValue, newValue) {
+    if (oldValue !== newValue) {
+      if (this._$a === null) return;
+      this._$a.setAttribute("href", newValue);
+    }
+  }
+}
+
+customElements.define("a-no-proxy", AnchorNoProxy);
+
+class NoProxy extends HTMLAnchorElement {
+  connectedCallback() {
+    this.addEventListener("click", e => {
+      e.preventDefault();
+      if (document.referrer.startsWith('https://lms.hypothes.is') && this.dataset.hasOwnProperty('canvas')) {
+        // get rid of proxy if it was added
+        var n = this.dataset.canvas.search('https://olin.instructure.com');
+      	window.open(this.dataset.canvas.substring(n), '_blank');
+      } else {
+      	window.open(this.href, '_blank');
+      }
+    });
+  }
+}
+
+customElements.define("no-proxy", NoProxy, { extends: "a" });
+
+class ConfirmLink extends HTMLAnchorElement {
+  connectedCallback() {
+    this.addEventListener("click", e => {
+      const result = confirm(`Are you sure you want to go to '${this.href}'?`);
+      if (!result) e.preventDefault();
+    });
+  }
+}
+
+customElements.define("confirm-link", ConfirmLink, { extends: "a" });
+
+</script>
+
+<!-- begin _includes/seo.html --><title>Day 15: Associative Arrays and Hashing - Data Structures Fall 2026 @ Olin College</title>
+<meta name="description" content="">
+
+
+
+<meta property="og:type" content="website">
+<meta property="og:locale" content="en_US">
+<meta property="og:site_name" content="Data Structures Fall 2026 @ Olin College">
+<meta property="og:title" content="Day 15: Associative Arrays and Hashing">
+<meta property="og:url" content="/in_class/day15.html">
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="canonical" href="/in_class/day15.html">
+
+
+
+
+<script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    
+      "@type": "Person",
+      "name": null,
+      "url": "/"
+    
+  }
+</script>
+
+
+
+
+
+
+<!-- end _includes/seo.html -->
+
+
+<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="Data Structures Fall 2026 @ Olin College Feed">
+
+<!-- https://t.co/dKP3o1e -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script>
+  document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/g, '') + ' js ';
+</script>
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="/assets/css/main.css">
+
+<!--[if IE]>
+  <style>
+    /* old IE unsupported flexbox fixes */
+    .greedy-nav .site-title {
+      padding-right: 3em;
+    }
+    .greedy-nav button {
+      position: absolute;
+      top: 0;
+      right: 0;
+      height: 100%;
+    }
+  </style>
+<![endif]-->
+
+
+
+    <!-- start custom head snippets -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11.9.0/dist/mermaid.min.js"></script>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.28/dist/katex.min.css" integrity="sha384-Wsr4Nh3yrvMf2KCebJchRJoVo1gTU6kcP05uRSh5NV3sj9+a8IomuJoQzf3sMq4T" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.28/dist/katex.min.js" integrity="sha384-+W9OcrYK2/bD7BmUAk+xeFAyKp0QjyRQUCxeU31dfyTt/FrPsUgaBTLLkVf33qWt" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.28/dist/contrib/auto-render.min.js" integrity="sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh" crossorigin="anonymous"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", async function () {
+  // Render Mermaid first, from untouched source.
+  mermaid.initialize({ startOnLoad: false });
+  await mermaid.run(); // renders all .mermaid blocks
+
+  // render KaTeX
+  renderMathInElement(document.body, {
+          delimiters: [
+              {left: '$$', right: '$$', display: true},
+              {left: '$', right: '$', display: false},
+              {left: '\\(', right: '\\)', display: false},
+              {left: '\\[', right: '\\]', display: true}
+          ],
+    throwOnError: false,
+  });
+});
+</script>
+
+<script type="text/javascript">
+function HideShowElement(divID) {
+    const x = document.getElementById(divID);
+    if (x.style.display === "none") {
+        x.style.display = "block";
+    } else {
+        x.style.display = "none";
+    }
+}
+</script>
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+
+<!-- insert favicons. use https://realfavicongenerator.net/ -->
+
+<!-- end custom head snippets -->
+
+  </head>
+
+  <body class="layout--single">
+    <nav class="skip-links">
+  <h2 class="screen-reader-text">Skip links</h2>
+  <ul>
+    <li><a href="#site-nav" class="screen-reader-shortcut">Skip to primary navigation</a></li>
+    <li><a href="#main" class="screen-reader-shortcut">Skip to content</a></li>
+    <li><a href="#footer" class="screen-reader-shortcut">Skip to footer</a></li>
+  </ul>
+</nav>
+
+    <!--[if lt IE 9]>
+<div class="notice--danger align-center" style="margin: 0;">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience.</div>
+<![endif]-->
+
+    
+
+<div class="masthead">
+  <div class="masthead__inner-wrap">
+    <div class="masthead__menu">
+      <nav id="site-nav" class="greedy-nav">
+        
+          <a class="site-logo" href="/"><img src="https://qeacourse.github.io/RoboNinjaWarrior/website_graphics/olinlogo.png" alt=""></a>
+        
+        <a class="site-title" href="/">
+          Data Structures Fall 2026 @ Olin College
+          
+        </a>
+        <ul class="visible-links"></ul>
+        
+        <button class="greedy-nav__toggle hidden" type="button">
+          <span class="visually-hidden">Toggle menu</span>
+          <div class="navicon"></div>
+        </button>
+        <ul class="hidden-links hidden"></ul>
+      </nav>
+    </div>
+  </div>
+</div>
+
+
+    <div class="initial-content">
+      
+
+
+
+<div id="main" role="main">
+  
+
+  <article class="page" itemscope itemtype="https://schema.org/CreativeWork">
+    <meta itemprop="headline" content="Day 15: Associative Arrays and Hashing">
+    
+    
+    
+
+    <div class="page__inner-wrap">
+      
+        <header>
+          <h1 id="page-title" class="page__title" itemprop="headline">Day 15: Associative Arrays and Hashing
+</h1>
+          
+        </header>
+      
+
+      <section class="page__content" itemprop="text">
+        
+          <aside class="sidebar__right sticky">
+            <nav class="toc">
+              <header><h4 class="nav__title"><i class="fas fa-file-alt"></i> On this page</h4></header>
+	      
+                <ul class="toc__menu">
+  <li><a href="#project-shareout">Project Shareout</a></li>
+  <li><a href="#associative-arrays">Associative Arrays</a></li>
+  <li><a href="#straw-man-implementations-of-associative-arrays">Straw man Implementations of Associative Arrays</a></li>
+  <li><a href="#hash-maps">Hash maps</a></li>
+  <li><a href="#hash-functions">Hash functions</a></li>
+</ul>
+	      	
+            </nav>
+          </aside>
+        
+        <h2 id="project-shareout">Project Shareout</h2>
+
+<p>Let’s take some time and share the results from the individual deep dives.  I’ll take volunteers to come to the front, plug in their computer, and say a little bit about what they wound up doing.</p>
+
+<h2 id="associative-arrays">Associative Arrays</h2>
+
+<p>An <a href="https://en.wikipedia.org/wiki/Associative_array">associative array</a> is a data structure that stores key / value pairs.  In the basic (vanilla) associative array, we assume that each key can be associated with at most one value.  The types of the keys and values need not be the same, and they need not be integers or even primitive data types (e.g., doubles, floats, ints, shorts).</p>
+
+<p>The typical operations supported by an associative array are:</p>
+
+<blockquote>
+  <ul>
+    <li>Insert or put: add a new (key, value) pair to the collection, mapping the key to its new value. Any existing mapping is overwritten. The arguments to this operation are the key and the value.</li>
+    <li>Remove or delete: remove a (key, value) pair from the collection, unmapping a given key from its value. The argument to this operation is the key.</li>
+    <li>Lookup, find, or get: find the value (if any) that is bound to a given key. The argument to this operation is the key, and the value is returned from the operation. If no value is found, some lookup functions raise an exception, while others return a default value (such as zero, null, or a specific value passed to the constructor).</li>
+  </ul>
+</blockquote>
+
+<p>If these operations look familiar, there’s a good reason.  You’ve actually already been using associative arrays for much of this course (as you’ve done, also, in prior courses like Software Design).  Data structures like Python’s <code class="language-plaintext highlighter-rouge">dict</code> and Kotlin’s <code class="language-plaintext highlighter-rouge">Map</code> and <code class="language-plaintext highlighter-rouge">MutableMap</code> are examples of associative arrays.</p>
+
+<h2 id="straw-man-implementations-of-associative-arrays">Straw man Implementations of Associative Arrays</h2>
+
+<p>Let’s look at two methods of implementing associative arrays.  For simplicity, let’s suppose that $k$ represents the total number of possible keys that can be stored in our associative arrays (e.g., if we were creating an associative array of red, green, blue triples to red, green, blue triples, then $k = 256^3$, assuming $256$ possible values for each color channel).  You can assume that given a particular key, it is easy (meaning it can be done in constant time) to map the key to an integer from $0$ to $k-1$ that represents the key’s identity among the $k$ possible keys.  Secondly let’s use the symbol $n$ to denote the number of elements stored in the associative array thus far.</p>
+
+<h3 id="method-1-association-lists">Method 1: Association Lists</h3>
+
+<p>An <a href="https://en.wikipedia.org/wiki/Association_list">association list</a> stores key / value pairs in a linked list.  Whenever you add a new key / value pair, you just add it to your linked list.</p>
+
+<blockquote class="notice--success">
+  <p><strong>Exercise 1</strong></p>
+  <ul>
+    <li>(a) For an association list, what is the runtime ($\Theta$) of the operations insert, remove, and lookup (you may find it useful to reference the symbols $k$ and $n$ when constructing your answer)?</li>
+    <li>(b) What is the space complexity for storing $n$ elements in an association list?  You can use $\Theta$ to describe the amount of space needed to store the data.  Assume that the values stored in the associative array are of a constant size.</li>
+  </ul>
+
+  <p>Note: space complexity is similar to runtime but the focus is on how much memory do you use to run the algorithm as a function of problem size.  You can express space complexities in the same way as runtimes (using $\Theta$).</p>
+
+  <p><button onclick="HideShowElement(&quot;HideShow1&quot;)">Show / Hide Hint for (a) </button></p>
+  <div id="HideShow1" style="display:none">
+Can you map each of these operations to an operation on a linked list?  If so, try to borrow the time complexities from there.
+</div>
+</blockquote>
+
+<h3 id="method-2-array-map">Method 2: Array Map</h3>
+
+<p>Another simple method for implementing an associative array is to create an array, $a$, of size $k$ where the value $v$ will be stored at $a[i]$ if the key that maps to index $i$ is associated with the value $v$.  Initially, the array may contain a default value at each index to indicate that there are no values associated with any keys when the associative array is initially created.</p>
+
+<blockquote class="notice--success">
+  <p><strong>Exercise 2</strong></p>
+  <ul>
+    <li>(a) For an array map, what is the runtime ($\Theta$) of the operations insert, remove, and lookup (you may find it useful to reference the symbols $k$ and $n$ when constructing your answer)?</li>
+    <li>(b) What is the space complexity for storing $n$ elements in an array map?  You can use $\Theta$ to describe the amount of space needed to store the data.  Assume that the values stored in the associative array are of a constant size.</li>
+  </ul>
+
+  <p><button onclick="HideShowElement(&quot;HideShow2&quot;)">Show / Hide Hint for (b) </button></p>
+  <div id="HideShow2" style="display:none">
+Does the amount of space needed depend on $n$?
+</div>
+</blockquote>
+
+<blockquote class="notice--success">
+  <p><strong>Exercise 3</strong>
+Are either of these two approaches practical?  If so, in what situations would each of them be a good choice for a data structure?</p>
+
+  <p><button onclick="HideShowElement(&quot;HideShow3&quot;)">Show / Hide Hint</button></p>
+  <div id="HideShow3" style="display:none">
+Consider variables like the size of the key space $k$ and the number of elements stored $n$.
+</div>
+</blockquote>
+
+<h2 id="hash-maps">Hash maps</h2>
+
+<p>The <a href="https://en.wikipedia.org/wiki/Hash_table">hash map</a> (or hash table) strikes a balance between the pros and cons of the association list and the array map.  The hash map makes use of an entity called a <a href="https://en.wikipedia.org/wiki/Hash_function">hash function</a>, which is a function from the key space to an integer in the range $[0, m)$ (where the upper limit $m$ depends on the particular choice of hash function).  For now, we will consider these hash functions to be black boxes.  That is, they take in a key and spit out non-negative number less than $m$.  We’ll look at some specific hash functions in just a bit.</p>
+
+<p>Here is an example of how a hash function might be used to implement an associative array.  In this case, we will assume that our hash function maps elements from our key space (names) to integers $0, \ldots, 15$ (i.e., $m = 16$).  In essence the hash function computes a “bucket” at which to store the value associated with a particular key.</p>
+
+<p><img src="https://upload.wikimedia.org/wikipedia/commons/7/7d/Hash_table_3_1_1_0_1_0_0_SP.svg" alt="A hash map showing several names mapping to different phone numbers." />
+credit: Wikimedia (<a href="https://commons.wikimedia.org/wiki/File:Hash_table_3_1_1_0_1_0_0_SP.svg">license</a>)</p>
+
+<p>This design should bring to mind two questions:</p>
+
+<ol>
+  <li>What happens when we insert a key (a name) that happens to map to the same bucket that already contains a value (a phone number)?</li>
+  <li>Does it matter how we assign keys (the names) to buckets?  Will any scheme do?</li>
+</ol>
+
+<p>With respect to question 1, there are two commonly used schemes.  The first is called <strong>separate chaining</strong>.  In separate chaining, instead of storing the values directly in the buckets, each bucket points to an association list that stores the key-value pairs.  In the example of the phone book, separate chaining would look like this.</p>
+
+<p><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/Hash_table_5_0_1_1_1_1_1_LL.svg/900px-Hash_table_5_0_1_1_1_1_1_LL.svg.png" alt="A hash table with separate chaining" />.  credit: Wikimedia (<a href="https://commons.wikimedia.org/wiki/File:Hash_table_5_0_1_1_1_1_1_LL.svg">license</a>)</p>
+
+<p>Notice how the John Smith and Sandra Dee both map to the same bucket (this is called a <em>collision</em>), which points to a two element association list.  Separate chaining works well when the load factor (defined as the ratio of the number of elements stored, $n$, to the number of buckets, $m$) is less than 3 (<a href="https://www.cs.cornell.edu/courses/cs312/2008sp/lectures/lec20.html">citation</a>).  When the load factor exceeds some specified threshold, the table must be rehashed (meaning each element must be reinserted with a new hashing function where with a larger number of buckets).</p>
+
+<p>An alternative to separate chaining is direct addressing.  When using direct addressing, we still store the values directly in the buckets (as we did in the simple version of our hash map) and when a collision occurs we simply search for an alternate place to put the value.  There are a number of schemes we can use to find this alternative location, but the simplest of these is called <a href="https://en.wikipedia.org/wiki/Linear_probing">linear probing</a>.</p>
+
+<p>In linear probing, when you insert an item and a collision occurs, you simply search ahead in your array into you find an unused bucket and place the value there.  This scheme requires updating your algorithm for lookup and deletion of elements accordingly.  Here is what our running example would look like when using linear probing.</p>
+
+<p><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/90/HASHTB12.svg/600px-HASHTB12.svg.png" alt="A phonebook stored with linear probing" />  credit: Wikimedia (<a href="https://commons.wikimedia.org/wiki/File:HASHTB12.svg">license</a>)</p>
+
+<p>Notice how the colliding elements are now stored in two separate buckets located sequentially in the array.</p>
+
+<h3 id="complexity-of-operations">Complexity of Operations</h3>
+
+<p>Under the assumption that we have a good hash function (meaning that the probability it maps a randomly chosen key to a specific bucket is roughly uniform and that there are no discernible patterns in how keys are mapped to buckets) and that the load factor on the table is relatively low, then insertion, deletion, and lookup will all have amortized time complexity of $\Theta(1)$.  If you remember back to our discussion of array lists, amortized analysis is based on the average number of steps per operation.  For example, an amortized time complexity of $\Theta(1)$ to insert elements into a hash map means that it takes $\Theta(n)$ time to insert $n$ elements, and hence the time per insertion is $\Theta(1)$.</p>
+
+<h3 id="tradeoffs-between-separate-chaining-and-linear-probing">Tradeoffs Between Separate Chaining and Linear Probing</h3>
+
+<p>Linear probing (as an example of open addressing) has the advantage of using less memory given $m$ buckets and has better locality of reference (meaning you don’t have to follow a pointer to another chunk of memory to find the value for a specified key).  On the downside, the performance of linear probing tanks when the load factor of the table approaches 1 (separate chaining can support load factors above 1).  Linear probing is also very sensitive to the choice of hash function.  For example, if a series of keys inserted into the hash map keys cluster in the same range of buckets, the performance of the hash map will degrade even if the load factors is low.</p>
+
+<h2 id="hash-functions">Hash functions</h2>
+
+<p>As alluded to above, we would like our hash function, $h$, to satisfy two key properties.</p>
+
+<blockquote>
+  <ol>
+    <li>Injection: for two keys $k_1 \neq k_2$, the hash function should give different results $h(k_1) \neq h(k_2)$, with probability $m-1/m$.</li>
+    <li>Diffusion (stronger than injection): if $k_1 \neq k_2$, knowing $h(k_1)$ gives no information about $h(k_2)$. For example, if $k_2$ is exactly the same as $k_1$, except for one bit, then every bit in $h(k_2)$ should change with $1/2$ probability compared to $h(k_1)$. Knowing the bits of $h(k_1)$ does not give any information about the bits of $h(k_2)$.
+      <ul>
+        <li><a href="https://www.cs.cornell.edu/courses/cs312/2008sp/lectures/lec21.html">CS 312 Lecture 21</a></li>
+      </ul>
+    </li>
+  </ol>
+</blockquote>
+
+<blockquote class="notice--warning">
+  <p>It should be obvious why the first property is important for our hash maps to perform optimally, but why do we care about the second property?</p>
+</blockquote>
+
+<p>There are many specific choices of hash functions.  To understand some of the specific choices of hash function, it helps to think a little bit about how the keys we are storing are represented in a computer’s memory.</p>
+
+<p>Fundamentally, all data in a computer is stored in a binary format.  For example, positive integers are represented, as you would expect, by converting them into a base 2 representation (negative numbers can be represented in various ways, for example, using <a href="https://en.wikipedia.org/wiki/Two%27s_complement">two’s complement</a>).  Some data is fixed length (e.g., Kotlin’s <code class="language-plaintext highlighter-rouge">Int</code>, <code class="language-plaintext highlighter-rouge">Long</code>, and <code class="language-plaintext highlighter-rouge">Short</code>) and some is variable length (e.g., a string).  When designing a hash function, we’ll have to think about to apply it to fixed length and variable length data.</p>
+
+<p>A full discussion of hash functions is outside the scope of this course, but here are a few concrete choices to make the ideas concrete.</p>
+
+<p>For each of these hash functions, we say that the number of buckets for our hash function is $m$ and $m_b$ is the number of bits required to represent the numbers from $0$ to $m-1$.  If we assume $m$ is a power of two, then $m_b = \log_2 m$.</p>
+
+<h3 id="folding">Folding</h3>
+
+<p>Folding algorithms divide the input into chunks of $m_b$ bits and then perform operations on these $m_b$-long bit strings to create the final hash index.  These operations could be additions or bit-wise exclusive or (XOR).</p>
+
+<p>For example, suppose we were hashing the integer key $4,234,234,421$ into $m = 256$ buckets.  We would take the integer’s binary representation (in this case $11111100011000010100101000110101_b$) and divide it into four 8-bit chunks (since $\log_2 m = 8$).  These chunks would be: $00110101_b$, $01001010_b$, $01100001_b$, and $11111100_b$.  We could then use X-OR to combine these values chunk by chunk.</p>
+
+<blockquote>
+  <p>Note: xor is <a href="https://en.wikipedia.org/wiki/Exclusive_or">exclusive or</a>, which we denote using the $\oplus$ operator.</p>
+</blockquote>
+
+\[\begin{align*}
+00110101_b \oplus 01001010_b &amp;= 01111111_b &amp; \text{xor chunk 1 and 2} \\
+01111111_b \oplus 01100001_b &amp;= 00011110_b &amp; \text{take result and xor with chunk 3} \\  00011110_b \oplus 11111100_b &amp;= 11100010_b  &amp; \text{take result and xor with chunk 4}
+\end{align*}\]
+
+<p>Given this result, we would then store the value associated with the key $4,234,234,421$ in bin 226 (this is the decimal equivalent of the bit string computed above).</p>
+
+<h3 id="division-hashing">Division Hashing</h3>
+
+<p>In division hashing, we typically choose $m$ to be a prime number (we also require that $m$ not be too close to a power of $2$, see <a href="https://www.geeksforgeeks.org/what-are-hash-functions-and-how-to-choose-a-good-hash-function/">this reference</a> for an explanation).  Our hash function now becomes $h(k) = mod(k, m)$, where $mod$ is <a href="https://en.wikipedia.org/wiki/Modulo">the modulo operation</a>.</p>
+
+<blockquote class="notice--success">
+  <p><strong>Exercise 4</strong>
+Let’s examine why we might want to choose our table size to be a prime number.  Suppose we are hashing the first 50 non-negative even numbers (0 through 98).  Let $h_1(k) = mod(k, 13)$ and $h_2(k) = mod(k, 16)$.  Show that despite the $h_1$ using fewer bins, it will result in better utilization of its bins than $h_2$.</p>
+</blockquote>
+
+<h3 id="more-hashing-algorithms">More Hashing Algorithms</h3>
+
+<p>We won’t over these, but they are here for reference.</p>
+
+<h4 id="murmur-hash-this-is-supplementary--we-wont-get-to-it">Murmur Hash (this is supplementary,  we won’t get to it)</h4>
+
+<p>Admittedly, I haven’t looked into <a href="https://en.wikipedia.org/wiki/MurmurHash">Murmur Hash</a> in any detail, but  I did find some <a href="https://www.keiruaprod.fr/blog/2023/04/02/the-murmur-hashing-algorithm.html">useful resources</a> to understand this algorithm.  I thought folks might be interested in reading about a hashing algorithm used in practice.  If you want to look into it and want to report back next class, please let me know.</p>
+
+<h4 id="cuckoo-hashing-this-is-supplementary--we-wont-get-to-it">Cuckoo Hashing (this is supplementary,  we won’t get to it)</h4>
+
+<p><a href="https://en.wikipedia.org/wiki/Cuckoo_hashing">Cuckoo hashing</a> is another interesting seeming technique (again, I haven’t looked into it too much, but the basic idea is intriguing).  If you want to look into it and want to report back next class, please let me know.</p>
+
+        
+      </section>
+
+      <footer class="page__meta">
+        
+        
+
+
+        
+      </footer>
+
+      
+
+      
+    </div>
+
+    
+  </article>
+
+  
+  
+</div>
+
+    </div>
+
+    
+
+    <div id="footer" class="page__footer">
+      <footer>
+        <!-- start custom footer snippets -->
+
+<!-- end custom footer snippets -->
+        <div class="page__footer-follow">
+  <ul class="social-icons">
+    
+
+    
+  </ul>
+</div>
+
+<div class="page__footer-copyright">&copy; 2026 Data Structures Fall 2026 @ Olin College.</div>
+
+      </footer>
+    </div>
+
+    <script src="/assets/js/copyCode.js"></script>
+
+
+  <script src="/assets/js/main.min.js"></script>
+  <script src="https://kit.fontawesome.com/4eee35f757.js"></script>
+
+
+
+
+
+
+
+
+
+
+  </body>
+</html>

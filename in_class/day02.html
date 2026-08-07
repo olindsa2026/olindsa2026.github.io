@@ -1,0 +1,490 @@
+<!doctype html>
+<!--
+  Minimal Mistakes Jekyll Theme 4.17.2 by Michael Rose
+  Copyright 2013-2019 Michael Rose - mademistakes.com | @mmistakes
+  Free for personal and commercial use under the MIT license
+  https://github.com/mmistakes/minimal-mistakes/blob/master/LICENSE
+-->
+<html lang="en" class="no-js">
+  <head>
+    <meta charset="utf-8">
+
+<script>
+class AnchorNoProxy extends HTMLElement {
+  constructor() {
+    super();
+    this.attachShadow({ mode: "open" });
+    this._$a = null;
+  }
+  connectedCallback() {
+    const href = this.getAttribute("href") || "#";
+    if (this.dataset.hasOwnProperty('canvas')) {
+        const canvasURL = this.dataset.canvas;
+        this.shadowRoot.innerHTML = `<style>a:hover, a:active { outline: 0; }\na { color: #5197ad; }\na:visited { color: #5197ad; }\na:hover { color: #266477; outline: 0; }</style><a href="${href}" data-canvas="${canvasURL}"><slot></slot></a>`;
+    } else {
+        this.shadowRoot.innerHTML = `<style>a:hover, a:active { outline: 0; }\na { color: #5197ad; }\na:visited { color: #5197ad; }\na:hover { color: #266477; outline: 0; }</style><a href="${href}"><slot></slot></a>`;
+    }
+    this._$a = this.shadowRoot.querySelector("a");
+    this._$a.addEventListener("click", e => {
+      var url = this.getAttribute('href');
+      e.preventDefault();
+      if (document.referrer.startsWith('https://lms.hypothes.is') && this.dataset.hasOwnProperty('canvas')) {
+        // get rid of proxy if it was added
+        var n = this.dataset.canvas.search('https://olin.instructure.com');
+        window.open(this.dataset.canvas.substring(n), '_blank');
+      } else {
+        window.open(url, '_blank');
+      }
+    });
+  }
+  static get observedAttributes() { return ["href"]; }
+  attributeChangedCallback(name, oldValue, newValue) {
+    if (oldValue !== newValue) {
+      if (this._$a === null) return;
+      this._$a.setAttribute("href", newValue);
+    }
+  }
+}
+
+customElements.define("a-no-proxy", AnchorNoProxy);
+
+class NoProxy extends HTMLAnchorElement {
+  connectedCallback() {
+    this.addEventListener("click", e => {
+      e.preventDefault();
+      if (document.referrer.startsWith('https://lms.hypothes.is') && this.dataset.hasOwnProperty('canvas')) {
+        // get rid of proxy if it was added
+        var n = this.dataset.canvas.search('https://olin.instructure.com');
+      	window.open(this.dataset.canvas.substring(n), '_blank');
+      } else {
+      	window.open(this.href, '_blank');
+      }
+    });
+  }
+}
+
+customElements.define("no-proxy", NoProxy, { extends: "a" });
+
+class ConfirmLink extends HTMLAnchorElement {
+  connectedCallback() {
+    this.addEventListener("click", e => {
+      const result = confirm(`Are you sure you want to go to '${this.href}'?`);
+      if (!result) e.preventDefault();
+    });
+  }
+}
+
+customElements.define("confirm-link", ConfirmLink, { extends: "a" });
+
+</script>
+
+<!-- begin _includes/seo.html --><title>Day 2: Greedy Algorithms Teaser, Order of Growth, and Some Kotlin - Data Structures Fall 2026 @ Olin College</title>
+<meta name="description" content="">
+
+
+
+<meta property="og:type" content="website">
+<meta property="og:locale" content="en_US">
+<meta property="og:site_name" content="Data Structures Fall 2026 @ Olin College">
+<meta property="og:title" content="Day 2: Greedy Algorithms Teaser, Order of Growth, and Some Kotlin">
+<meta property="og:url" content="/in_class/day02.html">
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="canonical" href="/in_class/day02.html">
+
+
+
+
+<script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    
+      "@type": "Person",
+      "name": null,
+      "url": "/"
+    
+  }
+</script>
+
+
+
+
+
+
+<!-- end _includes/seo.html -->
+
+
+<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="Data Structures Fall 2026 @ Olin College Feed">
+
+<!-- https://t.co/dKP3o1e -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script>
+  document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/g, '') + ' js ';
+</script>
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="/assets/css/main.css">
+
+<!--[if IE]>
+  <style>
+    /* old IE unsupported flexbox fixes */
+    .greedy-nav .site-title {
+      padding-right: 3em;
+    }
+    .greedy-nav button {
+      position: absolute;
+      top: 0;
+      right: 0;
+      height: 100%;
+    }
+  </style>
+<![endif]-->
+
+
+
+    <!-- start custom head snippets -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11.9.0/dist/mermaid.min.js"></script>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.28/dist/katex.min.css" integrity="sha384-Wsr4Nh3yrvMf2KCebJchRJoVo1gTU6kcP05uRSh5NV3sj9+a8IomuJoQzf3sMq4T" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.28/dist/katex.min.js" integrity="sha384-+W9OcrYK2/bD7BmUAk+xeFAyKp0QjyRQUCxeU31dfyTt/FrPsUgaBTLLkVf33qWt" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.28/dist/contrib/auto-render.min.js" integrity="sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh" crossorigin="anonymous"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", async function () {
+  // Render Mermaid first, from untouched source.
+  mermaid.initialize({ startOnLoad: false });
+  await mermaid.run(); // renders all .mermaid blocks
+
+  // render KaTeX
+  renderMathInElement(document.body, {
+          delimiters: [
+              {left: '$$', right: '$$', display: true},
+              {left: '$', right: '$', display: false},
+              {left: '\\(', right: '\\)', display: false},
+              {left: '\\[', right: '\\]', display: true}
+          ],
+    throwOnError: false,
+  });
+});
+</script>
+
+<script type="text/javascript">
+function HideShowElement(divID) {
+    const x = document.getElementById(divID);
+    if (x.style.display === "none") {
+        x.style.display = "block";
+    } else {
+        x.style.display = "none";
+    }
+}
+</script>
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+
+<!-- insert favicons. use https://realfavicongenerator.net/ -->
+
+<!-- end custom head snippets -->
+
+  </head>
+
+  <body class="layout--single">
+    <nav class="skip-links">
+  <h2 class="screen-reader-text">Skip links</h2>
+  <ul>
+    <li><a href="#site-nav" class="screen-reader-shortcut">Skip to primary navigation</a></li>
+    <li><a href="#main" class="screen-reader-shortcut">Skip to content</a></li>
+    <li><a href="#footer" class="screen-reader-shortcut">Skip to footer</a></li>
+  </ul>
+</nav>
+
+    <!--[if lt IE 9]>
+<div class="notice--danger align-center" style="margin: 0;">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience.</div>
+<![endif]-->
+
+    
+
+<div class="masthead">
+  <div class="masthead__inner-wrap">
+    <div class="masthead__menu">
+      <nav id="site-nav" class="greedy-nav">
+        
+          <a class="site-logo" href="/"><img src="https://qeacourse.github.io/RoboNinjaWarrior/website_graphics/olinlogo.png" alt=""></a>
+        
+        <a class="site-title" href="/">
+          Data Structures Fall 2026 @ Olin College
+          
+        </a>
+        <ul class="visible-links"></ul>
+        
+        <button class="greedy-nav__toggle hidden" type="button">
+          <span class="visually-hidden">Toggle menu</span>
+          <div class="navicon"></div>
+        </button>
+        <ul class="hidden-links hidden"></ul>
+      </nav>
+    </div>
+  </div>
+</div>
+
+
+    <div class="initial-content">
+      
+
+
+
+<div id="main" role="main">
+  
+
+  <article class="page" itemscope itemtype="https://schema.org/CreativeWork">
+    <meta itemprop="headline" content="Day 2: Greedy Algorithms Teaser, Order of Growth, and Some Kotlin">
+    
+    
+    
+
+    <div class="page__inner-wrap">
+      
+        <header>
+          <h1 id="page-title" class="page__title" itemprop="headline">Day 2: Greedy Algorithms Teaser, Order of Growth, and Some Kotlin
+</h1>
+          
+        </header>
+      
+
+      <section class="page__content" itemprop="text">
+        
+          <aside class="sidebar__right sticky">
+            <nav class="toc">
+              <header><h4 class="nav__title"><i class="fas fa-file-alt"></i> On this page</h4></header>
+	      
+                <ul class="toc__menu">
+  <li><a href="#announcements-and-reminders">Announcements and Reminders</a></li>
+  <li><a href="#algorithm-design-patterns-whirlwind-tour">Algorithm Design Patterns Whirlwind Tour</a></li>
+  <li><a href="#o-and-friends">O() and Friends</a></li>
+  <li><a href="#peak-finding-in-kotlin">Peak finding in Kotlin</a></li>
+</ul>
+	      	
+            </nav>
+          </aside>
+        
+        <h2 id="announcements-and-reminders">Announcements and Reminders</h2>
+
+<ul>
+  <li>If you haven’t yet, please fill out the office hours when2meets (see Canvas).</li>
+  <li>Consider joining the Slack.</li>
+</ul>
+
+<h2 id="algorithm-design-patterns-whirlwind-tour">Algorithm Design Patterns Whirlwind Tour</h2>
+
+<p>We’re going to take a few classes to get a feel for the various algorithmic design patterns we will meet this semester.  During class 1, we met the design pattern <em>divide and conquer</em>.  Today, we’ll be learning about greedy algorithms.</p>
+
+<p>Wikipedia has a concise definition of a greedy algorithm.</p>
+
+<blockquote>
+  <p>A greedy algorithm is any algorithm that follows the problem-solving heuristic of making the locally optimal choice at each stage.</p>
+</blockquote>
+
+<p>The question becomes, does the greedy strategy lead to an optimal solution to the problem?  In some cases it may lead to such a solution, and in other cases it may not.</p>
+
+<blockquote class="notice--info">
+  <p><strong>Sample Problem</strong> Seeing where a greedy approach fails</p>
+
+  <p>To make sure we understand which problems can be solved with a greedy algorithm, it may be more intuitive to think about some cases that a greedy algorithm cannot solve. Let’s work through an example of this to all get on the same page.</p>
+
+  <p><em>Knapsack Problem</em>: Given $N$ items where the $i$th item weights $w_i$ pounds, determine an assignment of items to two knapsacks such that the combined weight of the items in each knapsack is the same.</p>
+
+  <p><strong>Example:</strong> There are five items with weights $6, 5, 9, 1, 1$.</p>
+
+  <p><strong>Solution:</strong> Knapsack 1: ${5, 6}$, Knapsack 2: ${1, 1, 9}$.</p>
+
+  <p>What’s the greedy approach?  Let’s start with the knapsacks empty and choose the combination of knapsack and item that causes the total weight in each knapsack to stay as close as possible.  Let’s track how the knapsacks $K_1$, $K_2$, and the remaining items, $R$, would evolve over time if we applied this procedure.</p>
+  <ol>
+    <li>$K_1 = [ 1 ], K_2 = [ ], R = [6, 5, 9, 1]$</li>
+    <li>$K_1 = [ 1 ], K_2 = [ 1 ], R = [6, 5, 9 ]$</li>
+    <li>$K_1 = [ 1, 5 ], K_2 = [ 1 ], R = [ 6, 9 ]$</li>
+    <li>$K_1 = [ 1, 5 ], K_2 = [ 1, 6 ], R = [ 9 ]$</li>
+    <li>$K_1 = [ 1, 5, 9 ], K_2 = [ 1, 6 ]$</li>
+  </ol>
+
+  <p>This approach has clearly failed since the weights in $K_1$ total 15 and the weights in $K_2$ total 7.</p>
+</blockquote>
+
+<p>Now, let’s work through the following exercise as a group.</p>
+
+<blockquote class="notice--success">
+  <p><strong>Exercise 1</strong></p>
+  <ol>
+    <li>Suppose you have a budget of $N$ dollars to purchase flour and that flour can be purchased on day $i$ for $x_i$ dollars per pound.  Determine the maximum amount of flour you can purchase with your budget.  Is your algorithm a greedy algorithm? (you can assume that buying a fraction of a pound is allowed).  How would you modify your algorithm if you were limited to purchasing $M$ pounds of flour each day?  Is the new algorithm greedy?</li>
+    <li>Determine a greedy algorithm for making change for $N$ cents using quarters, dimes, nickels, and pennies.  Does your greedy algorithm use the fewest coins possible (make an intuitive argument, no proof necessary)?</li>
+    <li>If the US began minting a 20-cent coin, would a greedy algorithm still solve the optimal change-making problem? (Wikipedia has some useful information on <a href="https://en.wikipedia.org/wiki/Change-making_problem">the change-making problem</a> if you want to learn more)</li>
+  </ol>
+</blockquote>
+
+<h3 id="optimal-roadtripping">Optimal Roadtripping</h3>
+
+<blockquote class="notice--success">
+  <p><strong>Exercise 2</strong> You are planning a road trip of $N$ miles.  Your electric car has a range of $M$ miles.  There are charging stations located at mile $a_1, a_2, a_3, \ldots, a_k$ (as measured from the start of the route).  Determine a procedure to figure out the minimum number of recharges you have to make in order to complete the road trip.</p>
+
+  <p><button onclick="HideShowElement('HideShow1')">Show / Hide Hint 1</button></p>
+  <div id="HideShow1" style="display:none">Start by thinking about the first decision you have to make (where to make your first recharging stop).  Is there a best first place to stop?</div>
+  <p><button onclick="HideShowElement('HideShow2')">Show / Hide Hint 2</button></p>
+  <div id="HideShow2" style="display:none">Assuming that you recharge completely each time you choose to stop, does it ever make sense to stop at an earlier charging station than you could have reached?</div>
+</blockquote>
+
+<h2 id="o-and-friends">O() and Friends</h2>
+
+<p>Next, we are going to return to what we did in the first class where we calculated the runtime of an algorithm as a function of the input size $n$.  Let’s say we compute the runtime of an algorithm 1 to be $2 n^2 + 5n + 200$ and the runtime of algorithm 2 to be $3 n^2 + 2 n$.  Is one necessarily faster than the other?  We can graph the two runtimes and see.</p>
+
+<div id="plot"></div>
+<script>
+  Plotly.newPlot("plot", [{
+    x: [...Array(20).keys()],
+    y: [...Array(20).keys()].map(i => 2*i*i + 5*i + 200),
+    mode: 'lines',
+    name: "algorithm 1"
+  }, {
+    x: [...Array(20).keys()],
+    y: [...Array(20).keys()].map(i => 3*i*i + 2*i),
+    mode: 'lines',
+    name: "algorithm 2"
+  }], { xaxis: { title: "Input Size" },
+        yaxis: { title: "Runtime" } } );
+</script>
+
+<p>Something interesting happens around $n=16$ (the lines cross).  However, if we let the input size get really large and plot the ratios of the two runtimes, we can see that algorithm 2 takes 50% longer to run than algorithm 1.</p>
+
+<div id="plot2"></div>
+<script>
+  Plotly.newPlot("plot2", [{
+    x: [...Array(1000).keys()],
+    y: [...Array(1000).keys()].map(i => (3*i*i + 2*i)/(2*i*i + 5*i + 200)),
+    mode: 'lines',
+    name: "algorithm 2 runtime / algorithm 1 runtime"
+  }], { xaxis: { title: "Input Size", range: [10,1000] },
+        yaxis: { title: "Relative Runtime", range: [0, 2] } } );
+</script>
+
+<p>The idea behind order of growth, is to find a way to draw meaningful distinctions between how fast functions increase.  Where meaningful in this case is based on how the functions behave when the input, $n$, gets very large and where we ignore constant factor differences in the functions (e.g., if a function is twice another, it is pretty much the same for our purposes).</p>
+
+<p>We say that $f(x) = O(g(x))$ if there exists a positive real number $M$ and a real number $x_0$ such that, $|f(x)| \leq M g(x)~\text{for all}~x\geq x_0$.</p>
+
+<p>$f(x) = \Omega(g(x))$ if there exists a positive real number $M$ and a real number $x_0$ such that, $|f(x)|\geq M g(x)~\text{for all}~x \geq x_0$</p>
+
+<p>We say that $f(x) = \Theta(g(x))$ if $f(x) = O(g(x))$ and $f(x) = \Omega(g(x))$.</p>
+
+<p>Here is a handy figure from “Introduction to Algorithms” by Cormen, Leiserson, Rivest, and Stein.</p>
+
+<p><img src="/images/bigoandfriends.png" alt="This figure shows a grahical depiction of O(g(n)) (left), Omega(g(n)) (center), and Theta(g(n)) (right)" /></p>
+
+<p>With your group, explain how the formal definitions (given earlier) relate to these pictures.</p>
+
+<blockquote class="notice--success">
+  <p><strong>Exercise 3</strong></p>
+  <ol>
+    <li>Show that $10000 n = O(n^2)$ (let’s do this one together).</li>
+    <li>Show that $n^2 \neq O(n)$.
+<button onclick="HideShowElement('HideShow3')">Show / Hide Hint</button>
+      <div id="HideShow3" style="display:none">Write out the condition for $O()$ and show that it cannot be satisfied.</div>
+    </li>
+    <li>Show that $\frac{3^n}{10000} = \Omega(2^n)$
+<button onclick="HideShowElement('HideShow4')">Show / Hide Hint</button>
+      <div id="HideShow4" style="display:none">Follow the blueprint by writing out the condition for $\Omega$.  You don't have to necessarily find $x_0$, but convince yourself that one exists.</div>
+    </li>
+    <li>Argue (up to you how formal to make your argument) that any polynomial is $O(2^n)$</li>
+  </ol>
+</blockquote>
+
+<blockquote class="notice--success">
+  <p><strong>Exercise 4</strong> This problem is from former Olin Professor Allen Downey’s Think Python second edition.   In this context, order of growth can be understood to mean $\Theta$.  I made one modification to part 3 of the exercise.</p>
+  <ol>
+    <li>What is the order of growth of $n^3 + n^2$? What about $1000000 n^3 + n^2$? What about $n^3 + 1000000 n^2$?</li>
+    <li>What is the order of growth of $(n^2 + n)(n + 1)$?</li>
+    <li>If $f$ is in $O(g)$ and $g$ is a continuously increasing functions that grows infinitely large as $n \rightarrow \infty$, what can we say about $af+b$, where $a$ and $b$ are constants?</li>
+    <li>If $f_1$ and $f_2$ are in $O(g)$, what can we say about $f_1 + f_2$?
+<button onclick="HideShowElement('HideShow5')">Show / Hide Hint</button>
+      <div id="HideShow5" style="display:none">What do we know about based on the fact that $f_1$ and $f_2$ are in $O(g)$, can we write down a useful condition?</div>
+    </li>
+    <li>If $f_1$ is in $O(g)$ and $f_2$ is in $O(h)$, what can we say about $f_1 + f_2$?
+<button onclick="HideShowElement('HideShow6')">Show / Hide Hint</button>
+      <div id="HideShow6" style="display:none">You can use max(g, h) to refer to the bigger of the functions.</div>
+    </li>
+    <li>If $f_1$ is in $O(g)$ and $f_2$ is $O(h)$, what can we say about $f_1 \times f_2$?</li>
+  </ol>
+</blockquote>
+
+<h2 id="peak-finding-in-kotlin">Peak finding in Kotlin</h2>
+
+<p>Let’s create an implementation of the peak-finding algorithm we determined in class last time.  If you are not here for the live demonstration (or if we somehow run out of time), you can find the solution in <a href="https://github.com/OlinDSA2025/SampleSolutions">the class sample solutions repo under Class01</a>.</p>
+
+        
+      </section>
+
+      <footer class="page__meta">
+        
+        
+
+
+        
+      </footer>
+
+      
+
+      
+    </div>
+
+    
+  </article>
+
+  
+  
+</div>
+
+    </div>
+
+    
+
+    <div id="footer" class="page__footer">
+      <footer>
+        <!-- start custom footer snippets -->
+
+<!-- end custom footer snippets -->
+        <div class="page__footer-follow">
+  <ul class="social-icons">
+    
+
+    
+  </ul>
+</div>
+
+<div class="page__footer-copyright">&copy; 2026 Data Structures Fall 2026 @ Olin College.</div>
+
+      </footer>
+    </div>
+
+    <script src="/assets/js/copyCode.js"></script>
+
+
+  <script src="/assets/js/main.min.js"></script>
+  <script src="https://kit.fontawesome.com/4eee35f757.js"></script>
+
+
+
+
+
+
+
+
+
+
+  </body>
+</html>

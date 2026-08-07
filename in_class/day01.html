@@ -1,0 +1,538 @@
+<!doctype html>
+<!--
+  Minimal Mistakes Jekyll Theme 4.17.2 by Michael Rose
+  Copyright 2013-2019 Michael Rose - mademistakes.com | @mmistakes
+  Free for personal and commercial use under the MIT license
+  https://github.com/mmistakes/minimal-mistakes/blob/master/LICENSE
+-->
+<html lang="en" class="no-js">
+  <head>
+    <meta charset="utf-8">
+
+<script>
+class AnchorNoProxy extends HTMLElement {
+  constructor() {
+    super();
+    this.attachShadow({ mode: "open" });
+    this._$a = null;
+  }
+  connectedCallback() {
+    const href = this.getAttribute("href") || "#";
+    if (this.dataset.hasOwnProperty('canvas')) {
+        const canvasURL = this.dataset.canvas;
+        this.shadowRoot.innerHTML = `<style>a:hover, a:active { outline: 0; }\na { color: #5197ad; }\na:visited { color: #5197ad; }\na:hover { color: #266477; outline: 0; }</style><a href="${href}" data-canvas="${canvasURL}"><slot></slot></a>`;
+    } else {
+        this.shadowRoot.innerHTML = `<style>a:hover, a:active { outline: 0; }\na { color: #5197ad; }\na:visited { color: #5197ad; }\na:hover { color: #266477; outline: 0; }</style><a href="${href}"><slot></slot></a>`;
+    }
+    this._$a = this.shadowRoot.querySelector("a");
+    this._$a.addEventListener("click", e => {
+      var url = this.getAttribute('href');
+      e.preventDefault();
+      if (document.referrer.startsWith('https://lms.hypothes.is') && this.dataset.hasOwnProperty('canvas')) {
+        // get rid of proxy if it was added
+        var n = this.dataset.canvas.search('https://olin.instructure.com');
+        window.open(this.dataset.canvas.substring(n), '_blank');
+      } else {
+        window.open(url, '_blank');
+      }
+    });
+  }
+  static get observedAttributes() { return ["href"]; }
+  attributeChangedCallback(name, oldValue, newValue) {
+    if (oldValue !== newValue) {
+      if (this._$a === null) return;
+      this._$a.setAttribute("href", newValue);
+    }
+  }
+}
+
+customElements.define("a-no-proxy", AnchorNoProxy);
+
+class NoProxy extends HTMLAnchorElement {
+  connectedCallback() {
+    this.addEventListener("click", e => {
+      e.preventDefault();
+      if (document.referrer.startsWith('https://lms.hypothes.is') && this.dataset.hasOwnProperty('canvas')) {
+        // get rid of proxy if it was added
+        var n = this.dataset.canvas.search('https://olin.instructure.com');
+      	window.open(this.dataset.canvas.substring(n), '_blank');
+      } else {
+      	window.open(this.href, '_blank');
+      }
+    });
+  }
+}
+
+customElements.define("no-proxy", NoProxy, { extends: "a" });
+
+class ConfirmLink extends HTMLAnchorElement {
+  connectedCallback() {
+    this.addEventListener("click", e => {
+      const result = confirm(`Are you sure you want to go to '${this.href}'?`);
+      if (!result) e.preventDefault();
+    });
+  }
+}
+
+customElements.define("confirm-link", ConfirmLink, { extends: "a" });
+
+</script>
+
+<!-- begin _includes/seo.html --><title>Day 1: Course Intro and Welcome to DSA - Data Structures Fall 2026 @ Olin College</title>
+<meta name="description" content="">
+
+
+
+<meta property="og:type" content="website">
+<meta property="og:locale" content="en_US">
+<meta property="og:site_name" content="Data Structures Fall 2026 @ Olin College">
+<meta property="og:title" content="Day 1: Course Intro and Welcome to DSA">
+<meta property="og:url" content="/in_class/day01.html">
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="canonical" href="/in_class/day01.html">
+
+
+
+
+<script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    
+      "@type": "Person",
+      "name": null,
+      "url": "/"
+    
+  }
+</script>
+
+
+
+
+
+
+<!-- end _includes/seo.html -->
+
+
+<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="Data Structures Fall 2026 @ Olin College Feed">
+
+<!-- https://t.co/dKP3o1e -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script>
+  document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/g, '') + ' js ';
+</script>
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="/assets/css/main.css">
+
+<!--[if IE]>
+  <style>
+    /* old IE unsupported flexbox fixes */
+    .greedy-nav .site-title {
+      padding-right: 3em;
+    }
+    .greedy-nav button {
+      position: absolute;
+      top: 0;
+      right: 0;
+      height: 100%;
+    }
+  </style>
+<![endif]-->
+
+
+
+    <!-- start custom head snippets -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11.9.0/dist/mermaid.min.js"></script>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.28/dist/katex.min.css" integrity="sha384-Wsr4Nh3yrvMf2KCebJchRJoVo1gTU6kcP05uRSh5NV3sj9+a8IomuJoQzf3sMq4T" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.28/dist/katex.min.js" integrity="sha384-+W9OcrYK2/bD7BmUAk+xeFAyKp0QjyRQUCxeU31dfyTt/FrPsUgaBTLLkVf33qWt" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.28/dist/contrib/auto-render.min.js" integrity="sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh" crossorigin="anonymous"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", async function () {
+  // Render Mermaid first, from untouched source.
+  mermaid.initialize({ startOnLoad: false });
+  await mermaid.run(); // renders all .mermaid blocks
+
+  // render KaTeX
+  renderMathInElement(document.body, {
+          delimiters: [
+              {left: '$$', right: '$$', display: true},
+              {left: '$', right: '$', display: false},
+              {left: '\\(', right: '\\)', display: false},
+              {left: '\\[', right: '\\]', display: true}
+          ],
+    throwOnError: false,
+  });
+});
+</script>
+
+<script type="text/javascript">
+function HideShowElement(divID) {
+    const x = document.getElementById(divID);
+    if (x.style.display === "none") {
+        x.style.display = "block";
+    } else {
+        x.style.display = "none";
+    }
+}
+</script>
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+
+<!-- insert favicons. use https://realfavicongenerator.net/ -->
+
+<!-- end custom head snippets -->
+
+  </head>
+
+  <body class="layout--single">
+    <nav class="skip-links">
+  <h2 class="screen-reader-text">Skip links</h2>
+  <ul>
+    <li><a href="#site-nav" class="screen-reader-shortcut">Skip to primary navigation</a></li>
+    <li><a href="#main" class="screen-reader-shortcut">Skip to content</a></li>
+    <li><a href="#footer" class="screen-reader-shortcut">Skip to footer</a></li>
+  </ul>
+</nav>
+
+    <!--[if lt IE 9]>
+<div class="notice--danger align-center" style="margin: 0;">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience.</div>
+<![endif]-->
+
+    
+
+<div class="masthead">
+  <div class="masthead__inner-wrap">
+    <div class="masthead__menu">
+      <nav id="site-nav" class="greedy-nav">
+        
+          <a class="site-logo" href="/"><img src="https://qeacourse.github.io/RoboNinjaWarrior/website_graphics/olinlogo.png" alt=""></a>
+        
+        <a class="site-title" href="/">
+          Data Structures Fall 2026 @ Olin College
+          
+        </a>
+        <ul class="visible-links"></ul>
+        
+        <button class="greedy-nav__toggle hidden" type="button">
+          <span class="visually-hidden">Toggle menu</span>
+          <div class="navicon"></div>
+        </button>
+        <ul class="hidden-links hidden"></ul>
+      </nav>
+    </div>
+  </div>
+</div>
+
+
+    <div class="initial-content">
+      
+
+
+
+<div id="main" role="main">
+  
+
+  <article class="page" itemscope itemtype="https://schema.org/CreativeWork">
+    <meta itemprop="headline" content="Day 1: Course Intro and Welcome to DSA">
+    
+    
+    
+
+    <div class="page__inner-wrap">
+      
+        <header>
+          <h1 id="page-title" class="page__title" itemprop="headline">Day 1: Course Intro and Welcome to DSA
+</h1>
+          
+        </header>
+      
+
+      <section class="page__content" itemprop="text">
+        
+          <aside class="sidebar__right sticky">
+            <nav class="toc">
+              <header><h4 class="nav__title"><i class="fas fa-file-alt"></i> On this page</h4></header>
+	      
+                <ul class="toc__menu">
+  <li><a href="#lets-settle-in-and-meet-each-other">Let’s Settle In and Meet Each Other</a></li>
+  <li><a href="#course-structure-and-major-topics">Course Structure and Major Topics</a></li>
+  <li><a href="#algorithms-in-the-world">Algorithms in the World</a></li>
+  <li><a href="#discussion-of-learning-strategies-and-oral-quizzes">Discussion of Learning Strategies and Oral Quizzes</a></li>
+  <li><a href="#having-some-fun-with-algorithms">Having Some Fun With Algorithms</a></li>
+  <li><a href="#orientation-to-assignment-1">Orientation to Assignment 1</a></li>
+  <li><a href="#turning-in-your-work">Turning in your work</a></li>
+</ul>
+	      	
+            </nav>
+          </aside>
+        
+        <h2 id="lets-settle-in-and-meet-each-other">Let’s Settle In and Meet Each Other</h2>
+<blockquote>
+  <p>Time 2:50-2:55pm</p>
+</blockquote>
+
+<p>Can we do a quick round of intros?  How about name, year, school, and where you’re from?</p>
+
+<h2 id="course-structure-and-major-topics">Course Structure and Major Topics</h2>
+
+<blockquote>
+  <p>Time: 2:55-3:05pm</p>
+</blockquote>
+
+<p>The goal of this course is for you to learn how to frame problems using the language of computation and select appropriate data structures and algorithms to solve them.  We’ll get more into what we mean by framing problems later (there is an example later today), but for now I want to focus on the sorts of problems we will be tackling and the algorithmic strategies we will be using to solve them.</p>
+
+<h3 id="data-structures">Data Structures</h3>
+
+<ul>
+  <li>Before talking about data structures, let’s talk about data.  What sorts data do we need to consider when designing computer algorithms?</li>
+  <li>Data structures as supports for algorithms.  Ultimately, data structures are useful to solve certain problems.  There are many properties we might care about when we select a data structure.  Can we brainstorm some of these properties as a class?</li>
+  <li>We’ll be learning about basic linked data structures (linked lists, stacks, queues), data structures to represent graphs and trees (e.g., binary search trees or heaps), and data structures that use hashing to index and retrieve data.</li>
+</ul>
+
+<h3 id="algorithmic-design-patterns">Algorithmic Design Patterns</h3>
+
+<p>While each algorithm must be tuned to the particular problem being solved, there are general algorithm types that we will encounter (e.g., some algorithms work by breaking a larger problem into smaller instances, some use a greedy approach, others are based on backtracking or graph search).</p>
+
+<h3 id="analyzing-algorithms">Analyzing Algorithms</h3>
+
+<p>We want to develop ways to talk about the computational (how long it takes to compute a solution) and spatial (how much space is needed in a computer’s memory to compute a solution) complexity of algorithms.  We can look at these factors with both theoretical (e.g., doing some analysis to understand how long an algorithm runs based on the problem size) and empirical tools (e.g., measuring the actual time it takes an algorithm to run on a computer).</p>
+
+<h3 id="specific-algorithms">Specific Algorithms</h3>
+
+<p>Of course, we will learn about specific algorithms.  We’ll see algorithms from graph theory, string matching, bioinformatics, sorting, matrix multiplication, backtracking, and artificial intelligence.</p>
+
+<h3 id="applications-of-algorithms">Applications of Algorithms</h3>
+
+<p>We’ll see some instances of how particular algorithms can be applied to solve problems in specific fields (e.g., text retrieval and indexing, bioinformatics).</p>
+
+<h3 id="algorithmic-deep-dive">Algorithmic Deep Dive</h3>
+
+<p>You’ll be able to customize the course by taking a deep dive into a new algorithm or algorithms topic that we did not cover in the class.</p>
+
+<h3 id="implementation-and-testing">Implementation and Testing</h3>
+
+<p>In order to solidify your understanding of the material and improve your ability as a developer, we will be implementing many of our algorithms and data structures.  We’ll focus on creating unit tests as a way to create more maintainable and correct code.</p>
+
+<h2 id="algorithms-in-the-world">Algorithms in the World</h2>
+
+<blockquote>
+  <p>Time: 3:05pm-3:30pm</p>
+</blockquote>
+
+<p>Choose a category of algorithms from the list below (or make up your own). You are not supposed to know all (or any) of these already!  I encourage you to choose ones you don’t know about and do some research. Alternatively, warm up with one you are familiar with and then choose one less so.  For each category you choose to look into:</p>
+
+<ul>
+  <li>What problem does the algorithm solve?</li>
+  <li>List the metrics that an algorithm designer might care about when creating an algorithm of this type.</li>
+  <li>List at least two examples of how algorithms of this type are used in the world (applications).</li>
+</ul>
+
+<p>Some examples of algorithms are listed below.</p>
+<ul>
+  <li>Data Compression (lossless or lossy)</li>
+  <li>Collaborative filtering (e.g., as used in recommender systems)</li>
+  <li>Encryption</li>
+  <li>Routing (e.g., of Internet traffic or for navigation instructions)</li>
+  <li><a href="https://en.wikipedia.org/wiki/Assignment_problem">Task Assignment</a></li>
+  <li>Sorting</li>
+  <li>Matrix Multiplication</li>
+  <li>Fourier Analysis</li>
+  <li>Semantic search</li>
+  <li>(come up with your own…. there are so many!)</li>
+</ul>
+
+<blockquote>
+  <p>Bonus question: list all the algorithms that you and your team have interacted with since you got up this morning.</p>
+</blockquote>
+
+<h2 id="discussion-of-learning-strategies-and-oral-quizzes">Discussion of Learning Strategies and Oral Quizzes</h2>
+
+<blockquote>
+  <p>Time: 3:30pm-3:50pm</p>
+</blockquote>
+
+<p>Next, I want to discuss two interrelated issues.  The first is how you can work in a way that best supports your learning this semester.  The second is how I can provide an assessment structure that provides you with useful feedback.</p>
+
+<p>While there are many aspects of assessment in this course, for now I want to focus on something new I’m trying this semester.  Twice this semester, I will meet with each of you for an oral quiz (each quiz is worth 10% of your grade).  My hope is that this structure will give you a better measurement of your progress over the semester.  Partially, my decision is based on mitigating what I feel are ways in which AI-based coding assistants might hinder learning in this course (e.g., if they are used as answer generators rather than coaches).  I’m not ready to nail down the full design of these quizzes, but here are some preliminary thoughts.</p>
+
+<table>
+  <tbody>
+    <tr>
+      <td><em>Activity</em></td>
+      <td><em>What’s Being Assessed</em></td>
+    </tr>
+    <tr>
+      <td>You are given a problem to solve. As you work towards a solution, you show / discuss your thought process.</td>
+      <td>Your ability to select appropriate data structures and algorithms to solve a novel problem.</td>
+    </tr>
+    <tr>
+      <td>You are asked to explain a section of code from one of your submitted assignments.</td>
+      <td>Your ability to internalize, and be able to verbalize to others, the coding choices you made.</td>
+    </tr>
+    <tr>
+      <td>You are asked to give a whiteboard talk explaining one of the class concepts.</td>
+      <td>Your fluency with the concepts in the course, your ability to distill down the important bits, and your ability to communicate clearly about course concepts.</td>
+    </tr>
+    <tr>
+      <td>You are given an implementation of a particular algorithm, and you must work through whether the code is correct. If it is not correct, you may suggest corrections.</td>
+      <td>Your ability to comprehend code that you didn’t write and assess its correctness.</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>With some folks around you, please discuss the following.</p>
+<ol>
+  <li>What are some learning strategies that have worked particularly well for you in the past?  Do you think they will work well in this course?</li>
+  <li>Will you use AI-based coding assistants in this course?  How will you use them to ensure you are getting the knowledge you’d like from the course?</li>
+  <li>In reaction to the table above, what other activities would be useful to include in an oral quiz and what skill would they be assessing?</li>
+</ol>
+
+<h2 id="having-some-fun-with-algorithms">Having Some Fun With Algorithms</h2>
+
+<blockquote>
+  <p>3:50pm - 4:20pm</p>
+</blockquote>
+
+<p><strong><em>Quantifying Runtime</em></strong>
+In this class we’re going to be reasoning about the efficiency of our algorithms with respect to the size of the problem they are solving.  For instance, if we feed $n$ numbers into an algorithm, how long does it take the algorithm to compute a solution?  Depending on how the algorithm works, this might take $n^2$ (e.g., if we had to check all pairs of inputs against each other) or $n$ (e.g., if we only had to scan the inputs once).  In the problems below, you’ll want to come up with a procedure for solving the problem and also determine how many steps the algorithm would take to compute an answer as a function of $n$.  For the purposes of these exercises, the following operations take 1 step.</p>
+<ul>
+  <li>Accessing an element in a list (e.g., $a_2$)</li>
+  <li>Comparing two numbers to each other (e.g., $a_3 &gt; a_8$)</li>
+</ul>
+
+<p>Work through the peak-finding problem with a group of people sitting near you.  If you finish the first problem, you can either look into 2D peak-finding, or check out <a href="/assignments/assignment_01">the first assignment</a>.  The goal here is not for you to be able to jump right to the answer, but instead, to break down the problem and discuss it with those around you.</p>
+
+<h3 id="peak-finding">Peak Finding</h3>
+
+<blockquote>
+  <p>Credit to MIT Open Courseware 6.006 for this problem</p>
+</blockquote>
+
+<p>Suppose we have a list of numbers represented as a sequence $a_1, \ldots, a_n$ with $n \geq 2$.  For any element that isn’t either the first or the last element of this sequence, we say that element $i$ is a peak if and only if $a_i \geq  a_{i-1}~\text{and}~a_i \geq a_{i+1}$.  For the elements at the ends of the sequence, we say that $a_1$ is a peak if and only $a_1 \geq a_2$ and $a_n$ is a peak if and only if $a_n \geq a_{n-1}$.</p>
+
+<p>With some folks around, you answer the following questions:</p>
+
+<ol>
+<li>Unpack the notation.  Write out a simple test case and label the values with the appropriate notation (e.g., write a list of numbers and draw an arrow to the first that says $a_1$, to the second that says $a_2$, etc.</li>
+<li>Get a feel for the condition written above.  Draw a few test cases.  When does a peak exist?  When does it not?</li>
+<li>Come up with a very simple algorithm to return the position, $i$, of a peak in a list of numbers (provided one exists).  As a function of $n$, how many elements do you have to check to determine if you have a peak?</li>
+<li>See if you can create an algorithm to find a peak faster than your first algorithm (faster in this case means it has a slower growing runtime as a function of $n$).  What techniques might be able to speed things up?  Make an argument that your algorithm is correct and see if you can start to understand how you might prove this more formally.
+
+<br />
+<button onclick="HideShowElement('HideShow1')">Show / Hide Hint 1</button>
+<div id="HideShow1" style="display:none">
+You should think about breaking the problem down into simpler instances.
+</div>
+
+<br />
+<button onclick="HideShowElement('HideShow2')">Show / Hide Hint 2</button>
+<div id="HideShow2" style="display:none">
+Think recursively.  Here is a convenient link to <a href="https://softdes.olin.edu/docs/readings/3-dict-recursion-refactoring/#recursion">the material from SoftDes on the matter</a> (or call me over and we can do a quick refresher)!  What test can you perform that would allow you to recurse on a sequence half as large as the one you started with?
+</div></li>
+<li>If we changed the condition of a peak to the definition below, would your algorithm in question 3 still work?</li>
+</ol>
+
+<blockquote>
+  <p>Definition 2: For any element that isn’t either the first or the last element of this sequence, we say that element $i$ is a peak if and only if $a_i &gt; a_{i-1}~\text{and}~a_i &gt; a_{i+1}$.  For the elements at the ends of the sequence, we say that $a_1$ is a peak if and only $a_1 &gt; a_2$ and $a_n$ is a peak if and only if $a_n &lt; a_{n-1}$.</p>
+</blockquote>
+
+<h3 id="2d-peak-finding">2D Peak Finding</h3>
+
+<blockquote>
+  <p>Note: this is mostly just here for reference for the folks who are curious.  I do not expect you to be able to get to this during class time.</p>
+</blockquote>
+
+<p>Can we generalize the ideas from the peak-finding algorithm to 2 dimensions (i.e, a matrix)?  Yes!  Here are some slides that talk about <a href="https://courses.csail.mit.edu/6.006/fall10/lectures/lec02.pdf">the 1-D and 2-D peak-finding algorithms</a> (my suggestion is to go up to slide 17)</p>
+
+<h2 id="orientation-to-assignment-1">Orientation to Assignment 1</h2>
+
+<blockquote>
+  <p>4:20pm - 4:25pm</p>
+</blockquote>
+
+<p>Let me show you <a href="/assignments/assignment_01">the first assignment</a> (due next Thursday).</p>
+
+<h2 id="turning-in-your-work">Turning in your work</h2>
+
+<blockquote>
+  <p>4:25pm - 4:30pm</p>
+</blockquote>
+
+<p>Please fill out <a href="https://olin.instructure.com/courses/940/quizzes/2577">the Canvas survey</a> to complete your assignment for today.  These surveys are not intended to be heavy -weight.</p>
+
+        
+      </section>
+
+      <footer class="page__meta">
+        
+        
+
+
+        
+      </footer>
+
+      
+
+      
+    </div>
+
+    
+  </article>
+
+  
+  
+</div>
+
+    </div>
+
+    
+
+    <div id="footer" class="page__footer">
+      <footer>
+        <!-- start custom footer snippets -->
+
+<!-- end custom footer snippets -->
+        <div class="page__footer-follow">
+  <ul class="social-icons">
+    
+
+    
+  </ul>
+</div>
+
+<div class="page__footer-copyright">&copy; 2026 Data Structures Fall 2026 @ Olin College.</div>
+
+      </footer>
+    </div>
+
+    <script src="/assets/js/copyCode.js"></script>
+
+
+  <script src="/assets/js/main.min.js"></script>
+  <script src="https://kit.fontawesome.com/4eee35f757.js"></script>
+
+
+
+
+
+
+
+
+
+
+  </body>
+</html>

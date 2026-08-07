@@ -1,0 +1,567 @@
+<!doctype html>
+<!--
+  Minimal Mistakes Jekyll Theme 4.17.2 by Michael Rose
+  Copyright 2013-2019 Michael Rose - mademistakes.com | @mmistakes
+  Free for personal and commercial use under the MIT license
+  https://github.com/mmistakes/minimal-mistakes/blob/master/LICENSE
+-->
+<html lang="en" class="no-js">
+  <head>
+    <meta charset="utf-8">
+
+<script>
+class AnchorNoProxy extends HTMLElement {
+  constructor() {
+    super();
+    this.attachShadow({ mode: "open" });
+    this._$a = null;
+  }
+  connectedCallback() {
+    const href = this.getAttribute("href") || "#";
+    if (this.dataset.hasOwnProperty('canvas')) {
+        const canvasURL = this.dataset.canvas;
+        this.shadowRoot.innerHTML = `<style>a:hover, a:active { outline: 0; }\na { color: #5197ad; }\na:visited { color: #5197ad; }\na:hover { color: #266477; outline: 0; }</style><a href="${href}" data-canvas="${canvasURL}"><slot></slot></a>`;
+    } else {
+        this.shadowRoot.innerHTML = `<style>a:hover, a:active { outline: 0; }\na { color: #5197ad; }\na:visited { color: #5197ad; }\na:hover { color: #266477; outline: 0; }</style><a href="${href}"><slot></slot></a>`;
+    }
+    this._$a = this.shadowRoot.querySelector("a");
+    this._$a.addEventListener("click", e => {
+      var url = this.getAttribute('href');
+      e.preventDefault();
+      if (document.referrer.startsWith('https://lms.hypothes.is') && this.dataset.hasOwnProperty('canvas')) {
+        // get rid of proxy if it was added
+        var n = this.dataset.canvas.search('https://olin.instructure.com');
+        window.open(this.dataset.canvas.substring(n), '_blank');
+      } else {
+        window.open(url, '_blank');
+      }
+    });
+  }
+  static get observedAttributes() { return ["href"]; }
+  attributeChangedCallback(name, oldValue, newValue) {
+    if (oldValue !== newValue) {
+      if (this._$a === null) return;
+      this._$a.setAttribute("href", newValue);
+    }
+  }
+}
+
+customElements.define("a-no-proxy", AnchorNoProxy);
+
+class NoProxy extends HTMLAnchorElement {
+  connectedCallback() {
+    this.addEventListener("click", e => {
+      e.preventDefault();
+      if (document.referrer.startsWith('https://lms.hypothes.is') && this.dataset.hasOwnProperty('canvas')) {
+        // get rid of proxy if it was added
+        var n = this.dataset.canvas.search('https://olin.instructure.com');
+      	window.open(this.dataset.canvas.substring(n), '_blank');
+      } else {
+      	window.open(this.href, '_blank');
+      }
+    });
+  }
+}
+
+customElements.define("no-proxy", NoProxy, { extends: "a" });
+
+class ConfirmLink extends HTMLAnchorElement {
+  connectedCallback() {
+    this.addEventListener("click", e => {
+      const result = confirm(`Are you sure you want to go to '${this.href}'?`);
+      if (!result) e.preventDefault();
+    });
+  }
+}
+
+customElements.define("confirm-link", ConfirmLink, { extends: "a" });
+
+</script>
+
+<!-- begin _includes/seo.html --><title>Day 17: Binary Search Trees - Data Structures Fall 2026 @ Olin College</title>
+<meta name="description" content="">
+
+
+
+<meta property="og:type" content="website">
+<meta property="og:locale" content="en_US">
+<meta property="og:site_name" content="Data Structures Fall 2026 @ Olin College">
+<meta property="og:title" content="Day 17: Binary Search Trees">
+<meta property="og:url" content="/in_class/day17.html">
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="canonical" href="/in_class/day17.html">
+
+
+
+
+<script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    
+      "@type": "Person",
+      "name": null,
+      "url": "/"
+    
+  }
+</script>
+
+
+
+
+
+
+<!-- end _includes/seo.html -->
+
+
+<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="Data Structures Fall 2026 @ Olin College Feed">
+
+<!-- https://t.co/dKP3o1e -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script>
+  document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/g, '') + ' js ';
+</script>
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="/assets/css/main.css">
+
+<!--[if IE]>
+  <style>
+    /* old IE unsupported flexbox fixes */
+    .greedy-nav .site-title {
+      padding-right: 3em;
+    }
+    .greedy-nav button {
+      position: absolute;
+      top: 0;
+      right: 0;
+      height: 100%;
+    }
+  </style>
+<![endif]-->
+
+
+
+    <!-- start custom head snippets -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11.9.0/dist/mermaid.min.js"></script>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.28/dist/katex.min.css" integrity="sha384-Wsr4Nh3yrvMf2KCebJchRJoVo1gTU6kcP05uRSh5NV3sj9+a8IomuJoQzf3sMq4T" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.28/dist/katex.min.js" integrity="sha384-+W9OcrYK2/bD7BmUAk+xeFAyKp0QjyRQUCxeU31dfyTt/FrPsUgaBTLLkVf33qWt" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.28/dist/contrib/auto-render.min.js" integrity="sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh" crossorigin="anonymous"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", async function () {
+  // Render Mermaid first, from untouched source.
+  mermaid.initialize({ startOnLoad: false });
+  await mermaid.run(); // renders all .mermaid blocks
+
+  // render KaTeX
+  renderMathInElement(document.body, {
+          delimiters: [
+              {left: '$$', right: '$$', display: true},
+              {left: '$', right: '$', display: false},
+              {left: '\\(', right: '\\)', display: false},
+              {left: '\\[', right: '\\]', display: true}
+          ],
+    throwOnError: false,
+  });
+});
+</script>
+
+<script type="text/javascript">
+function HideShowElement(divID) {
+    const x = document.getElementById(divID);
+    if (x.style.display === "none") {
+        x.style.display = "block";
+    } else {
+        x.style.display = "none";
+    }
+}
+</script>
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+
+<!-- insert favicons. use https://realfavicongenerator.net/ -->
+
+<!-- end custom head snippets -->
+
+  </head>
+
+  <body class="layout--single">
+    <nav class="skip-links">
+  <h2 class="screen-reader-text">Skip links</h2>
+  <ul>
+    <li><a href="#site-nav" class="screen-reader-shortcut">Skip to primary navigation</a></li>
+    <li><a href="#main" class="screen-reader-shortcut">Skip to content</a></li>
+    <li><a href="#footer" class="screen-reader-shortcut">Skip to footer</a></li>
+  </ul>
+</nav>
+
+    <!--[if lt IE 9]>
+<div class="notice--danger align-center" style="margin: 0;">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience.</div>
+<![endif]-->
+
+    
+
+<div class="masthead">
+  <div class="masthead__inner-wrap">
+    <div class="masthead__menu">
+      <nav id="site-nav" class="greedy-nav">
+        
+          <a class="site-logo" href="/"><img src="https://qeacourse.github.io/RoboNinjaWarrior/website_graphics/olinlogo.png" alt=""></a>
+        
+        <a class="site-title" href="/">
+          Data Structures Fall 2026 @ Olin College
+          
+        </a>
+        <ul class="visible-links"></ul>
+        
+        <button class="greedy-nav__toggle hidden" type="button">
+          <span class="visually-hidden">Toggle menu</span>
+          <div class="navicon"></div>
+        </button>
+        <ul class="hidden-links hidden"></ul>
+      </nav>
+    </div>
+  </div>
+</div>
+
+
+    <div class="initial-content">
+      
+
+
+
+<div id="main" role="main">
+  
+
+  <article class="page" itemscope itemtype="https://schema.org/CreativeWork">
+    <meta itemprop="headline" content="Day 17: Binary Search Trees">
+    
+    
+    
+
+    <div class="page__inner-wrap">
+      
+        <header>
+          <h1 id="page-title" class="page__title" itemprop="headline">Day 17: Binary Search Trees
+</h1>
+          
+        </header>
+      
+
+      <section class="page__content" itemprop="text">
+        
+          <aside class="sidebar__right sticky">
+            <nav class="toc">
+              <header><h4 class="nav__title"><i class="fas fa-file-alt"></i> On this page</h4></header>
+	      
+                <ul class="toc__menu">
+  <li><a href="#overview">Overview</a></li>
+  <li><a href="#review-of-our-data-structures">Review of Our Data Structures</a></li>
+  <li><a href="#linear-and-binary-search">Linear and Binary Search</a></li>
+  <li><a href="#meet-the-binary-search-tree">Meet the Binary Search Tree</a></li>
+  <li><a href="#red-black-trees">Red-Black Trees</a></li>
+</ul>
+	      	
+            </nav>
+          </aside>
+        
+        <h2 id="overview">Overview</h2>
+
+<p>Today, we will learn about the binary search tree (BST).  We will find that BSTs are incredibly useful for searching for items within a collection.  Further, if we want to do things like find the closest element in our collection to a specific query, BSTs will give us great performance.</p>
+
+<h2 id="review-of-our-data-structures">Review of Our Data Structures</h2>
+
+<p>Let’s do a quick review of the data structures we’ve seen so far and recall their time complexities.</p>
+
+<p>We’ll fill them out together, and I’ll update the website after with the finished table.</p>
+
+<blockquote class="notice--success">
+  <p><strong>Exercise 1</strong></p>
+
+  <p>Create a table with the $\Theta$ runtime for each data structure (Array, Linked List, Hash Table, Heap) at performing the operations insert, delete a specific element, lookup (exact), and lookup (closest).  Some data structures do not naturally support some operations, so you can either mark those as N/A or use $\Theta(n)$.  The operation Lookup (closest) means to find the closest element to a query within the collection.</p>
+
+  <p><strong>Note:</strong> some of my answers (below) are open to interpretation (e.g., depending on how you implement a particular data structure, some answers may differ).
+<button onclick="HideShowElement(&quot;HideShow1&quot;)">Show / Hide Solution to Exercise 1</button></p>
+  <div id="HideShow1" style="display:none">
+ <table>
+   <thead>
+     <tr>
+       <th>Data Structure</th>
+       <th>Insert</th>
+       <th>Delete</th>
+       <th>Lookup (exact)</th>
+       <th>Lookup (closest)</th>
+     </tr>
+   </thead>
+   <tbody>
+     <tr>
+       <td><strong>Array</strong></td>
+       <td>$\Theta(1)$</td>
+       <td>$\Theta(n)$</td>
+       <td>$\Theta(n)$</td>
+       <td>$\Theta(n)$</td>
+     </tr>
+     <tr>
+       <td><strong>Linked List</strong></td>
+       <td>$\Theta(1)$</td>
+       <td>$\Theta(n)$</td>
+       <td>$\Theta(n)$</td>
+       <td>$\Theta(n)$</td>
+     </tr>
+     <tr>
+       <td><strong>Heap</strong></td>
+       <td>$\Theta(\log n)$</td>
+       <td>$\Theta(\log n)$</td>
+       <td>N/A (typically not supported)</td>
+       <td>N/A (typically not supported)</td>
+     </tr>
+     <tr>
+       <td><strong>Hash Table</strong></td>
+       <td>$\Theta(1)$</td>
+       <td>$\Theta(1)$</td>
+       <td>$\Theta(1)$</td>
+       <td>$\Theta(n)$</td>
+     </tr>
+   </tbody>
+ </table>
+</div>
+</blockquote>
+
+<h2 id="linear-and-binary-search">Linear and Binary Search</h2>
+
+<p>We’ve seen these concepts in some form already this semester, but let’s make sure we have them at the forefront of our minds.</p>
+
+<p>Suppose we have a collection integers stored in an array $x_1, x_2, \ldots, x_n$.  Further, let’s suppose the array is sorted in ascending order (i.e., $x_i &lt; x_j$ if and only if $i &lt; j$).  Now suppose given a query point $x_q$ we’d like to find the element in our array that satisfies the following equation.</p>
+
+<p>$\begin{aligned} x^\star &amp;= \underset{i}{\text{argmin}} | x_i - x_q | \end{aligned}$</p>
+
+<p>This equation is just a fancy way of saying that we look for the closet (in this case as defined by the absolute value) between the query and the elements in the collection.</p>
+
+<p>Here are two ways to find the closest element in the array.</p>
+
+<h3 id="linear-search">Linear Search</h3>
+
+<p>This one is simple.  We loop through the collection constantly comparing each element to the query.  We remember the closest match we’ve seen so far, and we update it if we find a closer match.  As you can probably see, this operation would have a cost of $\Theta(n)$.</p>
+
+<h3 id="binary-search">Binary Search</h3>
+
+<p>Binary search works by eliminating half of the elements as candidates for our search at reach step.  If we are looking for an exact match to our query, we can repeatedly divide our input list into three parts, consisting the left elements, the middle element, and the right elements.  By comparing the middle element to the query, we can determine which of the left or right elements to search for to find our query (see the Wikipedia page on <a href="https://en.wikipedia.org/wiki/Binary_search_algorithm">Binary Search algorithm</a> for pseudocode on how to implement this).  Using the tools we saw in the divide and conquer portion of this class (e.g., the master theorem), we can show that this procedure has a $\Theta(\log n)$ running time.</p>
+
+<blockquote class="notice--success">
+  <p><strong>Exercise 2</strong></p>
+
+  <p>We have not yet addressed the problem of looking for the closest element in the array (we have only shown how to find the element exactly). How could we modify our search procedure to find the closest element to $x_q$?  You don’t have to write out full pseudocode.  Can you describe the technique at a high-level?  There is more than one way to address this problem, so if your approach doesn’t match the hint, that’s okay!</p>
+
+  <p><button onclick="HideShowElement(&quot;HideShow2&quot;)">Show / Hide Hint 1</button></p>
+  <div id="HideShow2" style="display:none">
+You may find the concept of predecessor and successor to be useful here.  The successor of $x_q$ is the closest element in the collection that is larger than $x_q$.  The predecessor is the closest element in the collection that is smaller than $x_q$.
+</div>
+  <p><button onclick="HideShowElement(&quot;HideShow3&quot;)">Show / Hide Hint 2</button></p>
+  <div id="HideShow3" style="display:none">
+Either the predecessor or the successor is guaranteed to be the closest to the query. 
+</div>
+</blockquote>
+
+<blockquote class="notice--success">
+  <p><strong>Exercise 3</strong></p>
+
+  <p>Suppose we now want to support the ability to add new elements to our collection while still maintaining our sorted list (and getting the great $\Theta(\log n)$ runtime).  What is the time complexity of adding (or deleting) elements from our array while maintaining the sorted order?</p>
+</blockquote>
+
+<h2 id="meet-the-binary-search-tree">Meet the Binary Search Tree</h2>
+
+<p>BSTs are data structures that allow us to maintain $\Theta(\log n)$ search (either exact or approximate) while providing $\Theta(\log n)$ insertion and removal.  The basic idea is to change the storage of our sorted data from an array to a tree.</p>
+
+<p>Original sorted data: $1, 2, 5, 8, 20, 100, 202$.</p>
+
+<p>As a BST:</p>
+
+<div class="mermaid">
+graph TB
+  8 --&gt; 2
+  8 --&gt; 100
+  2 --&gt; 1
+  2 --&gt; 5
+  100 --&gt; 20
+  100 --&gt; 202
+</div>
+
+<p>This tree maintains the invariant that for a given node, each of the nodes in the left subtree is less than that node.  Similarly, the nodes in the right subtree are each greater than this node.  Note that if the array has duplicate values, you can arbitrarily place the duplicate in either the left or right subtree.</p>
+
+<p>The benefit of the binary search tree is that we can easily add elements to the tree while maintaining the BST invariant (that smaller nodes are always in the left subtree and that larger nodes are always in the right subtree).</p>
+
+<blockquote class="notice--success">
+  <p><strong>Exercise 4</strong></p>
+
+  <p>After inserting  6, 7, and 21 (in that order), what would our BST look like?  In constructing your answer, you do not need to move any of the existing nodes.  Rather, you can attach new nodes to the leaves of the trees.</p>
+</blockquote>
+
+<h3 id="maintaining-balance">Maintaining Balance</h3>
+
+<p>The issue we’ll run into with the scheme we used in problem 4, is that if we get unlucky, we’ll end up with a highly unbalanced tree.  A tree is unbalanced if there are significantly different numbers of nodes in the left and right subtrees of its nodes.  Formally, we say that for any node in the tree, its left and right subtrees have heights that differ by at most 1.  Notice how this definition rules out certain pathological trees like a long chain of sorted numbers where the left subtree is always empty.</p>
+
+<p>There are several commonly used schemes to maintain balance in BSTs.  The two most common methods are <a href="https://en.wikipedia.org/wiki/AVL_tree">AVL trees</a> and <a href="https://en.wikipedia.org/wiki/Red%E2%80%93black_tree">Red-Black Trees</a>.</p>
+
+<h2 id="red-black-trees">Red-Black Trees</h2>
+
+<p>Red-Black trees have the following properties.</p>
+
+<ol>
+  <li>Each node in the tree is colored either red or black.</li>
+  <li>The root is black and any leaves (corresponding to null values) are black.</li>
+  <li>If a node is red, then both its children are black.</li>
+  <li>The number of black nodes encountered on any path from the root to a leaf (null) is equal.</li>
+</ol>
+
+<p>I really like Michael Sambol’s video series explaining the Red-Black tree.  We’ll watch some of the videos together, but I’ll leave it to you to watch the whole set.</p>
+
+<p><a href="https://www.youtube.com/playlist?list=PL9xmBV_5YoZNqDI8qfOZgzbqahCUmUEin">Playlist of Michael Sambol’s Red-Black tree videos</a></p>
+
+<p>Together, we’ll watch the first four videos (with an exercise as an intermediary).</p>
+
+<ul>
+  <li><a href="https://www.youtube.com/watch?v=qvZGUFHWChY">Main Idea and Structure</a></li>
+</ul>
+
+<blockquote class="notice--success">
+  <p><strong>Exercise 5:</strong></p>
+
+  <p><strong>We’ll try to solve this as a class</strong></p>
+
+  <p>Suppose you are given a valid red-black tree of with $n$ nodes, show that searching for an element in this tree takes time $\Theta(\log n)$.</p>
+
+  <p><button onclick="HideShowElement(&quot;HideShow4&quot;)">Show / Hide Hint</button></p>
+  <div id="HideShow4" style="display:none">
+You may find it easier to show that Red-black trees have heights less than $2 \log_2(n+1)$.  From this fact you should be able to establish the running time you are after. 
+</div>
+</blockquote>
+
+<ul>
+  <li><a href="https://www.youtube.com/watch?v=95s3ndZRGbk">Rotations</a></li>
+  <li><a href="https://www.youtube.com/watch?v=5IBxA-bZZH8">Insertions (strategy)</a> (note: there is an error at 3:27 where you would have to apply case 3 to fix the node “A”. This is discussed in the comments of the video).</li>
+</ul>
+
+<p>Here are some additional resources to help you think through the information covered in these videos.</p>
+
+<p>First, here is an animation that shows the rotation procedure on a red-black tree.</p>
+
+<p><img src="../images/Binary_Tree_Rotation_(animated).gif" alt="An animation showing a binary tree rotation to the left and then to the right." />
+Source: <a href="https://commons.wikimedia.org/wiki/File:Binary_Tree_Rotation_(animated).gif">Wikimedia Commons</a></p>
+
+<p>When inserting nodes into an RB-tree we follow the following process:</p>
+
+<ol>
+  <li>Insert the node into the appropriate location in the tree (based on the BST property) and color it red. Question for the class: which of the four properties above could be violated after this step?</li>
+  <li>Match the current state of the tree to the one of four cases (labeled case 0, case 1, case 2, or case 3).  Perform a remedial action (recoloring and/or rotation) based on the specific case.  See below for cases.</li>
+  <li>Check to see if there are additional violations higher up the tree.</li>
+</ol>
+
+<p>Here are the cases when inserting the node $z$:</p>
+<ul>
+  <li>Case 0: the node was inserted as the root.</li>
+  <li>Case 1: $z$ has a red uncle</li>
+  <li>Case 2: $z$ has a black uncle (triangle)</li>
+  <li>Case 3: $z$ has a black uncle (line)</li>
+</ul>
+
+<p>Here is the pseudocode for fixing up the red-black tree following an insertion.</p>
+
+<p><img src="/images/rbtreefixup.png" alt="RBTree fixup from the CLRS textbook" />
+Source: CLRS Textbook</p>
+
+<blockquote class="notice--success">
+  <p><strong>Exercise 6</strong></p>
+
+  <p>Given the RB tree below, insert the value 4.  Use the pseudocode above to fix the RB-tree properties.  As you go, keep track of which properties are violated.</p>
+
+  <p><img src="/images/rbtrees_setup.png" alt="RB tree insertion example" />
+Source: CLRS textbook
+<button onclick="HideShowElement(&quot;HideShow10&quot;)">Show / Hide Solution</button></p>
+  <div id="HideShow10" style="display:none">
+<iframe width="560" height="315" src="https://www.youtube.com/embed/9krlKOSbwv4?si=qbKfEpNyVw41n2ZY" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen=""></iframe>
+<img alt="Three possible cases for red-black tree remediation" src="../images/clrs_rbtrees.png" />
+Source: CLRS textbook
+</div>
+</blockquote>
+
+<blockquote class="notice--success">
+  <p><strong>Exercise 7</strong></p>
+
+  <p>Using exercise 6 as an example, argue that the modifications to the tree move the potential violation closer to root while removing the violation farther from the root.  <strong>Consider the application of case 2 and case 3 to be a single step for the purposes of this question</strong>.</p>
+</blockquote>
+
+        
+      </section>
+
+      <footer class="page__meta">
+        
+        
+
+
+        
+      </footer>
+
+      
+
+      
+    </div>
+
+    
+  </article>
+
+  
+  
+</div>
+
+    </div>
+
+    
+
+    <div id="footer" class="page__footer">
+      <footer>
+        <!-- start custom footer snippets -->
+
+<!-- end custom footer snippets -->
+        <div class="page__footer-follow">
+  <ul class="social-icons">
+    
+
+    
+  </ul>
+</div>
+
+<div class="page__footer-copyright">&copy; 2026 Data Structures Fall 2026 @ Olin College.</div>
+
+      </footer>
+    </div>
+
+    <script src="/assets/js/copyCode.js"></script>
+
+
+  <script src="/assets/js/main.min.js"></script>
+  <script src="https://kit.fontawesome.com/4eee35f757.js"></script>
+
+
+
+
+
+
+
+
+
+
+  </body>
+</html>

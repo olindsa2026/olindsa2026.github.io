@@ -1,0 +1,515 @@
+<!doctype html>
+<!--
+  Minimal Mistakes Jekyll Theme 4.17.2 by Michael Rose
+  Copyright 2013-2019 Michael Rose - mademistakes.com | @mmistakes
+  Free for personal and commercial use under the MIT license
+  https://github.com/mmistakes/minimal-mistakes/blob/master/LICENSE
+-->
+<html lang="en" class="no-js">
+  <head>
+    <meta charset="utf-8">
+
+<script>
+class AnchorNoProxy extends HTMLElement {
+  constructor() {
+    super();
+    this.attachShadow({ mode: "open" });
+    this._$a = null;
+  }
+  connectedCallback() {
+    const href = this.getAttribute("href") || "#";
+    if (this.dataset.hasOwnProperty('canvas')) {
+        const canvasURL = this.dataset.canvas;
+        this.shadowRoot.innerHTML = `<style>a:hover, a:active { outline: 0; }\na { color: #5197ad; }\na:visited { color: #5197ad; }\na:hover { color: #266477; outline: 0; }</style><a href="${href}" data-canvas="${canvasURL}"><slot></slot></a>`;
+    } else {
+        this.shadowRoot.innerHTML = `<style>a:hover, a:active { outline: 0; }\na { color: #5197ad; }\na:visited { color: #5197ad; }\na:hover { color: #266477; outline: 0; }</style><a href="${href}"><slot></slot></a>`;
+    }
+    this._$a = this.shadowRoot.querySelector("a");
+    this._$a.addEventListener("click", e => {
+      var url = this.getAttribute('href');
+      e.preventDefault();
+      if (document.referrer.startsWith('https://lms.hypothes.is') && this.dataset.hasOwnProperty('canvas')) {
+        // get rid of proxy if it was added
+        var n = this.dataset.canvas.search('https://olin.instructure.com');
+        window.open(this.dataset.canvas.substring(n), '_blank');
+      } else {
+        window.open(url, '_blank');
+      }
+    });
+  }
+  static get observedAttributes() { return ["href"]; }
+  attributeChangedCallback(name, oldValue, newValue) {
+    if (oldValue !== newValue) {
+      if (this._$a === null) return;
+      this._$a.setAttribute("href", newValue);
+    }
+  }
+}
+
+customElements.define("a-no-proxy", AnchorNoProxy);
+
+class NoProxy extends HTMLAnchorElement {
+  connectedCallback() {
+    this.addEventListener("click", e => {
+      e.preventDefault();
+      if (document.referrer.startsWith('https://lms.hypothes.is') && this.dataset.hasOwnProperty('canvas')) {
+        // get rid of proxy if it was added
+        var n = this.dataset.canvas.search('https://olin.instructure.com');
+      	window.open(this.dataset.canvas.substring(n), '_blank');
+      } else {
+      	window.open(this.href, '_blank');
+      }
+    });
+  }
+}
+
+customElements.define("no-proxy", NoProxy, { extends: "a" });
+
+class ConfirmLink extends HTMLAnchorElement {
+  connectedCallback() {
+    this.addEventListener("click", e => {
+      const result = confirm(`Are you sure you want to go to '${this.href}'?`);
+      if (!result) e.preventDefault();
+    });
+  }
+}
+
+customElements.define("confirm-link", ConfirmLink, { extends: "a" });
+
+</script>
+
+<!-- begin _includes/seo.html --><title>Day 5: Choose Your Own Adventure and Intro to Graphs - Data Structures Fall 2026 @ Olin College</title>
+<meta name="description" content="">
+
+
+
+<meta property="og:type" content="website">
+<meta property="og:locale" content="en_US">
+<meta property="og:site_name" content="Data Structures Fall 2026 @ Olin College">
+<meta property="og:title" content="Day 5: Choose Your Own Adventure and Intro to Graphs">
+<meta property="og:url" content="/in_class/day05.html">
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="canonical" href="/in_class/day05.html">
+
+
+
+
+<script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    
+      "@type": "Person",
+      "name": null,
+      "url": "/"
+    
+  }
+</script>
+
+
+
+
+
+
+<!-- end _includes/seo.html -->
+
+
+<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="Data Structures Fall 2026 @ Olin College Feed">
+
+<!-- https://t.co/dKP3o1e -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script>
+  document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/g, '') + ' js ';
+</script>
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="/assets/css/main.css">
+
+<!--[if IE]>
+  <style>
+    /* old IE unsupported flexbox fixes */
+    .greedy-nav .site-title {
+      padding-right: 3em;
+    }
+    .greedy-nav button {
+      position: absolute;
+      top: 0;
+      right: 0;
+      height: 100%;
+    }
+  </style>
+<![endif]-->
+
+
+
+    <!-- start custom head snippets -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11.9.0/dist/mermaid.min.js"></script>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.28/dist/katex.min.css" integrity="sha384-Wsr4Nh3yrvMf2KCebJchRJoVo1gTU6kcP05uRSh5NV3sj9+a8IomuJoQzf3sMq4T" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.28/dist/katex.min.js" integrity="sha384-+W9OcrYK2/bD7BmUAk+xeFAyKp0QjyRQUCxeU31dfyTt/FrPsUgaBTLLkVf33qWt" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.28/dist/contrib/auto-render.min.js" integrity="sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh" crossorigin="anonymous"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", async function () {
+  // Render Mermaid first, from untouched source.
+  mermaid.initialize({ startOnLoad: false });
+  await mermaid.run(); // renders all .mermaid blocks
+
+  // render KaTeX
+  renderMathInElement(document.body, {
+          delimiters: [
+              {left: '$$', right: '$$', display: true},
+              {left: '$', right: '$', display: false},
+              {left: '\\(', right: '\\)', display: false},
+              {left: '\\[', right: '\\]', display: true}
+          ],
+    throwOnError: false,
+  });
+});
+</script>
+
+<script type="text/javascript">
+function HideShowElement(divID) {
+    const x = document.getElementById(divID);
+    if (x.style.display === "none") {
+        x.style.display = "block";
+    } else {
+        x.style.display = "none";
+    }
+}
+</script>
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+
+<!-- insert favicons. use https://realfavicongenerator.net/ -->
+
+<!-- end custom head snippets -->
+
+  </head>
+
+  <body class="layout--single">
+    <nav class="skip-links">
+  <h2 class="screen-reader-text">Skip links</h2>
+  <ul>
+    <li><a href="#site-nav" class="screen-reader-shortcut">Skip to primary navigation</a></li>
+    <li><a href="#main" class="screen-reader-shortcut">Skip to content</a></li>
+    <li><a href="#footer" class="screen-reader-shortcut">Skip to footer</a></li>
+  </ul>
+</nav>
+
+    <!--[if lt IE 9]>
+<div class="notice--danger align-center" style="margin: 0;">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience.</div>
+<![endif]-->
+
+    
+
+<div class="masthead">
+  <div class="masthead__inner-wrap">
+    <div class="masthead__menu">
+      <nav id="site-nav" class="greedy-nav">
+        
+          <a class="site-logo" href="/"><img src="https://qeacourse.github.io/RoboNinjaWarrior/website_graphics/olinlogo.png" alt=""></a>
+        
+        <a class="site-title" href="/">
+          Data Structures Fall 2026 @ Olin College
+          
+        </a>
+        <ul class="visible-links"></ul>
+        
+        <button class="greedy-nav__toggle hidden" type="button">
+          <span class="visually-hidden">Toggle menu</span>
+          <div class="navicon"></div>
+        </button>
+        <ul class="hidden-links hidden"></ul>
+      </nav>
+    </div>
+  </div>
+</div>
+
+
+    <div class="initial-content">
+      
+
+
+
+<div id="main" role="main">
+  
+
+  <article class="page" itemscope itemtype="https://schema.org/CreativeWork">
+    <meta itemprop="headline" content="Day 5: Choose Your Own Adventure and Intro to Graphs">
+    
+    
+    
+
+    <div class="page__inner-wrap">
+      
+        <header>
+          <h1 id="page-title" class="page__title" itemprop="headline">Day 5: Choose Your Own Adventure and Intro to Graphs
+</h1>
+          
+        </header>
+      
+
+      <section class="page__content" itemprop="text">
+        
+          <aside class="sidebar__right sticky">
+            <nav class="toc">
+              <header><h4 class="nav__title"><i class="fas fa-file-alt"></i> On this page</h4></header>
+	      
+                <ul class="toc__menu">
+  <li><a href="#assignment-debrief">Assignment Debrief</a></li>
+  <li><a href="#a-few-words-about-null-safety">A Few Words About Null Safety</a></li>
+  <li><a href="#adventure-1-kotlin-arrays-and-creating-our-own-mutable-list">(Adventure 1) Kotlin Arrays and Creating Our Own Mutable List</a></li>
+  <li><a href="#adventure-2-solving-problems-with-stacks-and-queues">(Adventure 2) Solving Problems with Stacks and Queues</a></li>
+  <li><a href="#intro-to-graphs">Intro to Graphs</a></li>
+</ul>
+	      	
+            </nav>
+          </aside>
+        
+        <h2 id="assignment-debrief">Assignment Debrief</h2>
+
+<p>How did things go?  With those around you, make a list of questions that you still have regarding the assignment content.  We’ll raise them to the group, and then I’ll work to resolve them.  If you have any aspects of the assignment that you enjoyed or aspects that could be better, please raise that as well.</p>
+
+<h2 id="a-few-words-about-null-safety">A Few Words About Null Safety</h2>
+
+<p>One of the areas of Kotlin that provides a steep learning curve is dealing with optional values.  I sent out <a href="https://kotlinlang.org/docs/null-safety.html">some resources</a> that should give you a few strategies to deal with nullable types (types that end with a <code class="language-plaintext highlighter-rouge">?</code>).  Some useful patterns are shown below (source: https://kotlinlang.org/docs/null-safety.html)</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// use smart casts so the compiler assumes a non-null type within the if statement</span>
+<span class="kd">val</span> <span class="py">x</span><span class="p">:</span> <span class="nc">Int</span><span class="p">?</span> <span class="p">=</span> <span class="mi">2</span>
+<span class="k">if</span> <span class="p">(</span><span class="n">x</span> <span class="p">!=</span> <span class="k">null</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nf">println</span><span class="p">(</span><span class="mi">2</span><span class="p">*</span><span class="n">x</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<p>There are some tricky situations where this pattern will not work.  In particular, when you are dealing with variables that are class attributes.  Let’s take a look at a version of our <code class="language-plaintext highlighter-rouge">peek</code> function from our stack.</p>
+
+<p>This code provides a cryptic warning from the compiler.</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    <span class="k">override</span> <span class="k">fun</span> <span class="nf">peek</span><span class="p">():</span> <span class="nc">T</span><span class="p">?</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">top</span> <span class="p">!=</span> <span class="k">null</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">return</span> <span class="n">top</span><span class="p">.</span><span class="n">data</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="k">null</span>
+    <span class="p">}</span>
+</code></pre></div></div>
+
+<blockquote class="notice--danger">
+  <p>Smart cast to ‘MyStack.StackNode&lt;T (of class MyStack<T>)&gt;' is impossible, because 'top' is a mutable property that could be mutated concurrently.</T></p>
+</blockquote>
+
+<p>The reason for this error is that it’s possible your code could have multiple threads.  If you haven’t heard of multithreaded programming, no worries.  We aren’t going to be doing anything with it in this class, but conceptually you can imagine multiple tasks happening concurrently within your programming.  At the same time you are peeking onto the stack, another task could be modifying the stack in some way.  Due to this possibility, the compiler can’t be sure that top will be non-null by the time you enter the <code class="language-plaintext highlighter-rouge">let</code>.  A solution is to create a local variable first and use let on that.</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    <span class="k">override</span> <span class="k">fun</span> <span class="nf">peek</span><span class="p">():</span> <span class="nc">T</span><span class="p">?</span> <span class="p">{</span>
+        <span class="kd">val</span> <span class="py">currentTop</span> <span class="p">=</span> <span class="n">top</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">currentTop</span> <span class="p">!=</span> <span class="k">null</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">return</span> <span class="n">currentTop</span><span class="p">.</span><span class="n">data</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="k">null</span>
+    <span class="p">}</span>
+</code></pre></div></div>
+
+<p>If you want to make your code a little cleaner, you can define the local variable and the block of code to run if the expression is non-null in one go.  One way to do this is to use the <code class="language-plaintext highlighter-rouge">let</code> function.</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    <span class="k">override</span> <span class="k">fun</span> <span class="nf">peek</span><span class="p">():</span> <span class="nc">T</span><span class="p">?</span> <span class="p">{</span>
+        <span class="n">top</span><span class="o">?.</span><span class="nf">let</span> <span class="p">{</span> <span class="n">currentTop</span> <span class="p">-&gt;</span>
+            <span class="k">return</span> <span class="n">currentTop</span><span class="p">.</span><span class="n">data</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="k">null</span>
+    <span class="p">}</span>
+</code></pre></div></div>
+
+<p>You’ll continue to get more practice with nullable types as we go, but I wanted to provide you with some guidance around what is a fairly difficult to understand error.</p>
+
+<h2 id="adventure-1-kotlin-arrays-and-creating-our-own-mutable-list">(Adventure 1) Kotlin Arrays and Creating Our Own Mutable List</h2>
+
+<blockquote class="notice--success">
+  <p>This is a small extension of the challenge problem from last time.  I give this as an option to work on if you want more practice implementing data structures in Kotlin.</p>
+
+  <p>If you’d rather do more problem-solving with stacks and queues, you can skip to the next section.</p>
+</blockquote>
+
+<p>Kotlin has a built-in <code class="language-plaintext highlighter-rouge">Array</code> class (<a href="https://kotlinlang.org/docs/arrays.html">documentation</a>) that can be used in much the same way as <code class="language-plaintext highlighter-rouge">List</code> (and mutable list).  The restrictions on <code class="language-plaintext highlighter-rouge">Array</code> mean that we can’t add elements to it.</p>
+
+<blockquote class="notice--success">
+  <p><strong>Exercise 1</strong>: Using an Array as the underlying data structure, create a class called <code class="language-plaintext highlighter-rouge">MyMutableIntList</code> that can hold values of type <code class="language-plaintext highlighter-rouge">Int</code> (there a few hoops to jump through to make it hold any type, so let me know if you want to learn about that process).  Your class should support the following functions.</p>
+
+  <p><em>Note 1:</em> the operator functions let you implement the same behavior that <code class="language-plaintext highlighter-rouge">MutableList</code> has in getting and setting elements (e.g., <code class="language-plaintext highlighter-rouge">a[2] = 3</code>).</p>
+
+  <p><em>Note 2:</em> when you create your class, you will need to think about how to grow your array when you run out of space.  In class we did some analysis that seemed to show that multiplying the array size by $2$ when it is full is faster than growing it by 1 each time.</p>
+</blockquote>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">interface</span> <span class="nc">MutableIntList</span> <span class="p">{</span>
+    <span class="cm">/**
+     * Add [element] to the end of the list
+     */</span>
+    <span class="k">fun</span> <span class="nf">add</span><span class="p">(</span><span class="n">element</span><span class="p">:</span> <span class="nc">Int</span><span class="p">)</span>
+
+    <span class="cm">/**
+     * Remove all elements from the list
+     */</span>
+    <span class="k">fun</span> <span class="nf">clear</span><span class="p">()</span>
+
+    <span class="cm">/*
+     * @return the size of the list
+     */</span>
+    <span class="k">fun</span> <span class="nf">size</span><span class="p">():</span> <span class="nc">Int</span>
+
+    <span class="cm">/**
+     * @param index the index to return
+     * @return the element at [index]
+     */</span>
+    <span class="k">operator</span> <span class="k">fun</span> <span class="nf">get</span><span class="p">(</span><span class="n">index</span><span class="p">:</span> <span class="nc">Int</span><span class="p">):</span> <span class="nc">Int</span>
+
+    <span class="cm">/**
+     * Store [value] at position [index]
+     * @param index the index to set
+     * @param value to store at [index]
+     */</span>
+    <span class="k">operator</span> <span class="k">fun</span> <span class="nf">set</span><span class="p">(</span><span class="n">index</span><span class="p">:</span> <span class="nc">Int</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">int</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h3 id="timing-your-code">Timing your code</h3>
+
+<p>You can add the following code to your <code class="language-plaintext highlighter-rouge">main()</code> function to see how efficient your class is for different list sizes.</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">fun</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="kd">val</span> <span class="py">arraySizes</span> <span class="p">=</span> <span class="nf">listOf</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">1000</span><span class="p">,</span> <span class="mi">10000</span><span class="p">,</span> <span class="mi">100000</span><span class="p">,</span> <span class="mi">1000000</span><span class="p">,</span> <span class="mi">10000000</span><span class="p">,</span> <span class="mi">100000000</span><span class="p">)</span>
+    <span class="nf">println</span><span class="p">(</span><span class="s">"numberOfElements totalTime timePerElement"</span><span class="p">)</span>
+    <span class="k">for</span> <span class="p">(</span><span class="n">arraySize</span> <span class="k">in</span> <span class="n">arraySizes</span><span class="p">)</span> <span class="p">{</span>
+        <span class="kd">val</span> <span class="py">myList</span> <span class="p">=</span> <span class="nc">MyMutableIntList</span><span class="p">()</span>
+        <span class="kd">val</span> <span class="py">timeTaken</span> <span class="p">=</span> <span class="nf">measureTime</span> <span class="p">{</span>
+            <span class="k">for</span> <span class="p">(</span><span class="n">i</span> <span class="k">in</span> <span class="mi">0</span><span class="o">..</span><span class="p">&lt;</span><span class="n">arraySize</span><span class="p">)</span> <span class="p">{</span>
+                <span class="n">myList</span><span class="p">.</span><span class="nf">add</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+        <span class="nf">println</span><span class="p">(</span><span class="s">"$arraySize $timeTaken ${timeTaken/arraySize}"</span><span class="p">)</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>If you find it useful, you can use this link to access <a href="https://github.com/OlinDSA2024/Day05Finished">my solutions for this exercise</a>.</p>
+
+<h2 id="adventure-2-solving-problems-with-stacks-and-queues">(Adventure 2) Solving Problems with Stacks and Queues</h2>
+
+<p>If you’d prefer to get more practice solving problems with stacks and queues, here are some suggestions.</p>
+
+<blockquote class="notice--success">
+  <p><strong>Exercise 2</strong></p>
+
+  <p><a href="https://leetcode.com/problems/implement-stack-using-queues/description/?envType=problem-list-v2&amp;envId=stack">Implement Stacks Using Queues</a>
+   <button onclick="HideShowElement('HideShow1')">Show / Hide Hint 1</button></p>
+  <div id="HideShow1" style="display:none">
+         You do not need to maintain $\Theta(1)$ runtime for all stack operations.
+   </div>
+</blockquote>
+
+<blockquote class="notice--success">
+  <p><strong>Exercise 3</strong></p>
+
+  <p><a href="https://neetcode.io/problems/evaluate-reverse-polish-notation?list=neetcode150">Evaluate Reverse Polish Notation</a>.  There are some embedded hints on this page.</p>
+</blockquote>
+
+<h2 id="intro-to-graphs">Intro to Graphs</h2>
+
+<p>In the next assignment we’re going to dive into the world of graphs and graph searching.  Before we do so, let’s take some time to understand what a graph is.</p>
+
+<p>Graphs are ways to represent relationships between entities of some sort.</p>
+
+<blockquote>
+  <p class="notice--success"><strong>Exercise 4</strong>: before we define some important vocabularly to talk about graphs, with those around you, come up with a couple examples of systems that fit this pattern. The systems you consider could be social, geographical, computer-based, informational, etc.</p>
+</blockquote>
+
+<p>To formalize this a bit more, we use the terminology of <em>vertices</em> or <em>nodes</em> to refer to the entities in our graph (e.g., the people or websites in our examples above).  We use the term <em>edges</em> to represent the relationships (e.g., the existence of a friendship or a link in our two examples above).  In graph theory and algorithms, there are many different types of edges (e.g., directed, undirected, weighted, multi-edges) to represent different sorts of relationships.</p>
+
+<p>For now, we’re going to consider the case of directed edges where an edge encodes a unidirectional relationship between two entities.  For example, a directed edge from the node <code class="language-plaintext highlighter-rouge">olin.edu</code> to <code class="language-plaintext highlighter-rouge">google.com</code> might represent that Olin’s website links to Google’s website.</p>
+
+<p>Before we get into the theory of graphs and the sorts of algorithms we might run on them, let’s introduce the concept of an <a href="https://en.wikipedia.org/wiki/Adjacency_list">adjacency list</a>, which is a particular way to represent graphs in a computer program.  Note that this is not the only way to represent a graph in a computer program, but it is a very popular one.</p>
+
+<blockquote class="notice--success">
+  <p><strong>Exercise 5</strong>: read about adjacency lists.  On a chalkboard (or piece of paper at your table) write out a plan for how you would implement an adjacency list in Kotlin.  Your plan might be fairly abstract (e.g., listing out particular classes and functions without worrying about syntax).  If you have time to translate this into Kotlin code, please do so.</p>
+</blockquote>
+
+<p>Specifications:</p>
+<ul>
+  <li>To represent your vertices, you could choose a particular type (e.g., <code class="language-plaintext highlighter-rouge">String</code>), or you could use <a href="https://kotlinlang.org/docs/generics.html">generics</a> to make it work for any class.</li>
+  <li>At a minimum, your class should support the ability to add new vertices, add new edges, and get the list of vertices that are connected to a given vertex.</li>
+</ul>
+
+<blockquote>
+  <p>Note: I expect there will be questions on this, so please don’t hesitate to call me over.</p>
+</blockquote>
+
+        
+      </section>
+
+      <footer class="page__meta">
+        
+        
+
+
+        
+      </footer>
+
+      
+
+      
+    </div>
+
+    
+  </article>
+
+  
+  
+</div>
+
+    </div>
+
+    
+
+    <div id="footer" class="page__footer">
+      <footer>
+        <!-- start custom footer snippets -->
+
+<!-- end custom footer snippets -->
+        <div class="page__footer-follow">
+  <ul class="social-icons">
+    
+
+    
+  </ul>
+</div>
+
+<div class="page__footer-copyright">&copy; 2026 Data Structures Fall 2026 @ Olin College.</div>
+
+      </footer>
+    </div>
+
+    <script src="/assets/js/copyCode.js"></script>
+
+
+  <script src="/assets/js/main.min.js"></script>
+  <script src="https://kit.fontawesome.com/4eee35f757.js"></script>
+
+
+
+
+
+
+
+
+
+
+  </body>
+</html>
