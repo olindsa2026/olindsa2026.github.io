@@ -1,7 +1,7 @@
 ---
 title: "Assignment 6: Individual Deep Dive"
 toc_sticky: true
-published: true
+published: false
 due_on_class: 15
 ---
 

@@ -1,7 +1,7 @@
 ---
 title: "Assignment 8: K-D Trees and Nearest Neighbor Search"
 toc_sticky: true
-published: true
+published: false
 due_on_class: 20
 ---
 

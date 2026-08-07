@@ -1,7 +1,7 @@
 ---
 title: "Assignment 3: Graph Searching and Shortest Paths"
 toc_sticky: true
-published: true
+published: false
 due_on_class: 8
 ---
 

@@ -3,7 +3,7 @@ set -x
 set -e
 set -o pipefail
 
-URL=git@github.com:OlinDSA2025/olindsa2025.github.io.git
+URL=git@github.com:OlinDSA2026/olindsa2026.github.io.git
 BRANCH=gh-pages
 BRANCH_FROM=main
 DEPLOY_CONFIG=

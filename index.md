@@ -1,6 +1,6 @@
 ---
 layout: splash
-title: "Data Structures and Algorithms Spring 2025"
+title: "Data Structures and Algorithms Spring 2026"
 header:
   overlay_color: "#000"
   overlay_filter: "0.4"
@@ -17,11 +17,11 @@ header:
 
 ## In-class Activities
 
-[Sample solutions for in-class assignments](https://github.com/OlinDSA2025/SampleSolutions) will be made available on GitHub.
+[Sample solutions for in-class assignments](https://github.com/OlinDSA2026/SampleSolutions) will be made available on GitHub.
 
 | Day # | Activity                                                                      |
 |-------|-------------------------------------------------------------------------------|
-{% for d in (1..26) %}
+{% for d in (1..1) %}
 {%- assign dd = d -%}
 {%- if d < 10 -%}{% assign dd = '0' | append: d %}{% endif -%}
 {%- assign fname = 'in_class/day' | append: dd | append: '.md' -%}
@@ -65,6 +65,10 @@ header:
 {%- endif %}
 {% endfor %}
 
+<!--
+
 ## Oral Quiz Practice Problems
 
 * [Quiz 1 Practice](assignments/oralquizpractice_01) ([Quiz 1](assignments/oralquiz_01))
+
+-->

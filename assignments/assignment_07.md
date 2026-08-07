@@ -1,7 +1,7 @@
 ---
 title: "Assignment 7: Associative Arrays and Applications"
 toc_sticky: true
-published: true
+published: false
 due_on_class: 18
 ---
 

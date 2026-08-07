@@ -1,7 +1,7 @@
 ---
 title: "Assignment 4: Sorting Algorithms"
 toc_sticky: true
-published: true
+published: false
 due_on_class: 10
 ---
 

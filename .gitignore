@@ -2,7 +2,7 @@ Gemfile.lock
 .ipynb_checkpoints
 *.swp
 .DS_Store
-
+_themes
 .idea
 _site
 

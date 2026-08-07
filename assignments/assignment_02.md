@@ -1,7 +1,7 @@
 ---
 title: "Assignment 2: Linked Data Structures"
 toc_sticky: true
-published: true
+published: false
 due_on_class: 5
 ---
 
