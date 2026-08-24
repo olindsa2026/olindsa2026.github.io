@@ -1253,8 +1253,4 @@ body { display: -webkit-box; display: -ms-flexbox; display: flex; min-height: 10
   .page__hero-caption a { color: #000 !important; }
   /* Hide the following elements on print ========================================================================== */
   .masthead, .toc, .page__share, .page__related, .pagination, .ads, .page__footer, .page__comments-form, .author__avatar, .author__content, .author__urls-wrapper, .nav__list, .sidebar, .adsbygoogle { display: none !important; height: 1px !important; } }
-img.mermaid { max-width: 75%; height: auto; }
-
-.notice blockquote { font-style: normal; }
-
-.notice--success blockquote { font-style: normal; }
+.activity-time { display: block; margin-top: -0.5rem; margin-bottom: 0.6rem; font-size: 0.82em; font-weight: 500; color: #666; }
