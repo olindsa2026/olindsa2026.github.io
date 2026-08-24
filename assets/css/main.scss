@@ -1,0 +1,17 @@
+---
+# Only the main Sass file needs front matter
+---
+
+@charset "utf-8";
+
+@import "minimal-mistakes/skins/default";
+@import "minimal-mistakes";
+
+.activity-time {
+  display: block;
+  margin-top: -0.5rem;
+  margin-bottom: 0.6rem;
+  font-size: 0.82em;
+  font-weight: 500;
+  color: #666;
+}

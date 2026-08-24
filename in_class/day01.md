@@ -4,8 +4,7 @@ toc_sticky: true
 ---
 
 ## Let's Settle In and Meet Each Other
-
-> Time 1:00-1:10pm
+{% include activity-time.html time="1:00-1:10pm" %}
 
 Find five people around you and form a group.  Have each person introduce themselves and say one thing they hope to 
 get out of taking this class.
@@ -13,8 +12,7 @@ get out of taking this class.
 We'll have a few minutes for people to share what they heard in their groups.
 
 ## Course Structure and Major Topics
-
-> Time: 1:10-1:20pm
+{% include activity-time.html time="1:10-1:20pm" %}
 
 The goal of this course is for you to learn how to frame problems using the language of computation and select appropriate data structures and algorithms to solve them.  We'll get more into what we mean by framing problems later (there is an example later today), but for now I want to focus on the sorts of problems we will be tackling and the algorithmic strategies we will be using to solve them.
 
@@ -52,8 +50,7 @@ maintainable and testable code.  We'll also be thinking about how developments i
 intersect with these workflows.
 
 ## Algorithms in the World
-
-> Time: 1:20pm-1:40pm
+{% include activity-time.html time="1:20–1:40pm" %}
 
 Choose a category of algorithms from the list below (or make up your own). You are not supposed to know all (or any) of these already!  I encourage you to choose ones you don't know about and do some research. Alternatively, warm up with one you are familiar with and then choose one less so.  For each category you choose to look into:
 
@@ -76,8 +73,7 @@ Some examples of algorithms are listed below.
 > Bonus question: list all the algorithms that you and your team have interacted with since you got up this morning.
 
 ## Discussion of Learning Strategies and Oral Quizzes
-
-> Time: 1:40pm-2:00pm
+{% include activity-time.html time="1:40pm-2:00pm" %}
 
 Next, I want to discuss two interrelated issues.  The first is how you can work in a way that best supports your learning this semester.  The second is how I can provide an assessment structure that provides you with useful feedback.
 
@@ -88,16 +84,18 @@ While there are many aspects of assessment in this course, for now I want to foc
 | You are given a problem to solve. As you work towards a solution, you show / discuss your thought process. | Your ability to select appropriate data structures and algorithms to solve a novel problem. |
 | You are asked to explain a section of code from one of your submitted assignments. | Your ability to internalize, and be able to verbalize to others, the coding choices you made. |
 | You are asked to give a whiteboard talk explaining one of the class concepts. | Your fluency with the concepts in the course, your ability to distill down the important bits, and your ability to communicate clearly about course concepts. |
-| You are given an implementation of a particular algorithm, and you must work through whether the code is correct. If it is not correct, you may suggest corrections. | Your ability to comprehend code that you didn't write and assess its correctness. |
+| You are given an implementation of a particular algorithm, and you must work through whether the code is correct. If it is not correct, you may suggest corrections. | Your ability to comprehend code that you didn't write (e.g., from a co-worker or from an AI agent) and assess its correctness. |
 
 With some folks around you, please discuss the following.
 1. What are some learning strategies that have worked particularly well for you in the past?  Do you think they will work well in this course?
 2. Will you use AI-based coding assistants in this course?  How will you use them to ensure you are getting the knowledge you'd like from the course?
-3. In reaction to the table above, what other activities would be useful to include in an oral quiz and what skill would they be assessing?
+3. In reaction to the table above, what other activities would be useful to include in an oral quiz and what skill 
+   would they be assessing? How would you rank the four items in the list above from most to least helpful in you 
+   assessing your progress in the course?
 
 ## Having Some Fun With Algorithms
 
-> 2:00pm - 2:30pm
+{% include activity-time.html time="2:00pm - 2:30pm" %}
 
 ***Quantifying Runtime***
 
@@ -214,13 +212,13 @@ Can you develop an algorithm that always produces a valid assignment using the m
 
 ## Orientation to Assignment 1
 
-> 2:30pm - 2:35pm
+{% include activity-time.html time="2:30pm-2:35pm" %}
 
 Let me show you [the first assignment](/assignments/assignment_01) (due next Thursday).
 
 ## Turning in your work
 
-> 2:35pm - 2:40pm
+{% include activity-time.html time="2:35pm-2:40pm" %}
 
 Please fill out [the Canvas survey](https://olin.instructure.com/courses/940/quizzes/2577) to complete your 
 assignment for today.  These surveys are not intended to take you a long time.  They are, however, very useful to me 
