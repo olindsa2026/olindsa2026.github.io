@@ -4,13 +4,17 @@ toc_sticky: true
 ---
 
 ## Let's Settle In and Meet Each Other
-> Time 2:50-2:55pm
 
-Can we do a quick round of intros?  How about name, year, school, and where you're from?
+> Time 1:00-1:10pm
+
+Find five people around you and form a group.  Have each person introduce themselves and say one thing they hope to 
+get out of taking this class.
+
+We'll have a few minutes for people to share what they heard in their groups.
 
 ## Course Structure and Major Topics
 
-> Time: 2:55-3:05pm
+> Time: 1:10-1:20pm
 
 The goal of this course is for you to learn how to frame problems using the language of computation and select appropriate data structures and algorithms to solve them.  We'll get more into what we mean by framing problems later (there is an example later today), but for now I want to focus on the sorts of problems we will be tackling and the algorithmic strategies we will be using to solve them.
 
@@ -42,11 +46,14 @@ You'll be able to customize the course by taking a deep dive into a new algorith
 
 ### Implementation and Testing
 
-In order to solidify your understanding of the material and improve your ability as a developer, we will be implementing many of our algorithms and data structures.  We'll focus on creating unit tests as a way to create more maintainable and correct code.
+In order to solidify your understanding of the material and improve your ability as a developer, we will be 
+implementing many of our algorithms and data structures.  We'll focus on creating unit tests as a way to create more 
+maintainable and testable code.  We'll also be thinking about how developments in agentic coding tools might 
+intersect with these workflows.
 
 ## Algorithms in the World
 
-> Time: 3:05pm-3:30pm
+> Time: 1:20pm-1:40pm
 
 Choose a category of algorithms from the list below (or make up your own). You are not supposed to know all (or any) of these already!  I encourage you to choose ones you don't know about and do some research. Alternatively, warm up with one you are familiar with and then choose one less so.  For each category you choose to look into:
 
@@ -70,7 +77,7 @@ Some examples of algorithms are listed below.
 
 ## Discussion of Learning Strategies and Oral Quizzes
 
-> Time: 3:30pm-3:50pm
+> Time: 1:40pm-2:00pm
 
 Next, I want to discuss two interrelated issues.  The first is how you can work in a way that best supports your learning this semester.  The second is how I can provide an assessment structure that provides you with useful feedback.
 
@@ -90,60 +97,131 @@ With some folks around you, please discuss the following.
 
 ## Having Some Fun With Algorithms
 
-> 3:50pm - 4:20pm
+> 2:00pm - 2:30pm
 
 ***Quantifying Runtime***
-In this class we're going to be reasoning about the efficiency of our algorithms with respect to the size of the problem they are solving.  For instance, if we feed $n$ numbers into an algorithm, how long does it take the algorithm to compute a solution?  Depending on how the algorithm works, this might take $n^2$ (e.g., if we had to check all pairs of inputs against each other) or $n$ (e.g., if we only had to scan the inputs once).  In the problems below, you'll want to come up with a procedure for solving the problem and also determine how many steps the algorithm would take to compute an answer as a function of $n$.  For the purposes of these exercises, the following operations take 1 step.
-* Accessing an element in a list (e.g., $a_2$)
-* Comparing two numbers to each other (e.g., $a_3 > a_8$)
 
-Work through the peak-finding problem with a group of people sitting near you.  If you finish the first problem, you can either look into 2D peak-finding, or check out [the first assignment](/assignments/assignment_01).  The goal here is not for you to be able to jump right to the answer, but instead, to break down the problem and discuss it with those around you.
+In this class we're going to be reasoning about the efficiency of our algorithms with respect to the size of the problem they are solving.  For instance, if we feed $n$ numbers into an algorithm, how many operations does it take the algorithm to compute a solution?  Depending on how the algorithm works, this might take $n^2$ operations (e.g., if we had to check all pairs of inputs against each other) or $n$ operations (e.g., if we only had to scan the inputs once).  In the problems below, you'll want to come up with a procedure for solving the problem and also determine how many operations the algorithm would take to compute an answer as a function of $n$.  If you have any questions about what counts as an operation, just ask (or make an assumption, note it, and move forward).  In general, things like accessing a piece of data in a list or comparing two elements can be thought of as a single operation.
 
-### Peak Finding
-
-> Credit to MIT Open Courseware 6.006 for this problem
-
-Suppose we have a list of numbers represented as a sequence $a_1, \ldots, a_n$ with $n \geq 2$.  For any element that isn't either the first or the last element of this sequence, we say that element $i$ is a peak if and only if $a_i \geq  a_{i-1}~\text{and}~a_i \geq a_{i+1}$.  For the elements at the ends of the sequence, we say that $a_1$ is a peak if and only $a_1 \geq a_2$ and $a_n$ is a peak if and only if $a_n \geq a_{n-1}$.
+Work through the meeting scheduler problem with a group of people sitting near you.  The goal here is not for you to be able to jump right to the answer, but instead, to break down the problem and discuss it with those around you.
 
 
-With some folks around, you answer the following questions:
+### Meeting Scheduler
 
-<ol>
-<li>Unpack the notation.  Write out a simple test case and label the values with the appropriate notation (e.g., write a list of numbers and draw an arrow to the first that says $a_1$, to the second that says $a_2$, etc.</li>
-<li>Get a feel for the condition written above.  Draw a few test cases.  When does a peak exist?  When does it not?</li>
-<li>Come up with a very simple algorithm to return the position, $i$, of a peak in a list of numbers (provided one exists).  As a function of $n$, how many elements do you have to check to determine if you have a peak?</li>
-<li>See if you can create an algorithm to find a peak faster than your first algorithm (faster in this case means it has a slower growing runtime as a function of $n$).  What techniques might be able to speed things up?  Make an argument that your algorithm is correct and see if you can start to understand how you might prove this more formally.
+Suppose you are a piece of scheduling software.  Your system will take in a list of meetings (each meeting includes a start and end time) and computer various properties.
 
-<br/>
-<button onclick="HideShowElement('HideShow1')">Show / Hide Hint 1</button>
-<div id="HideShow1" style="display:none">
-You should think about breaking the problem down into simpler instances.
-</div>
+As an example, your program may receive the following meeting list.  For simplicity, you can assume these meeting 
+times are all on the same day.  We'll use 24-hour time to avoid any issues with am and pm.
 
-<br/>
-<button onclick="HideShowElement('HideShow2')">Show / Hide Hint 2</button>
-<div id="HideShow2" style="display:none">
-Think recursively.  Here is a convenient link to <a href="https://softdes.olin.edu/docs/readings/3-dict-recursion-refactoring/#recursion">the material from SoftDes on the matter</a> (or call me over and we can do a quick refresher)!  What test can you perform that would allow you to recurse on a sequence half as large as the one you started with?
-</div></li>
-<li>If we changed the condition of a peak to the definition below, would your algorithm in question 3 still work?</li>
-</ol>
+> Meeting A: 10:00–11:00
+> 
+> Meeting B: 10:15–10:45
+> 
+> Meeting C: 13:30–14:00
 
-> Definition 2: For any element that isn't either the first or the last element of this sequence, we say that element $i$ is a peak if and only if $a_i > a_{i-1}~\text{and}~a_i > a_{i+1}$.  For the elements at the ends of the sequence, we say that $a_1$ is a peak if and only $a_1 > a_2$ and $a_n$ is a peak if and only if $a_n < a_{n-1}$.
+Together with your group, you'll go through a series of problems.  For each problem:
 
-### 2D Peak Finding
+* Make sure everyone in your group understands the problem.
+* Come up with an algorithm that solves it.
+* Explain your algorithm clearly.  You do not need to write code, but your description should be unambiguous.
+* Think about how much work your algorithm does as the number of meetings, (n), gets large.
 
-> Note: this is mostly just here for reference for the folks who are curious.  I do not expect you to be able to get to this during class time.
+**Problem 1:** Find the longest meeting
 
-Can we generalize the ideas from the peak-finding algorithm to 2 dimensions (i.e, a matrix)?  Yes!  Here are some slides that talk about [the 1-D and 2-D peak-finding algorithms](https://courses.csail.mit.edu/6.006/fall10/lectures/lec02.pdf) (my suggestion is to go up to slide 17)
+Given a list of meetings, find the meeting with the longest duration.
+
+Questions to consider:
+
+* How many meetings does your algorithm need to look at?
+* How many operations does your algorithm take to compute a solution?  What is your definition of a single operation?
+* Could an algorithm always solve this problem without looking at every meeting?
+
+**Problem 2:** Are there any conflicts?
+
+Given a list of meetings, determine whether any two meetings overlap.
+
+For example:
+
+> 10:00–11:00
+> 
+> 13:00–14:00
+> 
+> 10:45–11:30
+
+The first and third meetings overlap, so the answer is yes.
+
+In contrast:
+
+> 10:00–11:00
+> 
+> 11:00–11:30
+> 
+> 13:00–14:00
+
+has no conflicts. For this problem, assume that a meeting ending exactly when another begins does not count as an overlap.
+
+Questions to consider:
+
+* What is the most straightforward algorithm you can think of? 
+* In the worst case, how many pairs of meetings might it examine?
+* Can you reorganize the meetings in a way that makes conflicts easier to detect?
+
+**Problem 3:** How many meetings happen at once?
+
+Sometimes knowing that some meetings conflict isn't enough. Suppose you want to know how busy the schedule gets at its busiest point.
+
+Given a list of meetings, determine the maximum number of meetings that are happening simultaneously.
+
+For example:
+
+> A: 10:00–11:00
+> 
+> B: 10:15–10:45
+> 
+> C: 11:15–12:00
+> 
+> D: 10:30–11:30
+
+Between 10:30 and 10:45, meetings A, B, and D are all happening. Therefore, the maximum number of simultaneous 
+meetings is 3.
+
+Questions to consider:
+
+* How could you determine how many meetings are happening at a particular moment?
+* What are the important moments when the number of active meetings can change?
+* Can you process those moments in a useful order?
+
+**Problem 4:** Assign the rooms
+
+Given a list of meeting rooms, assign rooms to each meeting so that you use the fewest number of rooms possible.
+
+For example, your output might look something like:
+
+> Meeting A → Room 1
+> 
+> Meeting B → Room 2
+> 
+> Meeting C → Room 2
+>
+> Meeting D → Room 3
+
+Your assignment must satisfy two conditions:
+
+No two overlapping meetings are assigned to the same room.
+You use as few rooms as possible.
+
+Can you develop an algorithm that always produces a valid assignment using the minimum possible number of rooms?
 
 ## Orientation to Assignment 1
 
-> 4:20pm - 4:25pm
+> 2:30pm - 2:35pm
 
 Let me show you [the first assignment](/assignments/assignment_01) (due next Thursday).
 
 ## Turning in your work
 
-> 4:25pm - 4:30pm
+> 2:35pm - 2:40pm
 
-Please fill out [the Canvas survey](https://olin.instructure.com/courses/940/quizzes/2577) to complete your assignment for today.  These surveys are not intended to be heavy -weight.
+Please fill out [the Canvas survey](https://olin.instructure.com/courses/940/quizzes/2577) to complete your 
+assignment for today.  These surveys are not intended to take you a long time.  They are, however, very useful to me 
+to understand how the class is going and how to best tailor it to your interests.
