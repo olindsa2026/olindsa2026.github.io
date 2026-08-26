@@ -87,6 +87,8 @@ In this class we're going to be reasoning about the efficiency of our algorithms
 
 Work through the meeting scheduler problem with a group of people sitting near you.  The goal here is not for you to be able to jump right to the answer, but to break down the problem and discuss it with those around you.
 
+> Hint: For these problems, you may assume that $n$ items can be sorted in $n \log n$ time (which is smaller than $n^2$). You do not need to know *how* the sorting algorithms works right now.
+
 
 ### Meeting Scheduler
 
