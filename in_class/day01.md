@@ -77,7 +77,7 @@ Some examples of algorithms are listed below.
 
 ## Having Some Fun With Algorithms
 
-{% include activity-time.html time="1:40pm-2:10pm" %}
+{% include activity-time.html time="1:40pm-2:20pm" %}
 
 > Note: this is an open-ended exercise that I do not expect you to complete within the 30 minutes. If you do not complete it during class, you do not have to finish it after class.
 
@@ -197,7 +197,7 @@ Can you develop an algorithm that always produces a valid assignment using the m
 
 
 ## Discussion of Learning Strategies and Oral Quizzes
-{% include activity-time.html time="2:10pm-2:30pm" %}
+{% include activity-time.html time="2:20pm-2:30pm" %}
 
 Next, I want to discuss two interrelated issues.  The first is how you can work in a way that best supports your learning this semester.  The second is how I can provide an assessment structure that provides you with useful feedback.
 
