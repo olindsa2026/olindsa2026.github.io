@@ -274,6 +274,7 @@ function HideShowElement(divID) {
   <li><a href="#identifying-effective-strategies-for-learning">Identifying Effective Strategies for Learning</a></li>
   <li><a href="#hello-world">Hello World!</a></li>
   <li><a href="#translating-your-old-code">Translating Your Old Code</a></li>
+  <li><a href="#implementing-meeting-scheduler">Implementing Meeting Scheduler</a></li>
 </ul>
 	      	
             </nav>
@@ -372,8 +373,20 @@ are ones where the programming is required to specify the data types that their 
 <p>The code you produce should be documented and contain at least some unit tests.</p>
 
 <blockquote>
-  <p>Turning in your work: Include a link to a GitHub repo containing your port of the code.  Include a writeup that describes the purpose of the code and how you found the process of translating the code to Kotlin (the good, the bad, and the ugly).</p>
+  <p>Turning in your work: Include a link to a GitHub repo containing your port of the code.  Include a writeup that describes the purpose of the code and how you found the process of translating the code to Kotlin (or the language you wind up choosing).  Feel free to touch on the good, the bad, and the ugly.</p>
 </blockquote>
+
+<h2 id="implementing-meeting-scheduler">Implementing Meeting Scheduler</h2>
+
+<p>Implement an algorithm that determines whether a collection of meetings contains a conflict (as we discussed in the <a href="../in_class/day01">day 1</a> page).</p>
+
+<p>It’s up to you how you pass data into your program.  You could read it from a file, hard code a test input into your main function, etc.</p>
+
+<ul>
+  <li>First implement the straightforward algorithm that checks pairs of meetings.</li>
+  <li>Develop a second algorithm that sorts the meetings in a useful way so you can check for conflicts more easily.  You should not implement your own search function, but instead use your language’s built-in sort function.</li>
+  <li>Write unit tests for both implementations, including edge cases such as one meeting ending exactly when another starts. For each algorithm (the straightforward one and the one based sorting), describe how you expect its running time to grow with $n$.  As mentioned on day 1, sorting has runtime $\Theta(n \log n)$.</li>
+</ul>
 
         
       </section>
