@@ -6,7 +6,7 @@ toc_sticky: true
 
 ## A Note on Assignment Scope
 
-In general, you will be spending about 8 hours a week on homework for this class.  The first assignment, is on the lighter side, but you should still be spending at least 6 hours on it.  If you finish this assignment in less than 6 hours, please consider one of the following additional activities.
+In general, you will be spending about 8 hours a week on homework for this class.  The first assignment spans a week and a half, is on the lighter side, but you should still be spending at least 8 hours on it.  If you finish this assignment in less than 8 hours, please consider one of the following additional activities.
 * Do some problems from [Advent of Code](https://adventofcode.com/) (note: there is a link on the [useful resources](/how_to/useful_resources) page to a walkthrough of these problems).
 * Expand the scope of the "translating old code to Kotlin" part of the assignment.
 * In the "Hello Kotlin" part of the assignment, try importing a dependency and using it in your code (the [Setting up Kotlin](/how_to/setting_up_kotlin) section has some information on this).  If you are using another programming language, see if you can import a third-party library (i.e., one that is not already built into the language) and use it somehow.
@@ -17,7 +17,7 @@ New for this year, I want to experiment with opening up the choice of programmin
 little background on what I was looking for in an ideal DSA language.
 
 1. I wanted a language that is **statically typed**.  [Statically typed languages](https://en.wikipedia.org/wiki/Type_system#Static_type_checking) 
-are ones where the programming is required to specify the data types that their functions accept and, in-turn, the computer can verify that the correct types are being passed into those functions *before* running the code.  Static typing will help you become more adept at defining appropriate data types and thinking about the abstractions they represent.
+are ones where the programmer is required to specify the data types that their functions accept and, in-turn, the computer can verify that the correct types are being passed into those functions *before* running the code (this sort of analysis is called *static analysis*).  Static typing will help you become more adept at defining appropriate data types and thinking about the abstractions they represent.
 2. I wanted a language that is more than just an academic curiosity.  I wanted the language to be *useful* both in direct application and also as a bridge to learning other languages.
 3. I wanted a language with a minimal learning curve.  The class you are taking, Data Structures and Algorithms, is already covering a lot of ground in a single semester (some colleges will separate these two subjects into their own courses). I worried that if the language was too difficult to learn, then many of the core learning objectives of the course would be lost.
 4. I wanted students to expand their toolbox.  While I was worried about having a steep learning curve, I also wanted students to continue their journey as programmers. This meant that I wanted to make sure they were either learning a new language, or learning new tooling to use a language they already know in a new way.
@@ -34,8 +34,8 @@ I firmly believe that it is my responsibility as an instructor to provide scaffo
 As part of the course entrance survey, I will ask you to let me know your initial choice for programming language (as well as your rationale).  You are, however, free to switch languages during the course.  If you do so, I'd appreciate you writing me a quick note to explain your rationale for shifting.  I don't need to know about this shift for bookkeeping, I am, however, interested in following your decisions related to this class.
 
 Given all of this, I am expecting the following languages to be the main alternatives to Kotlin chosen in this course.
-* C++: steeper learning curver, used a lot in domains (e.g., robotics)
-* Rust: much steeper learning curve, lots of excitement around it, used in areas like systems programming
+* C++: steeper learning curver, used in a lot in domains (e.g., robotics)
+* Rust: much steeper learning curve, lots of excitement around it, used in areas like systems programming.  Warning: I don't know Rust myself, so I would be learning with you.
 * Python with mypy: straightforward extension of what you learned in the courses that are prerequisites for this course.
 
 ## Course Entry Survey
