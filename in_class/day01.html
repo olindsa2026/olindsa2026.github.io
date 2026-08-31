@@ -364,7 +364,7 @@ intersect with these workflows.</p>
 <p><span class="activity-time"><i>Timing:</i> 1:40pm-2:20pm</span></p>
 
 <blockquote>
-  <p>Note: this is an open-ended exercise that I do not expect you to complete within the 30 minutes. If you do not complete it during class, you do not have to finish it after class.</p>
+  <p>Note: this is an open-ended exercise that I do not expect you to complete within the 40 minutes. If you do not complete it during class, that’s okay.  You will be asked to implement a solution to some of these problems for your homework.</p>
 </blockquote>
 
 <p><strong><em>Quantifying Runtime</em></strong></p>
@@ -379,7 +379,7 @@ intersect with these workflows.</p>
 
 <h3 id="meeting-scheduler">Meeting Scheduler</h3>
 
-<p>Suppose you are a piece of scheduling software.  Your system will take in a list of meetings (each meeting includes a start and end time) and compute various properties.</p>
+<p>Suppose you are implementing a piece of scheduling software.  Your system will take in a list of meetings (each meeting includes a start and end time) and compute various properties.</p>
 
 <p>As an example, your program may receive the following meeting list.  For simplicity, you can assume these meeting
 times are all on the same day.  We’ll use 24-hour time to avoid any issues with am and pm.</p>
@@ -397,8 +397,8 @@ times are all on the same day.  We’ll use 24-hour time to avoid any issues wit
 <ul>
   <li>Make sure everyone in your group understands the problem.</li>
   <li>Come up with an algorithm that solves it.</li>
-  <li>Explain your algorithm clearly.  You do not need to write code, but your description should be unambiguous.</li>
-  <li>Think about how much work your algorithm does as the number of meetings, (n), gets large.</li>
+  <li>Explain your algorithm clearly (probably write it on the board).  You do not need to write code, but your description should be unambiguous.</li>
+  <li>Determine how many operations your algorithm performs to compute a solution as a function of the number of meetings, $n$. Building on what we said before, don’t worry about figuring out the number of operations exactly (e.g., you don’t need to say that it takes $3n + 5$ operations, but instead you can say it takes on the order of $n$ operations).</li>
 </ul>
 
 <p><strong>Problem 1:</strong> Find the longest meeting</p>
@@ -439,14 +439,14 @@ times are all on the same day.  We’ll use 24-hour time to avoid any issues wit
   <p>13:00–14:00</p>
 </blockquote>
 
-<p>has no conflicts. For this problem, assume that a meeting ending exactly when another begins does not count as an overlap.</p>
+<p>has no conflicts. For this problem, assume that a meeting ending exactly when another begins does not count as an overlap. You may find it useful to define some notation to keep track of the start and end times of each meeting.</p>
 
 <p>Questions to consider:</p>
 
 <ul>
   <li>What is the most straightforward algorithm you can think of?</li>
   <li>In the worst case, how many pairs of meetings might it examine?</li>
-  <li>Can you reorganize the meetings in a way that makes conflicts easier to detect?</li>
+  <li>Can you reorganize the meetings in a way that makes conflicts easier to detect? Given this new method, can you guarantee that you will always find a conflict if one exists?</li>
 </ul>
 
 <p><strong>Problem 3:</strong> How many meetings happen at once?</p>
@@ -467,8 +467,7 @@ times are all on the same day.  We’ll use 24-hour time to avoid any issues wit
   <p>D: 10:30–11:30</p>
 </blockquote>
 
-<p>Between 10:30 and 10:45, meetings A, B, and D are all happening. Therefore, the maximum number of simultaneous
-meetings is 3.</p>
+<p>Between 10:30 and 10:45, meetings A, B, and D are all happening Therefore, the maximum number of simultaneous  meetings is 3.</p>
 
 <p>Questions to consider:</p>
 
@@ -517,7 +516,7 @@ meetings is 3.</p>
     </tr>
     <tr>
       <td>You are given a problem to solve. As you work towards a solution, you show / discuss your thought process.</td>
-      <td>Your ability to select appropriate data structures and algorithms to solve a novel problem.</td>
+      <td>Your ability to select appropriate data structures and algorithms to solve a problem.</td>
     </tr>
     <tr>
       <td>You are asked to explain a section of code from one of your submitted assignments.</td>
@@ -538,16 +537,14 @@ meetings is 3.</p>
 <ol>
   <li>What are some learning strategies that have worked particularly well for you in the past?  Do you think they will work well in this course?</li>
   <li>Will you use AI-based coding assistants in this course?  How will you use them to ensure you are getting the knowledge you’d like from the course?</li>
-  <li>In reaction to the table above, what other activities would be useful to include in an oral quiz and what skill 
-would they be assessing? How would you rank the four items in the list above from most to least helpful in you 
-assessing your progress in the course?</li>
+  <li>In reaction to the table above, what other activities would be useful to include in an oral quiz and what skill would they be assessing? How would you rank the four items in the list above from most to least helpful in you assessing your progress in the course?</li>
 </ol>
 
 <h2 id="orientation-to-assignment-1">Orientation to Assignment 1</h2>
 
 <p><span class="activity-time"><i>Timing:</i> 2:30pm-2:35pm</span></p>
 
-<p>Let me show you <a href="/assignments/assignment_01">the first assignment</a> (due next Thursday).</p>
+<p>Let me show you <a href="/assignments/assignment_01">the first assignment</a> (due a week from this Thursday).</p>
 
 <h2 id="turning-in-your-work">Turning in your work</h2>
 
