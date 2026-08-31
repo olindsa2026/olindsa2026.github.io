@@ -79,7 +79,7 @@ Some examples of algorithms are listed below.
 
 {% include activity-time.html time="1:40pm-2:20pm" %}
 
-> Note: this is an open-ended exercise that I do not expect you to complete within the 30 minutes. If you do not complete it during class, you do not have to finish it after class.
+> Note: this is an open-ended exercise that I do not expect you to complete within the 40 minutes. If you do not complete it during class, that's okay.  You will be asked to implement a solution to some of these problems for your homework.
 
 ***Quantifying Runtime***
 
@@ -92,7 +92,7 @@ Work through the meeting scheduler problem with a group of people sitting near y
 
 ### Meeting Scheduler
 
-Suppose you are a piece of scheduling software.  Your system will take in a list of meetings (each meeting includes a start and end time) and compute various properties.
+Suppose you are implementing a piece of scheduling software.  Your system will take in a list of meetings (each meeting includes a start and end time) and compute various properties.
 
 As an example, your program may receive the following meeting list.  For simplicity, you can assume these meeting
 times are all on the same day.  We'll use 24-hour time to avoid any issues with am and pm.
@@ -107,8 +107,8 @@ Together with your group, you'll go through a series of problems.  For each prob
 
 * Make sure everyone in your group understands the problem.
 * Come up with an algorithm that solves it.
-* Explain your algorithm clearly.  You do not need to write code, but your description should be unambiguous.
-* Think about how much work your algorithm does as the number of meetings, (n), gets large.
+* Explain your algorithm clearly (probably write it on the board).  You do not need to write code, but your description should be unambiguous.
+* Determine how many operations your algorithm performs to compute a solution as a function of the number of meetings, $n$. Building on what we said before, don't worry about figuring out the number of operations exactly (e.g., you don't need to say that it takes $3n + 5$ operations, but instead you can say it takes on the order of $n$ operations).
 
 **Problem 1:** Find the longest meeting
 
@@ -142,13 +142,13 @@ In contrast:
 >
 > 13:00–14:00
 
-has no conflicts. For this problem, assume that a meeting ending exactly when another begins does not count as an overlap.
+has no conflicts. For this problem, assume that a meeting ending exactly when another begins does not count as an overlap. You may find it useful to define some notation to keep track of the start and end times of each meeting.
 
 Questions to consider:
 
 * What is the most straightforward algorithm you can think of?
 * In the worst case, how many pairs of meetings might it examine?
-* Can you reorganize the meetings in a way that makes conflicts easier to detect?
+* Can you reorganize the meetings in a way that makes conflicts easier to detect? Given this new method, can you guarantee that you will always find a conflict if one exists?
 
 **Problem 3:** How many meetings happen at once?
 
@@ -166,8 +166,7 @@ For example:
 >
 > D: 10:30–11:30
 
-Between 10:30 and 10:45, meetings A, B, and D are all happening. Therefore, the maximum number of simultaneous
-meetings is 3.
+Between 10:30 and 10:45, meetings A, B, and D are all happening Therefore, the maximum number of simultaneous  meetings is 3.
 
 Questions to consider:
 
@@ -205,7 +204,7 @@ Twice this semester, I will meet with each of you for an oral quiz (each quiz is
 
 
 | *Activity* | *What's Being Assessed* |
-| You are given a problem to solve. As you work towards a solution, you show / discuss your thought process. | Your ability to select appropriate data structures and algorithms to solve a novel problem. |
+| You are given a problem to solve. As you work towards a solution, you show / discuss your thought process. | Your ability to select appropriate data structures and algorithms to solve a problem. |
 | You are asked to explain a section of code from one of your submitted assignments. | Your ability to internalize, and be able to verbalize to others, the coding choices you made. |
 | You are asked to give a whiteboard talk explaining one of the class concepts. | Your fluency with the concepts in the course, your ability to distill down the important bits, and your ability to communicate clearly about course concepts. |
 | You are given an implementation of a particular algorithm, and you must work through whether the code is correct. If it is not correct, you may suggest corrections. | Your ability to comprehend code that you didn't write (e.g., from a co-worker or from an AI agent) and assess its correctness. |
@@ -213,15 +212,13 @@ Twice this semester, I will meet with each of you for an oral quiz (each quiz is
 With some folks around you, please discuss the following.
 1. What are some learning strategies that have worked particularly well for you in the past?  Do you think they will work well in this course?
 2. Will you use AI-based coding assistants in this course?  How will you use them to ensure you are getting the knowledge you'd like from the course?
-3. In reaction to the table above, what other activities would be useful to include in an oral quiz and what skill 
-   would they be assessing? How would you rank the four items in the list above from most to least helpful in you 
-   assessing your progress in the course?
+3. In reaction to the table above, what other activities would be useful to include in an oral quiz and what skill would they be assessing? How would you rank the four items in the list above from most to least helpful in you assessing your progress in the course?
 
 ## Orientation to Assignment 1
 
 {% include activity-time.html time="2:30pm-2:35pm" %}
 
-Let me show you [the first assignment](/assignments/assignment_01) (due next Thursday).
+Let me show you [the first assignment](/assignments/assignment_01) (due a week from this Thursday).
 
 ## Turning in your work
 
