@@ -1254,3 +1254,19 @@ body { display: -webkit-box; display: -ms-flexbox; display: flex; min-height: 10
   /* Hide the following elements on print ========================================================================== */
   .masthead, .toc, .page__share, .page__related, .pagination, .ads, .page__footer, .page__comments-form, .author__avatar, .author__content, .author__urls-wrapper, .nav__list, .sidebar, .adsbygoogle { display: none !important; height: 1px !important; } }
 .activity-time { display: block; margin-top: -0.5rem; margin-bottom: 0.6rem; font-size: 0.82em; font-weight: 500; color: #666; }
+
+/* Collapsible solutions (see _includes/solution.html) */
+.solution { margin: 1.2em 0; border: 1px solid #cdcfd2; border-left: 4px solid #6f777d; border-radius: 4px; background-color: #f9fafa; }
+.solution[open] > .solution__toggle { border-bottom: 1px solid #dbdddf; }
+
+.solution__toggle { padding: 0.5em 0.8em; cursor: pointer; font-family: -apple-system, BlinkMacSystemFont, "Roboto", "Segoe UI", "Helvetica Neue", "Lucida Grande", Arial, sans-serif; font-size: 0.82em; font-weight: bold; letter-spacing: 0.03em; text-transform: uppercase; color: #6f777d; list-style: none; /* hide the default marker so we can draw our own */ }
+.solution__toggle::-webkit-details-marker { display: none; }
+.solution__toggle:hover { background-color: #f1f1f2; }
+.solution__toggle:focus-visible { outline: 2px solid #6f777d; outline-offset: 2px; }
+.solution__toggle::before { content: "\25B6"; /* right-pointing triangle */ display: inline-block; margin-right: 0.5em; font-size: 0.85em; transition: transform 0.15s ease-in-out; }
+
+.solution[open] > .solution__toggle::before { transform: rotate(90deg); }
+
+.solution__body { padding: 0.2em 0.8em 0.6em; }
+.solution__body > :first-child { margin-top: 0.6em; }
+.solution__body > :last-child { margin-bottom: 0; }
