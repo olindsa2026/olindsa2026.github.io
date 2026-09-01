@@ -606,7 +606,7 @@ for i in 1...roomMax
 
 for (t, isStart, runningTotal, meetingID) in events
    if isStart
-     assignments[meetingID] = availableRooms[0]
+     assignments[meetingID] = availableRooms.firstEntry()
      // remove the first element of the list since it is no longer available
      availableRooms.removeFirst()
    else
