@@ -120,6 +120,26 @@ Questions to consider:
 * How many operations does your algorithm take to compute a solution?  What is your definition of a single operation?
 * Could an algorithm always solve this problem without looking at every meeting?
 
+{% capture solution %}
+This problem can be solved by scanning through each meeting and keeping track of the longest meeting.  Let's define some notation that will help with future problems.  We use the notation $(s_i, e_i)$ to refer to the start and end time stamps of meeting $i$.  We can find the maximum using by calculating the duration of each meeting and remembering the longest one we've seen so far.
+
+Note: you weren't expected to write out pseudocode for this problem, but I decided to include it here to make things more concrete.
+```
+longestMeetingDuration = 0
+longestMeetingIndex = -1
+
+for i in 1...n
+  if e_i - s_i > longestMeetingDuration
+     longestMeetingIndex = i
+     longestMeetingDuration = e_i - s_i
+```
+
+This algorithm would perform on the order of (we'll define what this means more precisely next class) $n$ operations to solve a problem of size $n$.
+
+It would not be possible to solve the problem without looking at every meeting, because it's always possible the one meeting you don't check turns out to be the longest.
+{% endcapture %}
+{% include solution.html content=solution %}
+
 **Problem 2:** Are there any conflicts?
 
 Given a list of meetings, determine whether any two meetings overlap.
@@ -150,6 +170,24 @@ Questions to consider:
 * In the worst case, how many pairs of meetings might it examine?
 * Can you reorganize the meetings in a way that makes conflicts easier to detect? Given this new method, can you guarantee that you will always find a conflict if one exists?
 
+{% capture solution %}
+The most straightforward method would be to examine all pairs of meetings and test to see if they overlap.  You can check for overlaps using the following idea.
+
+```
+fun overlaps(i, j)
+  return s_i < e_j and s_j < e_i
+```
+
+Intuitively, the function above ensures that the start of each meeting is before the end of the other meeting.  If the start of one of the meetings was after the end of the other meeting, then there would necessarily be no overlap.
+
+The algorithm that checks all pairs for overlaps would take $n^2$ operations to complete since you'd have to check each meeting with every other meeting.  With some clever optimizations, you could trim this down a bit (don't check self-intersection and don't check intersection of $i$ and $j$ if you've already checked $j$ with $i$), but these tricks won't get you away from the fact that the number of operations still grows with $n^2$.
+
+You can check more quickly by first sorting the meetings in ascending order of start time.  When the meetings are sorted, it suffices to check whether meeting $i$ and $i+1$ intersect.  If they don't you can be sure that meeting $i$ doesn't intersect with any meeting with a later start time.  To verify this, you can look at the ``overlaps`` function and see that this must be the case (I leave it to you to verify this if you are interested).
+
+The algorithm that uses sorting achieves a runtime of $n \log n$, because sorting takes $n \log n$ and scanning for conflicts takes $n$.  Instead of saying $n + n \log n$ we just say $n \log n$ since that is the faster growing term (again, we'll see a formal tool for doing this next class).
+{% endcapture %}
+{% include solution.html content=solution %}
+
 **Problem 3:** How many meetings happen at once?
 
 Sometimes knowing that some meetings conflict isn't enough. Suppose you want to know how busy the schedule gets at its busiest point.
@@ -166,13 +204,45 @@ For example:
 >
 > D: 10:30–11:30
 
-Between 10:30 and 10:45, meetings A, B, and D are all happening Therefore, the maximum number of simultaneous  meetings is 3.
+Between 10:30 and 10:45, meetings A, B, and D are all happening at the same time.  Therefore, the maximum number of simultaneous  meetings is 3.
 
 Questions to consider:
 
 * How could you determine how many meetings are happening at a particular moment?
 * What are the important moments when the number of active meetings can change?
 * Can you process those moments in a useful order?
+
+{% capture solution %}
+We begin with the observation that the number of active meetings only changes when a meeting starts or stops.  With this insight, we can take our original input and put it into event order.  Each event will consist of two things: a time when a meeting starts or stops and whether the event corresponded to a meeting starting or stopping.  In our sample problem, the original input would be transformed to the following events (note: I'm converting the minutes to fractions of hours to make things a bit easier).
+
+```
+- time=10, isStart=true
+- time=11, isStart=false
+- time=10.25, isStart=true
+- time=10.75, isStart=false
+- time=11.25, isStart=true
+- time=12, isStart=false
+- time=10.5, isStart=true
+- time=11.5, isStart=false
+```
+
+Now that we have event representation, we can sort the list by time and break any ties by placing ``isStart=false`` before ``isStart=true``.  This tie-breaking method is needed to properly handle the case where meetings start and stop at the same time (try your own example to see why this is so).  Below is the sorted list along with a running total that shows the current number of active meetings.  The current number of active meetings is determined by simply incrementing this number whenever we scan ``isStart=true`` and decrementing it when ``isStart=false``.
+
+```
+- time=10, isStart=true, runningTotal=1
+- time=10.25, isStart=true, runningTotal=2
+- time=10.5, isStart=true, runningTotal=3
+- time=10.75, isStart=false, runningTotal=2
+- time=11, isStart=false, runningTotal=1
+- time=11.25, isStart=true, runningTotal=2
+- time=11.5, isStart=false, runningTotal=1
+- time=12, isStart=false, runningTotal=0
+```
+By keeping track of the maximum number that ``runningTotal`` attains, we can conclude that the answer to our problem is $3$.
+
+This algorithm needs $n \log n$ time since the time is dominated by sorting the events.
+{% endcapture %}
+{% include solution.html content=solution %}
 
 **Problem 4:** Assign the rooms
 
@@ -193,6 +263,46 @@ Your assignment must satisfy two conditions:
 * You use as few rooms as possible.
 
 Can you develop an algorithm that always produces a valid assignment using the minimum possible number of rooms?
+
+{% capture solution %}
+I would start by creating the events in problem 3 and then sorting them.  I would augment the events to also include what meeting they corresponded to.  This would give us the following events.
+
+```
+- time=10, isStart=true, runningTotal=1, meetingID=A
+- time=10.25, isStart=true, runningTotal=2, meetingID=B
+- time=10.5, isStart=true, runningTotal=3, meetingID=D
+- time=10.75, isStart=false, runningTotal=2, meetingID=B
+- time=11, isStart=false, runningTotal=1, meetingID=A
+- time=11.25, isStart=true, runningTotal=2, meetingID=C
+- time=11.5, isStart=false, runningTotal=1, meetingID=D
+- time=12, isStart=false, runningTotal=0, meetingID=C
+```
+
+I will use the variable ``roomMax`` to refer to the maximum needed rooms (essentially the solution to problem 3).   I would then create a list to keep track of room assigned to each meeting.    For convenience, I'm going to assume that meetingIDs (which are letters) can easily be converted into a number from 1 to n.  You can probably see that you could just assign these numbers randomly, or use the idea that A gets id 1, B gets 2, etc.  Let's let the room numbers start at 1.  Initially the list would consist of $n$ entries set to the value $-1$ (this keeps track of the fact that no meeting has been assigned).  I would scan through my events and then update the assignments as I go. I would have a variable that keeps track of the next room I should use as well.
+```
+assignments = []
+for i in 1...n
+  assignments.append(-1)
+
+availableRooms = []
+for i in 1...roomMax
+  availableRooms.append(i)
+
+for (t, isStart, runningTotal, meetingID) in events
+   if isStart
+     assignments[meetingID] = availableRooms[0]
+     // remove the first element of the list since it is no longer available
+     availableRooms.removeFirst()
+   else
+     // now that the  meeting is done, add the room back to the free pool
+     availableRooms.append(assignments[meetingID])
+```
+
+The solution will be in the variable ``assignments``.
+
+This algorithm takes $n \log n$ to run.  In terms of data structures, we might start to ask questions like: how many operations does it take to remove the first element of ``availableRooms``?  We'll dig into this question in the second assignment where we see how to make operations like this fast (they can be done in a number of operations independent of the length of the list).
+{% endcapture %}
+{% include solution.html content=solution %}
 
 
 ## Discussion of Learning Strategies and Oral Quizzes

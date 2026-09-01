@@ -1,0 +1,24 @@
+{%- comment -%}
+Collapsible solution block.  Uses the native HTML <details> element, so no
+JavaScript is needed.
+
+Usage (in a Markdown page):
+
+    {% capture solution %}
+    Your solution goes here.  This is regular Markdown, so lists, `code`,
+    fenced code blocks, and $\LaTeX$ math all work.
+    {% endcapture %}
+    {% include solution.html content=solution %}
+
+Optional parameters:
+
+    label="Show my answer"   overrides the default toggle text
+    open=true                renders the block already expanded
+{%- endcomment -%}
+{%- assign solution_label = include.label | default: "Show solution" -%}
+<details class="solution"{% if include.open == true or include.open == "true" %} open{% endif %}>
+  <summary class="solution__toggle">{{ solution_label }}</summary>
+  <div class="solution__body">
+    {{ include.content | markdownify }}
+  </div>
+</details>

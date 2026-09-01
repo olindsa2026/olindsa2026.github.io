@@ -15,3 +15,65 @@
   font-weight: 500;
   color: #666;
 }
+
+/* Collapsible solutions (see _includes/solution.html) */
+.solution {
+  margin: 1.2em 0;
+  border: 1px solid mix($primary-color, #fff, 35%);
+  border-left: 4px solid $primary-color;
+  border-radius: $border-radius;
+  background-color: mix($primary-color, #fff, 4%);
+
+  &[open] > .solution__toggle {
+    border-bottom: 1px solid mix($primary-color, #fff, 25%);
+  }
+}
+
+.solution__toggle {
+  padding: 0.5em 0.8em;
+  cursor: pointer;
+  font-family: $sans-serif;
+  font-size: 0.82em;
+  font-weight: bold;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: $primary-color;
+  list-style: none; /* hide the default marker so we can draw our own */
+
+  &::-webkit-details-marker {
+    display: none;
+  }
+
+  &:hover {
+    background-color: mix($primary-color, #fff, 10%);
+  }
+
+  &:focus-visible {
+    outline: 2px solid $primary-color;
+    outline-offset: 2px;
+  }
+
+  &::before {
+    content: "\25B6"; /* right-pointing triangle */
+    display: inline-block;
+    margin-right: 0.5em;
+    font-size: 0.85em;
+    transition: transform 0.15s ease-in-out;
+  }
+}
+
+.solution[open] > .solution__toggle::before {
+  transform: rotate(90deg);
+}
+
+.solution__body {
+  padding: 0.2em 0.8em 0.6em;
+
+  > :first-child {
+    margin-top: 0.6em;
+  }
+
+  > :last-child {
+    margin-bottom: 0;
+  }
+}
