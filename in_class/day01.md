@@ -278,7 +278,7 @@ I would start by creating the events in problem 3 and then sorting them.  I woul
 - time=12, isStart=false, runningTotal=0, meetingID=C
 ```
 
-I will use the variable ``roomMax`` to refer to the maximum needed rooms (essentially the solution to problem 3).   I would then create a list to keep track of room assigned to each meeting.    For convenience, I'm going to assume that meetingIDs (which are letters) can easily be converted into a number from 1 to n.  You can probably see that you could just assign these numbers randomly, or use the idea that A gets id 1, B gets 2, etc.  Let's let the room numbers start at 1.  Initially the list would consist of $n$ entries set to the value $-1$ (this keeps track of the fact that no meeting has been assigned).  I would scan through my events and then update the assignments as I go.
+I will use the variable ``roomMax`` to refer to the maximum needed rooms (essentially the solution to problem 3).   I would then create a list to keep track of which room is assigned to each meeting.    For convenience, I'm going to assume that meetingIDs (which are letters) can easily be converted into a number from 1 to n.  You can probably see that you could just assign these numbers randomly, or use the idea that A gets id 1, B gets 2, etc.  Let's let the room numbers start at 1.  Initially, the list would consist of $n$ entries each with the value $-1$ (the value $-1$ keeps track of the fact that no meeting has been assigned.  This type of value is often called a *sentinel value*).  I would scan through my events and then update the assignments as I go.
 ```
 assignments = []
 for i in 1...n
@@ -294,7 +294,7 @@ for (t, isStart, runningTotal, meetingID) in events
      // remove the first element of the list since it is no longer available
      availableRooms.removeFirst()
    else
-     // now that the  meeting is done, add the room back to the free pool
+     // now that the  meeting is done, add the room back to the list of available rooms
      availableRooms.append(assignments[meetingID])
 ```
 
