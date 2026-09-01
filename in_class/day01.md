@@ -121,7 +121,7 @@ Questions to consider:
 * Could an algorithm always solve this problem without looking at every meeting?
 
 {% capture solution %}
-This problem can be solved by scanning through each meeting and keeping track of the longest meeting.  Let's define some notation that will help with future problems.  We use the notation $(s_i, e_i)$ to refer to the start and end time stamps of meeting $i$.  We can find the maximum using by calculating the duration of each meeting and remembering the longest one we've seen so far.
+This problem can be solved by scanning through each meeting and keeping track of the longest meeting.  Let's define some notation that will help with future problems.  We use the notation $(s_i, e_i)$ to refer to the start and end time stamps of meeting $i$.  We can find the maximum by calculating the duration of each meeting and remembering the longest one we've seen so far.
 
 Note: you weren't expected to write out pseudocode for this problem, but I decided to include it here to make things more concrete.
 ```
@@ -278,7 +278,7 @@ I would start by creating the events in problem 3 and then sorting them.  I woul
 - time=12, isStart=false, runningTotal=0, meetingID=C
 ```
 
-I will use the variable ``roomMax`` to refer to the maximum needed rooms (essentially the solution to problem 3).   I would then create a list to keep track of room assigned to each meeting.    For convenience, I'm going to assume that meetingIDs (which are letters) can easily be converted into a number from 1 to n.  You can probably see that you could just assign these numbers randomly, or use the idea that A gets id 1, B gets 2, etc.  Let's let the room numbers start at 1.  Initially the list would consist of $n$ entries set to the value $-1$ (this keeps track of the fact that no meeting has been assigned).  I would scan through my events and then update the assignments as I go. I would have a variable that keeps track of the next room I should use as well.
+I will use the variable ``roomMax`` to refer to the maximum needed rooms (essentially the solution to problem 3).   I would then create a list to keep track of room assigned to each meeting.    For convenience, I'm going to assume that meetingIDs (which are letters) can easily be converted into a number from 1 to n.  You can probably see that you could just assign these numbers randomly, or use the idea that A gets id 1, B gets 2, etc.  Let's let the room numbers start at 1.  Initially the list would consist of $n$ entries set to the value $-1$ (this keeps track of the fact that no meeting has been assigned).  I would scan through my events and then update the assignments as I go.
 ```
 assignments = []
 for i in 1...n
