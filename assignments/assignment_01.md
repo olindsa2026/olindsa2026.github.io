@@ -59,7 +59,7 @@ Respond to the following prompts to get you thinking about your approach to lear
 
 > If you choose a language other than Kotlin, you will want to do something equivalent in your chosen programming language.  Here is [a Google doc you can use to share anything cool](https://docs.google.com/document/d/1ZvxRpHxgRflxHU__9kKKlFOXb7QimZwsk1UURh8MAaA/edit?usp=sharing) you found with the class related to your chosen programming language.
 
-Read the section on the website about [Getting Set with Kotlin](/how_to/setting_up_kotlin.md).
+Read the section on the website about [Getting Set with Kotlin](/how_to/setting_up_kotlin).
 
 Go through [the Kotlin tour](https://kotlinlang.org/docs/kotlin-tour-welcome.html) (you only need to do the beginner Kotlin tour).  Make sure to attempt all the exercises in the tour.
 
@@ -74,7 +74,7 @@ Go through [the Kotlin tour](https://kotlinlang.org/docs/kotlin-tour-welcome.htm
 
 > If you choose a language other than Kotlin, please adjust this prompt as appropriate.  If you choose Python with type hints, you may find this takes a lot less time than I anticipated. If it does, you can see some of the suggestions at the top of the assignment to augment your work.
 
-Choose a piece of code that you've written in a programming language other than Kotlin.  Translate the code to run in Kotlin.  For simplicity, you may want to choose some code that will not require interacting with a lot of external libraries (although [the course how-to](/how_to/setting_up_kotlin.md) discusses how to add dependencies to your project)
+Choose a piece of code that you've written in a programming language other than Kotlin.  Translate the code to run in Kotlin.  For simplicity, you may want to choose some code that will not require interacting with a lot of external libraries (although [the course how-to](/how_to/setting_up_kotlin) discusses how to add dependencies to your project)
 
 The code you produce should be documented and contain at least some unit tests.
 
