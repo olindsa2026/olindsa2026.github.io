@@ -269,9 +269,9 @@ function HideShowElement(divID) {
 	      
                 <ul class="toc__menu">
   <li><a href="#announcements-and-reminders">Announcements and Reminders</a></li>
-  <li><a href="#algorithm-design-patterns-whirlwind-tour">Algorithm Design Patterns Whirlwind Tour</a></li>
+  <li><a href="#algorithm-design-patterns-tour">Algorithm Design Patterns Tour</a></li>
   <li><a href="#o-and-friends">O() and Friends</a></li>
-  <li><a href="#peak-finding-in-kotlin">Peak finding in Kotlin</a></li>
+  <li><a href="#sample-implementation-of-the-longest-meeting-problem">Sample Implementation of the Longest Meeting Problem</a></li>
 </ul>
 	      	
             </nav>
@@ -284,9 +284,10 @@ function HideShowElement(divID) {
   <li>Consider joining the Slack.</li>
 </ul>
 
-<h2 id="algorithm-design-patterns-whirlwind-tour">Algorithm Design Patterns Whirlwind Tour</h2>
+<h2 id="algorithm-design-patterns-tour">Algorithm Design Patterns Tour</h2>
+<p><span class="activity-time"><i>Timing:</i> 1:05pm-2:00pm</span></p>
 
-<p>We’re going to take a few classes to get a feel for the various algorithmic design patterns we will meet this semester.  During class 1, we met the design pattern <em>divide and conquer</em>.  Today, we’ll be learning about greedy algorithms.</p>
+<p>We’re going to take a few classes to get a feel for the various algorithmic design patterns we will meet this semester.  Today, we’ll be learning about greedy algorithms.</p>
 
 <p>Wikipedia has a concise definition of a greedy algorithm.</p>
 
@@ -295,6 +296,70 @@ function HideShowElement(divID) {
 </blockquote>
 
 <p>The question becomes, does the greedy strategy lead to an optimal solution to the problem?  In some cases it may lead to such a solution, and in other cases it may not.</p>
+
+<h3 id="meeting-conflicts-revisited">Meeting Conflicts Revisited</h3>
+
+<p>Before we dive into a new problem, let’s think back to the meeting scheduler problems we worked on last class.  Specifically, let’s  look at the solution to the fourth problem, which is to find a way to assign meetings to rooms such that no conflicts occur and we use as few rooms as possible. Here is my solution.</p>
+
+<p>Before we start, let’s assume we have transformed our original list of meetings into a list of events (meeting starts and stops) ordered by time.</p>
+
+<p>For example,</p>
+
+<blockquote>
+  <p>A: 10:00–11:00</p>
+
+  <p>B: 10:15–10:45</p>
+
+  <p>C: 11:15–12:00</p>
+
+  <p>D: 10:30–11:30</p>
+</blockquote>
+
+<p>Is represented by the following, time-sorted list of events.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>- time=10, isStart=true, runningTotal=1, meetingID=A
+- time=10.25, isStart=true, runningTotal=2, meetingID=B
+- time=10.5, isStart=true, runningTotal=3, meetingID=D
+- time=10.75, isStart=false, runningTotal=2, meetingID=B
+- time=11, isStart=false, runningTotal=1, meetingID=A
+- time=11.25, isStart=true, runningTotal=2, meetingID=C
+- time=11.5, isStart=false, runningTotal=1, meetingID=D
+- time=12, isStart=false, runningTotal=0, meetingID=C
+</code></pre></div></div>
+
+<p>We’ll populate a dictionary <code class="language-plaintext highlighter-rouge">assignments</code>, which will hold the room ID (value) for each meeting (key).  Let’s assume the rooms are identified by number, starting from $1$ (the second room is $2$, third room is $3$, etc.).</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>assignments = {}
+availableRooms = [1]        // start with only room 1 (add more if needed)
+nextRoom = 2                // we'll use room 2 next.
+
+for (t, isStart, runningTotal, meetingID) in events
+   if isStart
+     if availableRooms.isEmpty
+        availableRooms = [nextRoom]
+        nextRoom = nextRoom + 1
+     assignments[meetingID] = availableRooms.first()
+     // remove the first element of the list since it is no longer available
+     availableRooms.removeFirst()
+   else
+     // now that the  meeting is done, add the room back to the list of available rooms
+     availableRooms.append(assignments[meetingID])
+</code></pre></div></div>
+
+<blockquote class="notice--success">
+  <p><strong>Exercise 1</strong>
+Questions for you to work through in small groups (we’ll come back together to discuss):</p>
+  <ul>
+    <li>Make sure the algorithm makes sense (perhaps simulate what it would do given the sample inputs above)?</li>
+    <li>What decisions is this algorithm making?  Are the decisions locally optimal?</li>
+    <li>Is the algorithm above greedy?  Why or why not?</li>
+    <li>Is the algorithm above correct in the sense that it will always result in assigning the meetings to the fewest number of rooms?</li>
+  </ul>
+
+  <p>As a group, let’s think through the following question.  How would we modify the problem framing such that this greedy algorithm would no longer work?</p>
+</blockquote>
+
+<h3 id="greedy-knapsack">Greedy Knapsack</h3>
 
 <blockquote class="notice--info">
   <p><strong>Sample Problem</strong> Seeing where a greedy approach fails</p>
@@ -322,7 +387,7 @@ function HideShowElement(divID) {
 <p>Now, let’s work through the following exercise as a group.</p>
 
 <blockquote class="notice--success">
-  <p><strong>Exercise 1</strong></p>
+  <p><strong>Exercise 2</strong></p>
   <ol>
     <li>Suppose you have a budget of $N$ dollars to purchase flour and that flour can be purchased on day $i$ for $x_i$ dollars per pound.  Determine the maximum amount of flour you can purchase with your budget.  Is your algorithm a greedy algorithm? (you can assume that buying a fraction of a pound is allowed).  How would you modify your algorithm if you were limited to purchasing $M$ pounds of flour each day?  Is the new algorithm greedy?</li>
     <li>Determine a greedy algorithm for making change for $N$ cents using quarters, dimes, nickels, and pennies.  Does your greedy algorithm use the fewest coins possible (make an intuitive argument, no proof necessary)?</li>
@@ -342,6 +407,7 @@ function HideShowElement(divID) {
 </blockquote>
 
 <h2 id="o-and-friends">O() and Friends</h2>
+<p><span class="activity-time"><i>Timing:</i> 2:00pm-2:40pm</span></p>
 
 <p>Next, we are going to return to what we did in the first class where we calculated the runtime of an algorithm as a function of the input size $n$.  Let’s say we compute the runtime of an algorithm 1 to be $2 n^2 + 5n + 200$ and the runtime of algorithm 2 to be $3 n^2 + 2 n$.  Is one necessarily faster than the other?  We can graph the two runtimes and see.</p>
 
@@ -374,9 +440,13 @@ function HideShowElement(divID) {
         yaxis: { title: "Relative Runtime", range: [0, 2] } } );
 </script>
 
-<p>The idea behind order of growth, is to find a way to draw meaningful distinctions between how fast functions increase.  Where meaningful in this case is based on how the functions behave when the input, $n$, gets very large and where we ignore constant factor differences in the functions (e.g., if a function is twice another, it is pretty much the same for our purposes).</p>
+<p>The idea behind order of growth, is to find a way to draw meaningful distinctions between how fast functions increase.  Where meaningful in this case is based on how the functions behave when their inputs, $n$, get very large and where we ignore constant factor differences in the functions (e.g., if a function is twice another, it is pretty much the same for our purposes).</p>
 
 <p>We say that $f(x) = O(g(x))$ if there exists a positive real number $M$ and a real number $x_0$ such that, $|f(x)| \leq M g(x)~\text{for all}~x\geq x_0$.</p>
+
+<blockquote class="notice--info">
+  <p>I always found the notation $f(x) = O(g(x))$ to be quite confusing.  What in the world does it mean for a function $f(x)$ to be equal to $O(g(x))$.</p>
+</blockquote>
 
 <p>$f(x) = \Omega(g(x))$ if there exists a positive real number $M$ and a real number $x_0$ such that, $|f(x)|\geq M g(x)~\text{for all}~x \geq x_0$</p>
 
@@ -386,7 +456,7 @@ function HideShowElement(divID) {
 
 <p><img src="/images/bigoandfriends.png" alt="This figure shows a grahical depiction of O(g(n)) (left), Omega(g(n)) (center), and Theta(g(n)) (right)" /></p>
 
-<p>With your group, explain how the formal definitions (given earlier) relate to these pictures.</p>
+<p>As a group, let’s explain how the formal definitions (given earlier) relate to these pictures.</p>
 
 <blockquote class="notice--success">
   <p><strong>Exercise 3</strong></p>
@@ -422,9 +492,16 @@ function HideShowElement(divID) {
   </ol>
 </blockquote>
 
-<h2 id="peak-finding-in-kotlin">Peak finding in Kotlin</h2>
+<h2 id="sample-implementation-of-the-longest-meeting-problem">Sample Implementation of the Longest Meeting Problem</h2>
+<p><span class="activity-time"><i>Timing:</i> out of class</span></p>
 
-<p>Let’s create an implementation of the peak-finding algorithm we determined in class last time.  If you are not here for the live demonstration (or if we somehow run out of time), you can find the solution in <a href="https://github.com/OlinDSA2025/SampleSolutions">the class sample solutions repo under Class01</a>.</p>
+<p>Here is a video of me implementing the longest meeting problem in Kotlin.  While this is a pretty straightforward problem, you may find it useful how I go through the mechanics of setting up the project and the like.</p>
+
+<blockquote class="notice--warning">
+  <p>Note: I accidentally forgot to toggle off the “Create GitHub Repository” when creating the project.  This is needed if you want the parent folder to be the repository.</p>
+</blockquote>
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/VwZcEHzD70Q?si=KHs259ZY4UoNeKqz" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen=""></iframe>
 
         
       </section>
