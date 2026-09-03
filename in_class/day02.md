@@ -163,7 +163,7 @@ The idea behind order of growth, is to find a way to draw meaningful distinction
 
 We say that $f(x) = O(g(x))$ if there exists a positive real number $M$ and a real number $x_0$ such that, $\|f(x)\| \leq M g(x)~\text{for all}~x\geq x_0$.
 
-> I always found the notation $f(x) = O(g(x))$ to be quite confusing.  What in the world does it mean for a function $f(x)$ to be equal to $O(g(x))$.
+> I always found the notation $f(x) = O(g(x))$ to be quite confusing.  What in the world does it mean for a function $f(x)$ to be equal to $O(g(x))$?  What clicks for me is to think of $O(g(x))$ as defining a set of functions.  The set of functions is precisely those functions that meet the criterion listed above.  The notation $f(x) = O(g(x))$ can be understood as stating that $f(x)$ is a member of the set $O(g(x))$.
 {: .notice--info}
 
 
