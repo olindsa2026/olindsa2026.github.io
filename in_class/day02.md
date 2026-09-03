@@ -177,7 +177,7 @@ Here is a handy figure from "Introduction to Algorithms" by Cormen, Leiserson, R
 
 As a group, let's explain how the formal definitions (given earlier) relate to these pictures.
 
-> **Exercise 3**
+> **Exercise 4**
 > 1. Show that $10000 n = O(n^2)$ (let's do this one together).
 > 2. Show that $n^2 \neq O(n)$.
 >    <button onclick="HideShowElement('HideShow3')">Show / Hide Hint</button>
@@ -188,7 +188,7 @@ As a group, let's explain how the formal definitions (given earlier) relate to t
 > 4. Argue (up to you how formal to make your argument) that any polynomial is $O(2^n)$
 {: .notice--success}
 
-> **Exercise 4** This problem is from former Olin Professor Allen Downey's Think Python second edition.   In this context, order of growth can be understood to mean $\Theta$.  I made one modification to part 3 of the exercise.
+> **Exercise 5** This problem is from former Olin Professor Allen Downey's Think Python second edition.   In this context, order of growth can be understood to mean $\Theta$.  I made one modification to part 3 of the exercise.
 > 1. What is the order of growth of $n^3 + n^2$? What about $1000000 n^3 + n^2$? What about $n^3 + 1000000 n^2$?
 > 2. What is the order of growth of $(n^2 + n)(n + 1)$?
 > 3. If $f$ is in $O(g)$ and $g$ is a continuously increasing functions that grows infinitely large as $n \rightarrow \infty$, what can we say about $af+b$, where $a$ and $b$ are constants?
