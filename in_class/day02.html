@@ -359,6 +359,17 @@ Questions for you to work through in small groups (we’ll come back together to
   <p>As a group, let’s think through the following question.  How would we modify the problem framing such that this greedy algorithm would no longer work?</p>
 </blockquote>
 
+<details class="solution">
+  <summary class="solution__toggle">Show solution</summary>
+  <div class="solution__body">
+    
+<p>The algorithm is effectively deciding at each timepoint whether to use a room from <code class="language-plaintext highlighter-rouge">availableRooms</code> or use a completely new room.  The decision is always made to use a room from <code class="language-plaintext highlighter-rouge">availableRooms</code>, which is locally optimal in the sense that it doesn’t increase the total number of rooms used thus far.  The choice to make decisions that are locally optimal makes this a greedy algorithm.</p>
+
+<p>The algorithm is correct in the sense that it will use the fewest number of rooms.  This can be seen by making note of the fact that a new room will be brought in by incrementing <code class="language-plaintext highlighter-rouge">nextRoom</code> only when all previously used rooms are in use.  This means that at the end of the algorithm’s run, the value of <code class="language-plaintext highlighter-rouge">nextRoom</code> will be exactly 1 more than maximum number of meetings that simultaneously occur.  Further, the number of rooms we used in total will be <code class="language-plaintext highlighter-rouge">nextRoom</code> minus 1, which is exactly equal to the maximum number of simultaneously active meetings.  We know that no algorithm can use fewer than this number because there wouldn’t be enough rooms for the busiest time, therefore the algorithm here uses the fewest rooms possible.</p>
+
+  </div>
+</details>
+
 <h3 id="greedy-knapsack">Greedy Knapsack</h3>
 
 <blockquote class="notice--info">
@@ -395,6 +406,20 @@ Questions for you to work through in small groups (we’ll come back together to
   </ol>
 </blockquote>
 
+<details class="solution">
+  <summary class="solution__toggle">Show solution</summary>
+  <div class="solution__body">
+    
+<ol>
+  <li>A simple algorithm would be to choose the day with the lowest price ($x_i$) and then buy $\frac{N}{x_i}$ pounds on that day.  This would be a greedy algorithm since when faced with our initial decision of when to buy, we choose the best option without considering future decisions (although in this case we just make one decision).  If we were limited to purchasing $M$ pounds of flour each day, we could simply buy $M$ pounds of flour on the cheapest day (or less if we can’t afford $M$ pounds).  If we still have more money to spend, buy on the next cheapest day and so on.  This is still a greedy algorithm since we choose the next day to buy flour without considering the impact on future decisions.</li>
+  <li>Sequentially add coins one at a time until you’ve made change for the total amount.  The greedy approach is to always use the largest denomination coin that doesn’t result in giving too much change.  For instance, if we need to make change for $20$ cents, we use a dime.  We continue to subtract the value of the coin we just used and then repeat the procedure for the remainder.  In our example, after we allocate a dime, we would still have to make change for $10$ cents, so we would choose a dime as our second coin (resulting in change for 20 cents consisting of 2 dimes in total).  It’s hard to make a convincing argument that this is optimal, but intuitively you could say that there is no amount of change that requires $5$ pennies (always better to use a nickel).  There is no amount of change that requires $2$ nickels (can always substitute a dime).  There is no amount of change that requires $3 dimes$ (can use a quarter and a nickel).  These restrictions mean that the greedy approach will always be best.</li>
+  <li>Once you have a $20$ cent coin, the greedy approach fails.  A specific example is $40$ cents, where the greedy approach would allocate $3$ coins (1 quarter, 1 dime, and 1 nickel).  In contrast, you could have used two 20-cent coins.</li>
+</ol>
+
+
+  </div>
+</details>
+
 <h3 id="optimal-roadtripping">Optimal Roadtripping</h3>
 
 <blockquote class="notice--success">
@@ -405,6 +430,17 @@ Questions for you to work through in small groups (we’ll come back together to
   <p><button onclick="HideShowElement('HideShow2')">Show / Hide Hint 2</button></p>
   <div id="HideShow2" style="display:none">Assuming that you recharge completely each time you choose to stop, does it ever make sense to stop at an earlier charging station than you could have reached?</div>
 </blockquote>
+
+<details class="solution">
+  <summary class="solution__toggle">Show solution</summary>
+  <div class="solution__body">
+    
+<p>A greedy algorithm would be to determine your first stop by going to the farthest charging station that your range allows.  After fully recharging, you choose the next stop by computing the farthest charging station you could reach.  You repeat this procedure until you have a plan for the whole trip.</p>
+
+<p>This algorithm would result in the fewest stops because any algorithm that makes an earlier stop to charge would necessarily pass by the charging station that you chose with less charge left in the battery.  This means that this hypothetical alternative plan would necessarily have stopped the same number of times as you, but it would have less range left at the same point along the route.  There is no way that having range at the same point on the route can be advantageous.</p>
+
+  </div>
+</details>
 
 <h2 id="o-and-friends">O() and Friends</h2>
 <p><span class="activity-time"><i>Timing:</i> 2:00pm-2:40pm</span></p>
@@ -474,6 +510,33 @@ Questions for you to work through in small groups (we’ll come back together to
   </ol>
 </blockquote>
 
+<details class="solution">
+  <summary class="solution__toggle">Show solution</summary>
+  <div class="solution__body">
+    
+<ol>
+<li>
+Let's choose $M=10000$ and $n_0=1$.
+$$
+\begin{align*}
+M n^2 &amp;= 10000n^2 \\
+&amp;\geq 10000 n, \forall n \geq 1
+\end{align*}
+$$
+</li>
+<li>
+Since $M n &lt; n^2$ for $n &gt; M$, it will be impossible to choose a value of $n_0$ that causes $M n$ to be larger than $n^2$ for all $n \geq n_0$.
+</li>
+<li>Choose $M = 1$ and $n_0 = 1$.  As long as $n$ is at least 1, $3^n$ will be bigger than $2^n$.  To see this take the ratio of the two functions and take the log.  This gives us $\log \left (\frac{3^n}{2^n}\right) = n \log 3 - n \log 2 = n (\log 3 - \log 2)$.  We can see that the only way this could be negative is if $n &lt; 0$.  Since we stated $n &gt; 1$, we can disregard this possibility.
+</li>
+<li>
+If we look at the highest degree term in the polynomial, $c n^k$, we can choose $M$ such that $M \geq c$ and choose $n_0$ to make $2^n \geq n^k$ (the other, lower degree terms could be dominated as well, but those would be strictly easier).  We can accomplish this by taking logs of the ratio (as in the previous problem).  $\log \left ( \frac{2^n}{n^k} \right ) = n \log 2 - k \log n$.  It's not easy to find the exact crossover point, but it's easy to see that there will be such a point since the $\log$ function grows much more slowly than $n$.
+</li>
+</ol>
+
+  </div>
+</details>
+
 <blockquote class="notice--success">
   <p><strong>Exercise 5</strong> This problem is from former Olin Professor Allen Downey’s Think Python second edition.   In this context, order of growth can be understood to mean $\Theta$.  I made one modification to part 3 of the exercise.</p>
   <ol>
@@ -491,6 +554,22 @@ Questions for you to work through in small groups (we’ll come back together to
     <li>If $f_1$ is in $O(g)$ and $f_2$ is $O(h)$, what can we say about $f_1 \times f_2$?</li>
   </ol>
 </blockquote>
+
+<details class="solution">
+  <summary class="solution__toggle">Show solution</summary>
+  <div class="solution__body">
+    
+<ol>
+  <li>$n^3 + n^2 = \Theta(n^3)$, $1000000 n^3 + n^2 = \Theta(n^3)$, $n^3 + 1000000 n^2 = \Theta(n^3)$.  Note that the constants don’t matter, and $\Theta$ is only determined by the highest degree part of the polynomial (in all cases $n^3$).</li>
+  <li>Using similar logic to before, we can see that it is $\Theta(n^3)$ (just multiply out the terms and find the highest degree term).</li>
+  <li>It will also be $O(g)$.</li>
+  <li>It will be $O(g)$.  We can adjust $M$ and $n_0$ so that $g$ dominates both $f_1$ and $f_2$.</li>
+  <li>It would be $O(max(g, h))$ (basically, whichever function is bigger at each value of $n$).</li>
+  <li>It would be $O(g \times h)$.</li>
+</ol>
+
+  </div>
+</details>
 
 <h2 id="sample-implementation-of-the-longest-meeting-problem">Sample Implementation of the Longest Meeting Problem</h2>
 <p><span class="activity-time"><i>Timing:</i> out of class</span></p>
