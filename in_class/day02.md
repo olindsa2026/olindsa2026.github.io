@@ -80,6 +80,13 @@ for (t, isStart, runningTotal, meetingID) in events
 > As a group, let's think through the following question.  How would we modify the problem framing such that this greedy algorithm would no longer work?
 {: .notice--success}
 
+{% capture solution %}
+The algorithm is effectively deciding at each timepoint whether to use a room from ``availableRooms`` or use a completely new room.  The decision is always made to use a room from ``availableRooms``, which is locally optimal in the sense that it doesn't increase the total number of rooms used thus far.  The choice to make decisions that are locally optimal makes this a greedy algorithm.
+
+The algorithm is correct in the sense that it will use the fewest number of rooms.  This can be seen by making note of the fact that a new room will be brought in by incrementing ``nextRoom`` only when all previously used rooms are in use.  This means that at the end of the algorithm's run, the value of ``nextRoom`` will be exactly 1 more than maximum number of meetings that simultaneously occur.  Further, the number of rooms we used in total will be ``nextRoom`` minus 1, which is exactly equal to the maximum number of simultaneously active meetings.  We know that no algorithm can use fewer than this number because there wouldn't be enough rooms for the busiest time, therefore the algorithm here uses the fewest rooms possible.
+{% endcapture %}
+{% include solution.html content=solution %}
+
 ### Greedy Knapsack
 
 > **Sample Problem** Seeing where a greedy approach fails
@@ -90,7 +97,7 @@ for (t, isStart, runningTotal, meetingID) in events
 > 
 > **Example:** There are five items with weights $6, 5, 9, 1, 1$.
 > 
-> **Solution:** Knapsack 1: $\{5, 6\}$, Knapsack 2: $\{1, 1, 9}$.
+> **Solution:** Knapsack 1: $\{5, 6\}$, Knapsack 2: $\{1, 1, 9\}$.
 >
 > 
 > What's the greedy approach?  Let's start with the knapsacks empty and choose the combination of knapsack and item that causes the total weight in each knapsack to stay as close as possible.  Let's track how the knapsacks $K_1$, $K_2$, and the remaining items, $R$, would evolve over time if we applied this procedure.
@@ -111,6 +118,14 @@ Now, let's work through the following exercise as a group.
 > 3. If the US began minting a 20-cent coin, would a greedy algorithm still solve the optimal change-making problem? (Wikipedia has some useful information on [the change-making problem](https://en.wikipedia.org/wiki/Change-making_problem) if you want to learn more)
 {: .notice--success}
 
+{% capture solution %}
+1. A simple algorithm would be to choose the day with the lowest price ($x_i$) and then buy $\frac{N}{x_i}$ pounds on that day.  This would be a greedy algorithm since when faced with our initial decision of when to buy, we choose the best option without considering future decisions (although in this case we just make one decision).  If we were limited to purchasing $M$ pounds of flour each day, we could simply buy $M$ pounds of flour on the cheapest day (or less if we can't afford $M$ pounds).  If we still have more money to spend, buy on the next cheapest day and so on.  This is still a greedy algorithm since we choose the next day to buy flour without considering the impact on future decisions.
+2. Sequentially add coins one at a time until you've made change for the total amount.  The greedy approach is to always use the largest denomination coin that doesn't result in giving too much change.  For instance, if we need to make change for $20$ cents, we use a dime.  We continue to subtract the value of the coin we just used and then repeat the procedure for the remainder.  In our example, after we allocate a dime, we would still have to make change for $10$ cents, so we would choose a dime as our second coin (resulting in change for 20 cents consisting of 2 dimes in total).  It's hard to make a convincing argument that this is optimal, but intuitively you could say that there is no amount of change that requires $5$ pennies (always better to use a nickel).  There is no amount of change that requires $2$ nickels (can always substitute a dime).  There is no amount of change that requires $3 dimes$ (can use a quarter and a nickel).  These restrictions mean that the greedy approach will always be best.
+3. Once you have a $20$ cent coin, the greedy approach fails.  A specific example is $40$ cents, where the greedy approach would allocate $3$ coins (1 quarter, 1 dime, and 1 nickel).  In contrast, you could have used two 20-cent coins.
+
+{% endcapture %}
+{% include solution.html content=solution %}
+
 
 ### Optimal Roadtripping
 
@@ -122,6 +137,12 @@ Now, let's work through the following exercise as a group.
 > <div id="HideShow2" style="display:none">Assuming that you recharge completely each time you choose to stop, does it ever make sense to stop at an earlier charging station than you could have reached?</div>
 {: .notice--success}
 
+{% capture solution %}
+A greedy algorithm would be to determine your first stop by going to the farthest charging station that your range allows.  After fully recharging, you choose the next stop by computing the farthest charging station you could reach.  You repeat this procedure until you have a plan for the whole trip.
+
+This algorithm would result in the fewest stops because any algorithm that makes an earlier stop to charge would necessarily pass by the charging station that you chose with less charge left in the battery.  This means that this hypothetical alternative plan would necessarily have stopped the same number of times as you, but it would have less range left at the same point along the route.  There is no way that having range at the same point on the route can be advantageous.
+{% endcapture %}
+{% include solution.html content=solution %}
 
 
 ## O() and Friends
@@ -188,6 +209,30 @@ As a group, let's explain how the formal definitions (given earlier) relate to t
 > 4. Argue (up to you how formal to make your argument) that any polynomial is $O(2^n)$
 {: .notice--success}
 
+{% capture solution %}
+<ol>
+<li>
+Let's choose $M=10000$ and $n_0=1$.
+$$
+\begin{align*}
+M n^2 &= 10000n^2 \\
+&\geq 10000 n, \forall n \geq 1
+\end{align*}
+$$
+</li>
+<li>
+Since $M n < n^2$ for $n > M$, it will be impossible to choose a value of $n_0$ that causes $M n$ to be larger than $n^2$ for all $n \geq n_0$.
+</li>
+<li>Choose $M = 1$ and $n_0 = 1$.  As long as $n$ is at least 1, $3^n$ will be bigger than $2^n$.  To see this take the ratio of the two functions and take the log.  This gives us $\log \left (\frac{3^n}{2^n}\right) = n \log 3 - n \log 2 = n (\log 3 - \log 2)$.  We can see that the only way this could be negative is if $n < 0$.  Since we stated $n > 1$, we can disregard this possibility.
+</li>
+<li>
+If we look at the highest degree term in the polynomial, $c n^k$, we can choose $M$ such that $M \geq c$ and choose $n_0$ to make $2^n \geq n^k$ (the other, lower degree terms could be dominated as well, but those would be strictly easier).  We can accomplish this by taking logs of the ratio (as in the previous problem).  $\log \left ( \frac{2^n}{n^k} \right ) = n \log 2 - k \log n$.  It's not easy to find the exact crossover point, but it's easy to see that there will be such a point since the $\log$ function grows much more slowly than $n$.
+</li>
+</ol>
+{% endcapture %}
+{% include solution.html content=solution %}
+
+
 > **Exercise 5** This problem is from former Olin Professor Allen Downey's Think Python second edition.   In this context, order of growth can be understood to mean $\Theta$.  I made one modification to part 3 of the exercise.
 > 1. What is the order of growth of $n^3 + n^2$? What about $1000000 n^3 + n^2$? What about $n^3 + 1000000 n^2$?
 > 2. What is the order of growth of $(n^2 + n)(n + 1)$?
@@ -200,6 +245,17 @@ As a group, let's explain how the formal definitions (given earlier) relate to t
 >    <div id="HideShow6" style="display:none">You can use max(g, h) to refer to the bigger of the functions.</div>
 > 6. If $f_1$ is in $O(g)$ and $f_2$ is $O(h)$, what can we say about $f_1 \times f_2$?
 {: .notice--success}
+
+{% capture solution %}
+1. $n^3 + n^2 = \Theta(n^3)$, $1000000 n^3 + n^2 = \Theta(n^3)$, $n^3 + 1000000 n^2 = \Theta(n^3)$.  Note that the constants don't matter, and $\Theta$ is only determined by the highest degree part of the polynomial (in all cases $n^3$).
+2. Using similar logic to before, we can see that it is $\Theta(n^3)$ (just multiply out the terms and find the highest degree term).
+3. It will also be $O(g)$.
+4. It will be $O(g)$.  We can adjust $M$ and $n_0$ so that $g$ dominates both $f_1$ and $f_2$.
+5. It would be $O(max(g, h))$ (basically, whichever function is bigger at each value of $n$).
+6. It would be $O(g \times h)$.
+{% endcapture %}
+{% include solution.html content=solution %}
+
 
 ## Sample Implementation of the Longest Meeting Problem
 {% include activity-time.html time="out of class" %}
