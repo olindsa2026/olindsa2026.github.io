@@ -65,6 +65,8 @@ Now let's do some problems to understand the time complexity of various operatio
 
 ## Abstract Data Types
 
+> Need to clean this up
+
 A common strategy for managing complexity in software is to separate the details of how a piece of software works (the implementation) from the functions that the software performs (the interface).  You may have seen this when you encountered object-oriented programming in Software Design.  When you created Python classes, you would define methods on those classes that could then be called to perform some operation.  The details of how these operations were carried out, were opaque to the caller (e.g., another class in our program).  In our study of data structures, we will make a similar distinction between the operations that a data type performs, and the specific underlying data structure that is used to implement this data type.
 
 We call the specification of a set of operations (or semantics) for a data type an [Abstract Data Type](https://en.wikipedia.org/wiki/Abstract_data_type) (or ADT).  For instance, we might specify an ADT to represent an ordered collection with the following operations:
