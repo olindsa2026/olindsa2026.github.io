@@ -1,17 +1,17 @@
 ---
 title: "Assignment 2: Linked Data Structures"
 toc_sticky: true
-published: false
+published: true
 due_on_class: 5
 ---
 
 ## Overview
 
-In this assignment you will be implementing a doubly linked list in Kotlin.  You'll then utilize your linked list class to create both a queue and a stack.  Once you've done that, you can use your newly minted data structures to solve some code-interview style problems.
+In this assignment you will be implementing a doubly linked list.  You'll then utilize your linked list class to create both a queue and a stack.  Once you've done that, you can use your newly minted data structures to solve some code-interview style problems.
 
 ## Part 1: Doubly Linked List
 
-Implement a doubly linked list in Kotlin.  Your class should work with any data type (use [Kotlin's generics](https://kotlinlang.org/docs/generics.html)).  Your linked list should implement the following interface (we use ``T`` to refer to the data type stored in the underlying linked list).
+Implement a doubly linked list in your chosen program language.  Your class should work with any data type, for example use [Kotlin's generics](https://kotlinlang.org/docs/generics.html).  If your chosen language cannot easily support generic data types, then you can hard code a particular data type.  If you're implementing in Kotlin, your linked list should implement the following interface (we use ``T`` to refer to the data type stored in the underlying linked list).  If you are implementing in another language, you should adjust the function inputs and outputs as appropriate (you do not need to map the concept of an interface onto your chosen language).
 
 ```kotlin
 interface LinkedList<T> {
@@ -58,7 +58,7 @@ Make sure to include unit tests for each of these operations.  It's okay if a si
 
 ## Stack and Queue Abstract Data Types
 
-The Stack abstract data type (ADT) can be represented by the following Kotlin interface.
+The Stack abstract data type (ADT) can be represented by the following Kotlin interface (adjust these as needed if you chose a different language).
 
 ```kotlin
 interface Stack<T> {
