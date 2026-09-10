@@ -6,15 +6,86 @@ published: true
 
 ## Homework Debrief
 
-How did the assignment go?  Do a quick check-in with those around you and see if you can surface 1-2 questions that are still unresolved for you.
+Let's get people together based on language choice.  Let's keep the groups to 4-5 people.  The Kotlin group will need to split.  Some questions:
+
+1. What resources did you find helpful for learning the language?
+2. What code did you translate?  What went well and what was difficult for you in doing this translation?
+
+## $O$(), $\Omega$(), $\Theta$() Revisited
+
+Whenever students learn about these topics, there is often a period of confusion before things start making sense.  Before getting started, let's review a few key ideas.
+
+1. Let's say we have two functions of $n$: $f(n)$ and $g(n)$.  We can think of $O$, $\Omega$, and $\Theta$ as three different ways to describe a relationships between the functions.  For example, if $f(n) = n$ and $g(n) = 2n$, we can't say that $f$ and $g$ are equal, but we can say that $f(n) = O(g(n))$.  Asserting that $f(n) = O(g(n))$ implies a certain mathematical relationship between the two functions (we'll review the specifics soon).
+2. $O$, $\Omega$, and $\Theta$ are abstract concepts that define relationships between functions.  While they are often used to describe the runtimes of algorithms, the definitions do not have anything to do with algorithmic runtimes.
+3. In the context of this class, we will use $O$, $\Theta$, and $\Omega$ to describe either the runtime of an algorithm (how many operations it requires as a function of $n$) or the space requirements of an algorithm (how much memory it requires as a function of $n$).
+
+Before getting started on a review problem, let's remind ourselves of the definition of $O$, $\Omega$, and $\Theta$. We'll do this by looking at the visualization of the concepts (noting that the formal definitions are available on the [day 2 page](day02)).  Here is a handy figure from "Introduction to Algorithms" by Cormen, Leiserson, Rivest, and Stein.
+
+![This figure shows a grahical depiction of O(g(n)) (left), Omega(g(n)) (center), and Theta(g(n)) (right)](../images/bigoandfriends.png)
+
+Let's revisit the meeting schedule problem from day 1.
+
+**Problem:** Are there any conflicts?
+
+Given a list of meetings, determine whether any two meetings overlap.
+
+For example:
+
+> 10:00–11:00
+>
+> 13:00–14:00
+>
+> 10:45–11:30
+
+The first and third meetings overlap, so the answer is yes.
+
+In contrast:
+
+> 10:00–11:00
+>
+> 11:00–11:30
+>
+> 13:00–14:00
+
+has no conflicts. For this problem, assume that a meeting ending exactly when another begins does not count as an overlap. You may find it useful to define some notation to keep track of the start and end times of each meeting.
+
+> **Exercise 1:**
+> 
+> Here is an algorithm for solving the problem (don't focus on the logic of the algorithm, but rather how many operations it takes to complete a solution).
+> 
+> ```
+> function isOverlapping(start1, end1, start2, end2)
+>   return start1 < end2 and start2 < end1
+> 
+> function hasConflicts(startTimes, endTimes)
+>   for i = 1 to n
+>     for j = 1 to n
+>       if i not equal to j and isOverlapping(startTimes[i], endTimes[j])
+>         return true
+>   return false
+> ```
+> 1. Determine the number of operations performed by the algorithm as a function of $n$ (calculate this for the worst case).
+> 2. Show that the number of operations performed is $\Theta(n^2)$.
+> 3. (we'll go over this together) You make a revised version of the algorithm designed to speed things up.  Show that the revised algorithm is still $\Theta(n^2)$.
+>
+> ```
+> function hasConflictsFast(startTimes, endTimes)
+>   for i = 1 to n
+>     // If we check a conflict at i, j we don't need to check conflict j, i
+>     for j = i+1 to n
+>       if isOverlapping(startTimes[i], endTimes[j])
+>         return true
+>   return false
+> ```
+{: .notice--success}
 
 ## Meeting Our First Data Structures
 
-Today we're going to meet our first data structures of the semester: the array and the linked list.  We'll talk about tradeoffs in terms of runtime of various operations on these data structures.  We'll also introduce the concept of **abstract data types (ADTs)** as a tool for separating the implementation of a data structure from the operations it supports.  
+Today we're going to meet our first data structures of the semester: the array and the linked list.  We'll talk about tradeoffs in terms of runtime of various operations on these data structures.  We'll also introduce the concept of **abstract data types (ADTs)** as a tool for separating the implementation of a data structure from the operations it supports.
 
 ## Arrays
 
-As we mentioned on day one, data structures represent different approaches to organizing data in some digital storage system.  In this course, we're going to learn about a bunch of different data structures (e.g., linked lists, arrays, binary trees, graphs, etc.).  To help us wrap our minds around the big ideas of data structures, let's consider a very useful data structure: an array.
+As we mentioned on day one, data structures represent different approaches to organizing data in some digital storage system.  In this course, we're going to learn about many different data structures (e.g., linked lists, arrays, binary trees, graphs, etc.).  To help us wrap our minds around the big ideas of data structures, let's consider a very useful data structure: an array.
 
 Depending on your programming background, perhaps you haven't encountered an array yet.  An array is an ordered collection of values (usually of a particular type).  Arrays are typically implemented in a computer using a contiguous block of memory (e.g., stored in the computer's RAM).
 
@@ -24,19 +95,35 @@ When we create an array, we have to specify the capacity that we'd like our arra
 
 As stated above, for these operations we can assume that requesting new memory, reading a single value, and writing a single value for our array takes a constant number of operations.
 
-> **Exercise 1:** Suppose you have an array with $M$ elements and there is space for $C$ elements in the block of memory allocated to your array (with $M < C$).  Assume that the $M$ elements are stored such that they occupy the first $M$ slots of memory allocated to the array.  How many steps would it take to add a new element to the end of your array? Going back to our discussion of order-of-growth, what is the running time of this operation in terms of $\Theta$?
+> Here are some mathematical facts that may help you solve these problems.
+> Formula for the sum of an arithmetic series:
+> 
+> $$
+> \sum_{i=1}^n i = \frac{(n+1)n}{2}
+> $$
+> 
+> Formula for the sum of a bunch of powers of two:
+> 
+> $$
+> 1 + 2 + 4 + 8 + \ldots + 2^n = 2^{n+1}-1
+> $$
+>
+{: .notice--warning}
+
+
+> **Exercise 2:** Suppose you have an array with $M$ elements and there is space for $C$ elements in the block of memory allocated to your array (with $M < C$).  Assume that the $M$ elements are stored such that they occupy the first $M$ slots of memory allocated to the array.  How many steps would it take to add a new element to the end of your array? Going back to our discussion of order-of-growth, what is the running time of this operation in terms of $\Theta$?
 {: .notice--success}
 
-> **Exercise 2:** Now, suppose you'd like to add an element to the beginning of your array.  If there are currently $M$ elements in your array, how many operations would it take to add an element to the beginning of the array?  What is $\Theta$ for this operation?
+> **Exercise 3:** Now, suppose you'd like to add an element to the beginning of your array.  If there are currently $M$ elements in your array, how many operations would it take to add an element to the beginning of the array?  What is $\Theta$ for this operation?
 {: .notice--success}
 
-> **Exercise 3:** Now, suppose you want to add an element ot the end of your array but the number of elements stored in the array is equal to the current capacity $M = C$.  How many operations would it take to perform the following steps: request a size $M+1$ block of memory, copy the first $M$ elements to the new memory block, and then add the new element to the array?  Suppose you start $M = C = 1$ (an empty array with no capacity).  How many operations would it take to add $N$ elements to the end of this array if you added them one-by-one?  Determine $\Theta$ of the time complexity of adding these $N$ elements.
+> **Exercise 4:** Now, suppose you want to add an element ot the end of your array but the number of elements stored in the array is equal to the current capacity $M = C$.  How many operations would it take to perform the following steps: request a size $M+1$ block of memory, copy the first $M$ elements to the new memory block, and then add the new element to the array?  Suppose you start $M = C = 1$ (an empty array with no capacity).  How many operations would it take to add $N$ elements to the end of this array if you added them one-by-one?  Determine $\Theta$ of the time complexity of adding these $N$ elements.
 >
 >   <button onclick="HideShowElement('HideShow1')">Show / Hide Hint</button>
 >   <div id="HideShow1" style="display:none">If you add up the time it takes to add each element, what sort of series do you get?  How do you calculate the sum of this type of series?</div>
 {: .notice--success}
 
-> **Exercise 4:** Similar to the previous problem, suppose you want to add $N$ elements to the end of an array in a one-by-one fashion.  Let's see if we can do better than we did in problem 3.  Instead of adding 1 unit of capacity every time we run out of space in our array, we're going to multiply our capacity by a factor of 2 (e.g., starting we start with capacity 1, then go to capacity 2, then capacity 4, and so on).  How many operations would it take to add $N$ elements to the end of this array if you added them one-by-one and follow the strategy of doubling the capacity of the array each time you run out of space (for simplicity you can assume that $N$ is a power of 2)?  Determine $\Theta$ of the time complexity of adding these $N$ elements in this fashion.
+> **Exercise 5:** Similar to the previous problem, suppose you want to add $N$ elements to the end of an array in a one-by-one fashion.  Let's see if we can do better than we did in problem 3.  Instead of adding 1 unit of capacity every time we run out of space in our array, we're going to multiply our capacity by a factor of 2 (e.g., starting we start with capacity 1, then go to capacity 2, then capacity 4, and so on).  How many operations would it take to add $N$ elements to the end of this array if you added them one-by-one and follow the strategy of doubling the capacity of the array each time you run out of space (for simplicity you can assume that $N$ is a power of 2)?  Determine $\Theta$ of the time complexity of adding these $N$ elements in this fashion.
 > 
 >   <button onclick="HideShowElement('HideShow2')">Show / Hide Hint</button>
 >   <div id="HideShow2" style="display:none">If you add up the time it takes to create each of these expanded arrays, what sort of series do you get?  How do you calculate the sum of this type of series?</div>
@@ -52,7 +139,7 @@ A linked list is another way to represent an ordered collection of values.  Inst
 
 Now let's do some problems to understand the time complexity of various operations on our linked list.  For the purposes of these exercises, let's assume that we can request memory to store a new linked list node in constant time ($\Theta(1)$).
 
-> **Exercise 5:** With folks around you, determine the time complexity ($\Theta$) of each of these operations on a linked list.  For each of these, make a list of the steps you'd have to do in order to accomplish each of these operations.  Count up the number of operations.  What is $\Theta$ for this count?
+> **Exercise 6:** With folks around you, determine the time complexity ($\Theta$) of each of these operations on a linked list.  For each of these, make a list of the steps you'd have to do in order to accomplish each of these operations.  Count up the number of operations.  What is $\Theta$ for this count?
 > 1. Add an element to the beginning of the list
 > 2. Delete an element from the beginning of the list
 > 3. Add an element to the back of the list
@@ -60,12 +147,10 @@ Now let's do some problems to understand the time complexity of various operatio
 > 5. Print out the middle element of the list
 {: .notice--success}
 
-> **Exercise 6:** A singly linked list is a linked list where each node only has a reference to the next element in the list.  In such a list, would the $\Theta$ of any of these operations in problem 5 be different?  If so, which would be different and what are their new $\Theta$ running times?s
+> **Exercise 7:** A singly linked list is a linked list where each node only has a reference to the next element in the list.  In such a list, would the $\Theta$ of any of these operations in problem 5 be different?  If so, which would be different and what are their new $\Theta$ running times?s
 {: .notice--success}
 
 ## Abstract Data Types
-
-> Need to clean this up
 
 A common strategy for managing complexity in software is to separate the details of how a piece of software works (the implementation) from the functions that the software performs (the interface).  You may have seen this when you encountered object-oriented programming in Software Design.  When you created Python classes, you would define methods on those classes that could then be called to perform some operation.  The details of how these operations were carried out, were opaque to the caller (e.g., another class in our program).  In our study of data structures, we will make a similar distinction between the operations that a data type performs, and the specific underlying data structure that is used to implement this data type.
 
@@ -78,15 +163,14 @@ We call the specification of a set of operations (or semantics) for a data type 
 
 The actual implementation of this abstract data type (called a concrete data type) could use a linked list or an array (or something more exotic) as the underlying data structure.  Determining what concrete data type to use to implement a specific ADT will depend on the operations are most important for your application (you'll want to make those fast).  Perhaps, you could even create different implementations of the same ADT for different use cases (e.g., if you care about accessing elements quickly or adding new elements).
 
-> **Exercise 7:** For example, the Python tutorial on lists states that while accessing elements in the list, appending an element ot the end of the list, or removing an element from the end fo the list is fast, adding or deleting an element at the beginning of the list is slow.  Based on what you worked out earlier in class, what underlying concrete data structure do you think Python uses for its list class?  Do some research to see if you are right.
-{: .notice--success}
-
 ## Stacks vs. Queues
 
 In the next assignment, you will be implementing both a stack and a queue.  Each of these data structures will be built on top of a linked list, but stacks and queues will differ with respect to some of their behaviors.  Specifically, stacks use what is called a LIFO (last in first out) ordering whereas queues utilize a FIFO ordering (first in first out).  You'll get a bunch of practice using your stacks and queues to solve problems in the assignment, but you might also want to check out this [short article comparing the two data structures](https://www.geeksforgeeks.org/dsa/difference-between-stack-and-queue-data-structures/).
 
 
 ## Kotlin Interfaces
+
+> We won't go over this in class since it is language-specific.  If helpful, let me know if you'd like a recording of me going through this.
 
 Let's learn about Kotlin interfaces and why they are a useful way to define abstract datatypes.
 
