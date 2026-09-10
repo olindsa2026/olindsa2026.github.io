@@ -23,11 +23,11 @@ Quick count of interest in various languages (some people put down more than 1):
 
 Whenever students learn about these topics, there is often a period of confusion before things start making sense.  Before getting started, let's review a few key ideas.
 
-1. Let's say we have two functions of $n$: $f(n)$ and $g(n)$.  We can think of $O$, $\Omega$, and $\Theta$ as three different ways to describe a relationships between the functions.  For example, if $f(n) = n$ and $g(n) = 2n$, we can't say that $f$ and $g$ are equal, but we can say that $f(n) = O(g(n))$.  Asserting that $f(n) = O(g(n))$ implies a certain mathematical relationship between the two functions (we'll review the specifics soon).
-2. $O$, $\Omega$, and $\Theta$ are abstract concepts that define relationships between functions.  While they are often used to describe the runtimes of algorithms, the definitions do not have anything to do with algorithmic runtimes.
+1. Let's say we have two functions of $n$: $f(n)$ and $g(n)$.  We can think of $O$, $\Omega$, and $\Theta$ as three different ways to describe relationships between the functions.  For example, if $f(n) = n$ and $g(n) = 2n$, while we can't say that $f$ and $g$ are equal, we can say that $f(n) = O(g(n))$.  The fact that $f(n) = O(g(n))$ helps us capture an important relationship between the two functions that will relate to DSA.
+2. $O$, $\Omega$, and $\Theta$ are abstract concepts that define relationships between functions.  While they are often used to describe the runtimes of algorithms, the definitions do not have anything to do with algorithms.
 3. In the context of this class, we will use $O$, $\Theta$, and $\Omega$ to describe either the runtime of an algorithm (how many operations it requires as a function of $n$) or the space requirements of an algorithm (how much memory it requires as a function of $n$).
 
-Before getting started on a review problem, let's remind ourselves of the definition of $O$, $\Omega$, and $\Theta$. We'll do this by looking at the visualization of the concepts (noting that the formal definitions are available on the [day 2 page](day02)).  Here is a handy figure from "Introduction to Algorithms" by Cormen, Leiserson, Rivest, and Stein.
+Before getting started on a review problem, let's remind ourselves of the definition of $O$, $\Omega$, and $\Thetfa$. We'll do this by looking at this handy figure from "Introduction to Algorithms" by Cormen, Leiserson, Rivest, and Stein (note that the formal definitions are available on the [day 2 page](day02)).
 
 ![This figure shows a grahical depiction of O(g(n)) (left), Omega(g(n)) (center), and Theta(g(n)) (right)](../images/bigoandfriends.png)
 
@@ -68,12 +68,12 @@ has no conflicts. For this problem, assume that a meeting ending exactly when an
 > function hasConflicts(startTimes, endTimes)
 >   for i = 1 to n
 >     for j = 1 to n
->       if i not equal to j and isOverlapping(startTimes[i], endTimes[j])
+>       if i not equal to j and isOverlapping(startTimes[i], endTimes[i], startTimes[j], endTimes[j])
 >         return true
 >   return false
 > ```
 > 1. Determine the number of operations performed by the algorithm as a function of $n$ (calculate this for the worst case).
-> 2. Show that the number of operations performed is $\Theta(n^2)$.
+> 2. Show that the number of operations from part 1 is $\Theta(n^2)$.
 > 3. (we'll go over this together) You make a revised version of the algorithm designed to speed things up.  Show that the revised algorithm is still $\Theta(n^2)$.
 >
 > ```
@@ -81,7 +81,7 @@ has no conflicts. For this problem, assume that a meeting ending exactly when an
 >   for i = 1 to n
 >     // If we check a conflict at i, j we don't need to check conflict j, i
 >     for j = i+1 to n
->       if isOverlapping(startTimes[i], endTimes[j])
+>       if isOverlapping(startTimes[i], endTimes[i], startTimes[j], endTimes[j])
 >         return true
 >   return false
 > ```
@@ -147,7 +147,7 @@ A linked list is another way to represent an ordered collection of values.  Inst
 
 Now let's do some problems to understand the time complexity of various operations on our linked list.  For the purposes of these exercises, let's assume that we can request memory to store a new linked list node in constant time ($\Theta(1)$).
 
-> **Exercise 6:** With folks around you, determine the time complexity ($\Theta$) of each of these operations on a linked list.  For each of these, make a list of the steps you'd have to do in order to accomplish each of these operations.  Count up the number of operations.  What is $\Theta$ for this count?
+> **Exercise 6:** With folks around you, determine the time complexity ($\Theta$) of each of these operations on a doubly linked list.  For each of these, make a list of the steps you'd have to do in order to accomplish each of these operations.  Count up the number of operations.  What is $\Theta$ for this count?
 > 1. Add an element to the beginning of the list
 > 2. Delete an element from the beginning of the list
 > 3. Add an element to the back of the list
