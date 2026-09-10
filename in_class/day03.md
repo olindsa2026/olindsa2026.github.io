@@ -11,6 +11,14 @@ Let's get people together based on language choice.  Let's keep the groups to 4-
 1. What resources did you find helpful for learning the language?
 2. What code did you translate?  What went well and what was difficult for you in doing this translation?
 
+Quick count of interest in various languages (some people put down more than 1):
+* Kotlin 15
+* Python 9
+* C++ 8
+* Java 1
+* C# 2
+* Rust
+
 ## $O$(), $\Omega$(), $\Theta$() Revisited
 
 Whenever students learn about these topics, there is often a period of confusion before things start making sense.  Before getting started, let's review a few key ideas.
