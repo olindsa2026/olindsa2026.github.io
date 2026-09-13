@@ -6,11 +6,9 @@ published: true
 
 ## Overview
 
+We'll begin by looking back at the linked list content we missed last class (hopefully, you looked through it or watched the video I posted).
+
 We're going to take some time to dive into an implementation of a data structure: the Stack.  We'll get started together, and then I'll let you all split off to work at your own pace.
-
-## Closing the Loop on Abstract Datatypes and Interfaces
-
-Let's talk through the last bit of the previous day together.
 
 ## Implementing a Stack Together
 
