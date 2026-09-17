@@ -184,12 +184,12 @@ Work on these in a group of 2-4 people.
 
 > **Exercise 5**
 > Suppose you want to speedrun from one room to another.  Let's think about how we would compute the fewest number of moves to go between two arbitrarily chosen rooms on the board.  Consider using a secret passage as consisting of one move.
-> Step 1: represent the board as a graph (maybe come up with a smaller board to make things easier at first).  What are the nodes what are the edges?  There are multiple ways to do this, so don't feel like there is a right answer.  Since we are considering directed graphs right now, you may want to use two edges to represent the fact that you can move from space A to B or B to A.
-> Step 2: given a starting location, show how you would annotate your graph to mark the distance between each node and the starting location.
-> Step 3: once you are done annotating, how would you determine
+> * Step 1: represent the board as a graph (maybe come up with a smaller board to make things easier at first).  What are the nodes what are the edges?  There are multiple ways to do this, so don't feel like there is a right answer.  Since we are considering directed graphs right now, you may want to use two edges to represent the fact that you can move from space A to B or B to A.
+> * Step 2: given a starting location, show how you would annotate your graph to mark the distance between each node and the starting location.
+> * Step 3: once you are done annotating, how would you determine
 > the fewest number of moves to go between the start and the end room.
-> Step 4: suppose you wanted to compute the actual shortest path (the sequence of moves).  How could you use your annotation to compute this sequence?
-> Step 5: suppose you are given a data structure to represent the graph.  Given a node, you can query for all adjacent nodes.  If you were to implement the annotation process in a computer, what data structure might you use?  Consider the data structures from the previous homework (stacks and queues).  Consider trying each structure and seeing how it would annotate the graph.  What issues might arise that you would need to take care of?
+> * Step 4: suppose you wanted to compute the actual shortest path (the sequence of moves).  How could you use your annotation to compute this sequence?
+> * Step 5: suppose you are given a data structure to represent the graph.  Given a node, you can query for all adjacent nodes.  If you were to implement the annotation process in a computer, what data structure might you use?  Consider the data structures from the previous homework (stacks and queues).  Consider trying each structure and seeing how it would annotate the graph.  What issues might arise that you would need to take care of?
 {: .notice--success}
 
 > **Exercise 6**
