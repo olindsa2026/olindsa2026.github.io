@@ -174,9 +174,8 @@ For now, we're going to consider the case of directed edges where an edge encode
 This is an image of the 1949 edition of the board game Clue.  In the game, players have to solve a crime by determining the murderer, the weapon, and the room they committed the crime within.  Part of the game involves moving around the board and visiting different rooms.  Players gather evidence about which room the murder happened in by moving to that room.  In this problem, we're not going to be worried so much about the process of gathering information about the crime, but instead we are going to focus on visiting each room as quickly as possible.
 
 Here are the rules for movement:
-* There are six players, who each start in a designated space on the board (e.g., Mrs. White starts on the bottom edge just to the right of the fold).
 * Players can only move up, down, left, or right (not diagonal)
-* To enter a room, you need to move onto the door square.
+* To enter a room, you need to move to the space immediately adjacent to the door and then enter the room. Entering the room does not count as a move.
 * Many rooms have more than one entrance.
 * You can exit a room through any door.
 * There are secret passages that connect rooms on the diagonals.
@@ -185,16 +184,16 @@ Work on these in a group of 2-4 people.
 
 > **Exercise 5**
 > Suppose you want to speedrun from one room to another.  Let's think about how we would compute the fewest number of moves to go between two arbitrarily chosen rooms on the board.  Consider using a secret passage as consisting of one move.
-> Step 1: represent the board as a graph (maybe come up with a smaller board to make things easier at first).
+> Step 1: represent the board as a graph (maybe come up with a smaller board to make things easier at first).  What are the nodes what are the edges?  There are multiple ways to do this, so don't feel like there is a right answer.  Since we are considering directed graphs right now, you may want to use two edges to represent the fact that you can move from space A to B or B to A.
 > Step 2: given a starting location, show how you would annotate your graph to mark the distance between each node and the starting location.
 > Step 3: once you are done annotating, how would you determine
 > the fewest number of moves to go between the start and the end room.
 > Step 4: suppose you wanted to compute the actual shortest path (the sequence of moves).  How could you use your annotation to compute this sequence?
-> Step 5: suppose you are given a data structure to represent the graph.  Given a node, you can query for all adjacent nodes.  If you were to implement the annotation process in a computer, what data structure might you use?  Consider the data structures from the previous homework (stacks and queues).  What issues might arise that you would need to take care of?
+> Step 5: suppose you are given a data structure to represent the graph.  Given a node, you can query for all adjacent nodes.  If you were to implement the annotation process in a computer, what data structure might you use?  Consider the data structures from the previous homework (stacks and queues).  Consider trying each structure and seeing how it would annotate the graph.  What issues might arise that you would need to take care of?
 {: .notice--success}
 
 > **Exercise 6**
-> What if the cost of using the secret passage is more than a typical move?  If it costs $N$ moves to use the passage, how would you modify your solution to the previous exercise to accommodate for this?
+> What if the cost of using the secret passage is more than a typical move?  If it costs $N$ moves to use the passage, how would you modify your solution to the previous exercise to accommodate for this?  You can assume $N$ is a positive integer.
 {: .notice--success}
 
 
