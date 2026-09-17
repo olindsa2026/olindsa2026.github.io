@@ -451,9 +451,8 @@ function HideShowElement(divID) {
 
 <p>Here are the rules for movement:</p>
 <ul>
-  <li>There are six players, who each start in a designated space on the board (e.g., Mrs. White starts on the bottom edge just to the right of the fold).</li>
   <li>Players can only move up, down, left, or right (not diagonal)</li>
-  <li>To enter a room, you need to move onto the door square.</li>
+  <li>To enter a room, you need to move to the space immediately adjacent to the door and then enter the room. Entering the room does not count as a move.</li>
   <li>Many rooms have more than one entrance.</li>
   <li>You can exit a room through any door.</li>
   <li>There are secret passages that connect rooms on the diagonals.</li>
@@ -464,17 +463,17 @@ function HideShowElement(divID) {
 <blockquote class="notice--success">
   <p><strong>Exercise 5</strong>
 Suppose you want to speedrun from one room to another.  Let’s think about how we would compute the fewest number of moves to go between two arbitrarily chosen rooms on the board.  Consider using a secret passage as consisting of one move.
-Step 1: represent the board as a graph (maybe come up with a smaller board to make things easier at first).
+Step 1: represent the board as a graph (maybe come up with a smaller board to make things easier at first).  What are the nodes what are the edges?  There are multiple ways to do this, so don’t feel like there is a right answer.  Since we are considering directed graphs right now, you may want to use two edges to represent the fact that you can move from space A to B or B to A.
 Step 2: given a starting location, show how you would annotate your graph to mark the distance between each node and the starting location.
 Step 3: once you are done annotating, how would you determine
 the fewest number of moves to go between the start and the end room.
 Step 4: suppose you wanted to compute the actual shortest path (the sequence of moves).  How could you use your annotation to compute this sequence?
-Step 5: suppose you are given a data structure to represent the graph.  Given a node, you can query for all adjacent nodes.  If you were to implement the annotation process in a computer, what data structure might you use?  Consider the data structures from the previous homework (stacks and queues).  What issues might arise that you would need to take care of?</p>
+Step 5: suppose you are given a data structure to represent the graph.  Given a node, you can query for all adjacent nodes.  If you were to implement the annotation process in a computer, what data structure might you use?  Consider the data structures from the previous homework (stacks and queues).  Consider trying each structure and seeing how it would annotate the graph.  What issues might arise that you would need to take care of?</p>
 </blockquote>
 
 <blockquote class="notice--success">
   <p><strong>Exercise 6</strong>
-What if the cost of using the secret passage is more than a typical move?  If it costs $N$ moves to use the passage, how would you modify your solution to the previous exercise to accommodate for this?</p>
+What if the cost of using the secret passage is more than a typical move?  If it costs $N$ moves to use the passage, how would you modify your solution to the previous exercise to accommodate for this?  You can assume $N$ is a positive integer.</p>
 </blockquote>
 
 <h2 id="representing-graphs-in-a-programming-language">Representing Graphs in a Programming Language</h2>
