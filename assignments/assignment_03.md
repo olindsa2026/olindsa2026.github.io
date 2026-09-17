@@ -1,19 +1,19 @@
 ---
 title: "Assignment 3: Graph Searching and Shortest Paths"
 toc_sticky: true
-published: false
+published: true
 due_on_class: 8
 ---
 
 ## Getting Started
 
-I am providing some starter code for this assignment.  The starter code (shown below) can be copy / pasted into your project.
-
-You may also want to check out the tips and tricks section.
+* I am providing an interface for your ``Graph`` class that you can use to help guide your implementation.  You can copy-paste the interface definition into your project.  If you are working in another language, you can modify the functions as needed, and you are not requierd to use an equivalent of an interface.
+* Later in the class you will need to use a min heap.  I have provided a reference implementation in Kotlin, which you can use.  If you are working in another language, let's work together to find an implementation that you can utilize.  If you implement the min heap yourself (in Kotlin or otherwise), you can earn extra credit.
+* You may also want to check out the tips and tricks section.
 
 ## Representing Graphs
 
-Create a Kotlin class to represent a directed, weighted graph.  Your graph should implement the ``Graph<VertexType>`` interface shown below.
+Create a class to represent a directed, weighted graph.  If working in Kotlin, your graph should implement the ``Graph<VertexType>`` interface shown below.
 
 ```kotlin
 /**
@@ -49,7 +49,7 @@ interface Graph<VertexType> {
 
 ## Creating a Priority Queue
 
-Create a data structure called [``PriorityQueue``](https://en.wikipedia.org/wiki/Priority_queue) that implements the following interface.
+Create a data structure called [``PriorityQueue``](https://en.wikipedia.org/wiki/Priority_queue) that implements the following interface ()
 
 ```kotlin
 /**
