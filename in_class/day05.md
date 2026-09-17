@@ -190,7 +190,7 @@ Work on these in a group of 2-4 people.
 > Step 3: once you are done annotating, how would you determine
 > the fewest number of moves to go between the start and the end room.
 > Step 4: suppose you wanted to compute the actual shortest path (the sequence of moves).  How could you use your annotation to compute this sequence?
-> Step 5: if you were to implement this annotation process in a computer, what data might you need to store?  What operations would you need to be able to perform on this data to efficiently annotate the graph?
+> Step 5: suppose you are given a data structure to represent the graph.  Given a node, you can query for all adjacent nodes.  If you were to implement the annotation process in a computer, what data structure might you use?  Consider the data structures from the previous homework (stacks and queues).  What issues might arise that you would need to take care of?
 {: .notice--success}
 
 > **Exercise 6**
