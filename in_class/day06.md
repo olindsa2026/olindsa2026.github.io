@@ -15,35 +15,32 @@ To get us on the same page let's use the following definition of a Graph.  We're
 
 ```kotlin
 class Graph<VertexType> {
-    private var vertices: MutableSet<VertexType> = mutableSetOf()
-    private var edges: MutableMap<VertexType, MutableSet<VertexType>> = mutableMapOf()
+    private var adjacencyList: MutableMap<VertexType, MutableSet<VertexType>> = mutableMapOf()
 
     fun addVertex(v: VertexType): Boolean {
-        if (vertices.contains(v)) {
+        if (adjacencyList.contains(v)) {
             return false
         }
-        vertices.add(v)
-        edges[v] = mutableSetOf()
+        adjacencyList[v] = mutableSetOf()
         return true
     }
 
     fun addEdge(from: VertexType, to: VertexType): Boolean {
-        if (!vertices.contains(from) || !vertices.contains(to)) {
-            return false
+        val adjacentVertices = adjacencyList[from]
+        if (adjacentVertices != null && adjacencyList.contains(to)) {
+            adjacentVertices.add(to)
+            return true
         }
-
-        val adjacentVertices = edges[from]!!
-        if (adjacentVertices.contains(to)) {
-            return false
-        }
-
-        adjacentVertices.add(to)
-        return true
+        return false
     }
 
+    fun getEdges(from: VertexType): Set<VertexType> {
+        // Note: Elvis operator gives us a value if left hand expression is null
+        return adjacencyList[from] ?: setOf()
+    }
+    
     fun clear() {
-        vertices.clear()
-        edges.clear()
+        adjacencyList.clear()
     }
 }
 ```
