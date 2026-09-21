@@ -286,35 +286,32 @@ function HideShowElement(divID) {
 <p>To get us on the same page let’s use the following definition of a Graph.  We’re using <code class="language-plaintext highlighter-rouge">MutableSet</code> and <code class="language-plaintext highlighter-rouge">MutableMap</code> because it allows us to efficiently either test membership (in the case of a set) or look up an associated value (in the case of the map).</p>
 
 <div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">class</span> <span class="nc">Graph</span><span class="p">&lt;</span><span class="nc">VertexType</span><span class="p">&gt;</span> <span class="p">{</span>
-    <span class="k">private</span> <span class="kd">var</span> <span class="py">vertices</span><span class="p">:</span> <span class="nc">MutableSet</span><span class="p">&lt;</span><span class="nc">VertexType</span><span class="p">&gt;</span> <span class="p">=</span> <span class="nf">mutableSetOf</span><span class="p">()</span>
-    <span class="k">private</span> <span class="kd">var</span> <span class="py">edges</span><span class="p">:</span> <span class="nc">MutableMap</span><span class="p">&lt;</span><span class="nc">VertexType</span><span class="p">,</span> <span class="nc">MutableSet</span><span class="p">&lt;</span><span class="nc">VertexType</span><span class="p">&gt;&gt;</span> <span class="p">=</span> <span class="nf">mutableMapOf</span><span class="p">()</span>
+    <span class="k">private</span> <span class="kd">var</span> <span class="py">adjacencyList</span><span class="p">:</span> <span class="nc">MutableMap</span><span class="p">&lt;</span><span class="nc">VertexType</span><span class="p">,</span> <span class="nc">MutableSet</span><span class="p">&lt;</span><span class="nc">VertexType</span><span class="p">&gt;&gt;</span> <span class="p">=</span> <span class="nf">mutableMapOf</span><span class="p">()</span>
 
     <span class="k">fun</span> <span class="nf">addVertex</span><span class="p">(</span><span class="n">v</span><span class="p">:</span> <span class="nc">VertexType</span><span class="p">):</span> <span class="nc">Boolean</span> <span class="p">{</span>
-        <span class="k">if</span> <span class="p">(</span><span class="n">vertices</span><span class="p">.</span><span class="nf">contains</span><span class="p">(</span><span class="n">v</span><span class="p">))</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">adjacencyList</span><span class="p">.</span><span class="nf">contains</span><span class="p">(</span><span class="n">v</span><span class="p">))</span> <span class="p">{</span>
             <span class="k">return</span> <span class="k">false</span>
         <span class="p">}</span>
-        <span class="n">vertices</span><span class="p">.</span><span class="nf">add</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
-        <span class="n">edges</span><span class="p">[</span><span class="n">v</span><span class="p">]</span> <span class="p">=</span> <span class="nf">mutableSetOf</span><span class="p">()</span>
+        <span class="n">adjacencyList</span><span class="p">[</span><span class="n">v</span><span class="p">]</span> <span class="p">=</span> <span class="nf">mutableSetOf</span><span class="p">()</span>
         <span class="k">return</span> <span class="k">true</span>
     <span class="p">}</span>
 
     <span class="k">fun</span> <span class="nf">addEdge</span><span class="p">(</span><span class="n">from</span><span class="p">:</span> <span class="nc">VertexType</span><span class="p">,</span> <span class="n">to</span><span class="p">:</span> <span class="nc">VertexType</span><span class="p">):</span> <span class="nc">Boolean</span> <span class="p">{</span>
-        <span class="k">if</span> <span class="p">(!</span><span class="n">vertices</span><span class="p">.</span><span class="nf">contains</span><span class="p">(</span><span class="n">from</span><span class="p">)</span> <span class="p">||</span> <span class="p">!</span><span class="n">vertices</span><span class="p">.</span><span class="nf">contains</span><span class="p">(</span><span class="n">to</span><span class="p">))</span> <span class="p">{</span>
-            <span class="k">return</span> <span class="k">false</span>
+        <span class="kd">val</span> <span class="py">adjacentVertices</span> <span class="p">=</span> <span class="n">adjacencyList</span><span class="p">[</span><span class="n">from</span><span class="p">]</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">adjacentVertices</span> <span class="p">!=</span> <span class="k">null</span> <span class="p">&amp;&amp;</span> <span class="n">adjacencyList</span><span class="p">.</span><span class="nf">contains</span><span class="p">(</span><span class="n">to</span><span class="p">))</span> <span class="p">{</span>
+            <span class="n">adjacentVertices</span><span class="p">.</span><span class="nf">add</span><span class="p">(</span><span class="n">to</span><span class="p">)</span>
+            <span class="k">return</span> <span class="k">true</span>
         <span class="p">}</span>
-
-        <span class="kd">val</span> <span class="py">adjacentVertices</span> <span class="p">=</span> <span class="n">edges</span><span class="p">[</span><span class="n">from</span><span class="p">]</span><span class="o">!!</span>
-        <span class="k">if</span> <span class="p">(</span><span class="n">adjacentVertices</span><span class="p">.</span><span class="nf">contains</span><span class="p">(</span><span class="n">to</span><span class="p">))</span> <span class="p">{</span>
-            <span class="k">return</span> <span class="k">false</span>
-        <span class="p">}</span>
-
-        <span class="n">adjacentVertices</span><span class="p">.</span><span class="nf">add</span><span class="p">(</span><span class="n">to</span><span class="p">)</span>
-        <span class="k">return</span> <span class="k">true</span>
+        <span class="k">return</span> <span class="k">false</span>
     <span class="p">}</span>
 
+    <span class="k">fun</span> <span class="nf">getEdges</span><span class="p">(</span><span class="n">from</span><span class="p">:</span> <span class="nc">VertexType</span><span class="p">):</span> <span class="nc">Set</span><span class="p">&lt;</span><span class="nc">VertexType</span><span class="p">&gt;</span> <span class="p">{</span>
+        <span class="c1">// Note: Elvis operator gives us a value if left hand expression is null</span>
+        <span class="k">return</span> <span class="n">adjacencyList</span><span class="p">[</span><span class="n">from</span><span class="p">]</span> <span class="o">?:</span> <span class="nf">setOf</span><span class="p">()</span>
+    <span class="p">}</span>
+    
     <span class="k">fun</span> <span class="nf">clear</span><span class="p">()</span> <span class="p">{</span>
-        <span class="n">vertices</span><span class="p">.</span><span class="nf">clear</span><span class="p">()</span>
-        <span class="n">edges</span><span class="p">.</span><span class="nf">clear</span><span class="p">()</span>
+        <span class="n">adjacencyList</span><span class="p">.</span><span class="nf">clear</span><span class="p">()</span>
     <span class="p">}</span>
 <span class="p">}</span>
 </code></pre></div></div>
