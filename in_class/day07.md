@@ -101,7 +101,7 @@ C --> D[D, 9]
 
 ### Implementation: Inserting an element into the heap
 
-When inserting an element into the heap, we put it in the tree at the lowest level in the first available spot (starting from the left).  Once we place it in the heap, we check to see if this placement has violated the heap invariant (condition 1).  If so, we swap the node with its parent.  We the nodes new parent to make sure the heap invariant is satisfied (swapping if it's not) and so on.  This procedure is called "bubbling up".
+When inserting an element into the heap, we put it in the tree at the lowest level in the first available spot (starting from the left).  Once we place it in the heap, we check to see if this placement has violated the heap invariant (condition 1).  If so, we swap the node with its parent.  We check the node's new parent to make sure the heap invariant is satisfied (swapping if it's not) and so on.  This procedure is called "bubbling up".
 
 We'll do a quick example of bubbling up on the board.
 
