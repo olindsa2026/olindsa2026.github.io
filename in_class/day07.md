@@ -4,85 +4,6 @@ toc_sticky: true
 published: true
 ---
 
-## A Few Things Regarding the Current Assignment
-
-1. I added a tips and tricks section (currently just one there). Let me know if you want me to add anything to it.
-2. I added an assignment submission checklist to the Canvas page
-
-## Directed-Acyclic Graphs
-
-A directed graph is acyclic if it contains no cycles.  A cycle is a path that starts at a given node and returns to that same node.  We use the acronym DAG (directed, acyclic graph) to refer ot this type of graph.  Here is an example of such a graph.
-
-<div class="mermaid">
-graph LR
-  A --> B
-  B --> C
-  A --> C
-  C --> D
-  B --> D
-  A --> E
-</div>
-
-As was included in the day materials last time (although there was not enough time to get to it), there are several algorithms to determine if a graph is a DAG.  One of the easier ones to understand is Kahn's algorithm, which has the following description from [the Wikipedia page on Topological Sorting](https://en.wikipedia.org/wiki/Topological_sorting). It turns out that a graph is a DAG if and only if there is a valid topological sorting of the nodes in the DAG.
-
-> A topological sorting of a directed graph consisting of vertices $V$ and edges $E$ consists of an ordering of the vertices $v_1, v_2, \ldots, v_n$ such that the edge $v_i \rightarrow v_j$ exists in $E$ if and only if $i < j$.
-{: .notice--warning}
-
-Let's work as a class to determine a valid topological sorting of the graph above.  Is the sorting unique?
-
-<button onclick="HideShowElement('HideShow1')">Show Solution</button>
-<div id="HideShow1" style="display:none">
-     A valid solution would consist of the order $A, E, B, C, D$.  For this graph, another valid topological sorting would be $A, B, C, D, E$.  (other sortings exist as well)
-</div>
-
-
-Kahn's algorithm can be used to determine if a directed graph has cycles or not.  The pseudocode for Kahn's algorithm is below.
-
-```
-L ← Empty list that will contain the sorted elements
-S ← Set of all nodes with no incoming edge
-
-while S is not empty do
-    remove a node n from S
-    add n to L
-    for each node m with an edge e from n to m do
-        remove edge e from the graph
-        if m has no other incoming edges then
-            insert m into S
-
-if graph has edges then
-    return error   (graph has at least one cycle)
-else 
-    return L   (a topologically sorted order)
-```
-
-Let's go through this example together to see how Kahn's algorithm works.
-
-Let's try Kahn's algorithm on a graph that does contain a cycle to see what happens.
-
-Input graph:
-<div class="mermaid">
-graph LR
-  A --> B
-  B --> C
-  C --> D
-  C --> B
-  A --> D
-</div>
-$L = []$, $S = [A]$
-
-After step 1:
-$L = [A], S = []$
-<div class="mermaid">
-graph LR
-  A
-  B --> C
-  C --> D
-  C --> B
-</div>
-
-Question for us to work through together: How would we prove that Kahn's algorithm is correct?
-
 ## Dijkstra's Algorithm
 
 I have some companion slides to go along with the presentation of [Dijkstra's algorithm](https://en.wikipedia.org/wiki/Dijkstra%27s_algorithm).  I'll have these up on the projector, but you can [access the slides in PPTX](day07_slides.pptx) or [PDF form](day07_slides.pdf).  Don't pull them up just yet.
@@ -218,3 +139,78 @@ Now that we know what a heap is, let's talk about the running time of various op
 ### Implementation considerations
 
 Since this is part of the extra credit, I'll leave it to you to look into the details of this (there's a lot of explanations on the web / videos to watch).  Binary heaps are often implemented by storing the vertices of the heap in a list.  This might seem counterintuitive, but it presents a really elegant solution to some challenging aspects of implementing the heap: finding parents and children of a node, quickly swapping nodes in the tree, and inserting new values in such a way that condition 2 is maintained.
+
+
+## Directed-Acyclic Graphs
+
+A directed graph is acyclic if it contains no cycles.  A cycle is a path that starts at a given node and returns to that same node.  We use the acronym DAG (directed, acyclic graph) to refer ot this type of graph.  Here is an example of such a graph.
+
+<div class="mermaid">
+graph LR
+  A --> B
+  B --> C
+  A --> C
+  C --> D
+  B --> D
+  A --> E
+</div>
+
+As was included in the day materials last time (although there was not enough time to get to it), there are several algorithms to determine if a graph is a DAG.  One of the easier ones to understand is Kahn's algorithm, which has the following description from [the Wikipedia page on Topological Sorting](https://en.wikipedia.org/wiki/Topological_sorting). It turns out that a graph is a DAG if and only if there is a valid topological sorting of the nodes in the DAG.
+
+> A topological sorting of a directed graph consisting of vertices $V$ and edges $E$ consists of an ordering of the vertices $v_1, v_2, \ldots, v_n$ such that the edge $v_i \rightarrow v_j$ exists in $E$ if and only if $i < j$.
+{: .notice--warning}
+
+Let's work as a class to determine a valid topological sorting of the graph above.  Is the sorting unique?
+
+<button onclick="HideShowElement('HideShow1')">Show Solution</button>
+<div id="HideShow1" style="display:none">
+     A valid solution would consist of the order $A, E, B, C, D$.  For this graph, another valid topological sorting would be $A, B, C, D, E$.  (other sortings exist as well)
+</div>
+
+
+Kahn's algorithm can be used to determine if a directed graph has cycles or not.  The pseudocode for Kahn's algorithm is below.
+
+```
+L ← Empty list that will contain the sorted elements
+S ← Set of all nodes with no incoming edge
+
+while S is not empty do
+    remove a node n from S
+    add n to L
+    for each node m with an edge e from n to m do
+        remove edge e from the graph
+        if m has no other incoming edges then
+            insert m into S
+
+if graph has edges then
+    return error   (graph has at least one cycle)
+else 
+    return L   (a topologically sorted order)
+```
+
+Let's go through this example together to see how Kahn's algorithm works.
+
+Let's try Kahn's algorithm on a graph that does contain a cycle to see what happens.
+
+Input graph:
+<div class="mermaid">
+graph LR
+  A --> B
+  B --> C
+  C --> D
+  C --> B
+  A --> D
+</div>
+$L = []$, $S = [A]$
+
+After step 1:
+$L = [A], S = []$
+<div class="mermaid">
+graph LR
+  A
+  B --> C
+  C --> D
+  C --> B
+</div>
+
+Question for us to work through together: How would we prove that Kahn's algorithm is correct?
