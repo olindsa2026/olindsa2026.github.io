@@ -268,96 +268,15 @@ function HideShowElement(divID) {
               <header><h4 class="nav__title"><i class="fas fa-file-alt"></i> On this page</h4></header>
 	      
                 <ul class="toc__menu">
-  <li><a href="#a-few-things-regarding-the-current-assignment">A Few Things Regarding the Current Assignment</a></li>
-  <li><a href="#directed-acyclic-graphs">Directed-Acyclic Graphs</a></li>
   <li><a href="#dijkstras-algorithm">Dijkstra’s Algorithm</a></li>
   <li><a href="#min-heaps">Min-Heaps</a></li>
+  <li><a href="#directed-acyclic-graphs">Directed-Acyclic Graphs</a></li>
 </ul>
 	      	
             </nav>
           </aside>
         
-        <h2 id="a-few-things-regarding-the-current-assignment">A Few Things Regarding the Current Assignment</h2>
-
-<ol>
-  <li>I added a tips and tricks section (currently just one there). Let me know if you want me to add anything to it.</li>
-  <li>I added an assignment submission checklist to the Canvas page</li>
-</ol>
-
-<h2 id="directed-acyclic-graphs">Directed-Acyclic Graphs</h2>
-
-<p>A directed graph is acyclic if it contains no cycles.  A cycle is a path that starts at a given node and returns to that same node.  We use the acronym DAG (directed, acyclic graph) to refer ot this type of graph.  Here is an example of such a graph.</p>
-
-<div class="mermaid">
-graph LR
-  A --&gt; B
-  B --&gt; C
-  A --&gt; C
-  C --&gt; D
-  B --&gt; D
-  A --&gt; E
-</div>
-
-<p>As was included in the day materials last time (although there was not enough time to get to it), there are several algorithms to determine if a graph is a DAG.  One of the easier ones to understand is Kahn’s algorithm, which has the following description from <a href="https://en.wikipedia.org/wiki/Topological_sorting">the Wikipedia page on Topological Sorting</a>. It turns out that a graph is a DAG if and only if there is a valid topological sorting of the nodes in the DAG.</p>
-
-<blockquote class="notice--warning">
-  <p>A topological sorting of a directed graph consisting of vertices $V$ and edges $E$ consists of an ordering of the vertices $v_1, v_2, \ldots, v_n$ such that the edge $v_i \rightarrow v_j$ exists in $E$ if and only if $i &lt; j$.</p>
-</blockquote>
-
-<p>Let’s work as a class to determine a valid topological sorting of the graph above.  Is the sorting unique?</p>
-
-<p><button onclick="HideShowElement('HideShow1')">Show Solution</button></p>
-<div id="HideShow1" style="display:none">
-     A valid solution would consist of the order $A, E, B, C, D$.  For this graph, another valid topological sorting would be $A, B, C, D, E$.  (other sortings exist as well)
-</div>
-
-<p>Kahn’s algorithm can be used to determine if a directed graph has cycles or not.  The pseudocode for Kahn’s algorithm is below.</p>
-
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>L ← Empty list that will contain the sorted elements
-S ← Set of all nodes with no incoming edge
-
-while S is not empty do
-    remove a node n from S
-    add n to L
-    for each node m with an edge e from n to m do
-        remove edge e from the graph
-        if m has no other incoming edges then
-            insert m into S
-
-if graph has edges then
-    return error   (graph has at least one cycle)
-else 
-    return L   (a topologically sorted order)
-</code></pre></div></div>
-
-<p>Let’s go through this example together to see how Kahn’s algorithm works.</p>
-
-<p>Let’s try Kahn’s algorithm on a graph that does contain a cycle to see what happens.</p>
-
-<p>Input graph:</p>
-<div class="mermaid">
-graph LR
-  A --&gt; B
-  B --&gt; C
-  C --&gt; D
-  C --&gt; B
-  A --&gt; D
-</div>
-<p>$L = []$, $S = [A]$</p>
-
-<p>After step 1:
-$L = [A], S = []$</p>
-<div class="mermaid">
-graph LR
-  A
-  B --&gt; C
-  C --&gt; D
-  C --&gt; B
-</div>
-
-<p>Question for us to work through together: How would we prove that Kahn’s algorithm is correct?</p>
-
-<h2 id="dijkstras-algorithm">Dijkstra’s Algorithm</h2>
+        <h2 id="dijkstras-algorithm">Dijkstra’s Algorithm</h2>
 
 <p>I have some companion slides to go along with the presentation of <a href="https://en.wikipedia.org/wiki/Dijkstra%27s_algorithm">Dijkstra’s algorithm</a>.  I’ll have these up on the projector, but you can <a href="/in_class/day07_slides.pptx">access the slides in PPTX</a> or <a href="/in_class/day07_slides.pdf">PDF form</a>.  Don’t pull them up just yet.</p>
 
@@ -510,6 +429,79 @@ C --&gt; D[D, 9]
 <h3 id="implementation-considerations">Implementation considerations</h3>
 
 <p>Since this is part of the extra credit, I’ll leave it to you to look into the details of this (there’s a lot of explanations on the web / videos to watch).  Binary heaps are often implemented by storing the vertices of the heap in a list.  This might seem counterintuitive, but it presents a really elegant solution to some challenging aspects of implementing the heap: finding parents and children of a node, quickly swapping nodes in the tree, and inserting new values in such a way that condition 2 is maintained.</p>
+
+<h2 id="directed-acyclic-graphs">Directed-Acyclic Graphs</h2>
+
+<p>A directed graph is acyclic if it contains no cycles.  A cycle is a path that starts at a given node and returns to that same node.  We use the acronym DAG (directed, acyclic graph) to refer ot this type of graph.  Here is an example of such a graph.</p>
+
+<div class="mermaid">
+graph LR
+  A --&gt; B
+  B --&gt; C
+  A --&gt; C
+  C --&gt; D
+  B --&gt; D
+  A --&gt; E
+</div>
+
+<p>As was included in the day materials last time (although there was not enough time to get to it), there are several algorithms to determine if a graph is a DAG.  One of the easier ones to understand is Kahn’s algorithm, which has the following description from <a href="https://en.wikipedia.org/wiki/Topological_sorting">the Wikipedia page on Topological Sorting</a>. It turns out that a graph is a DAG if and only if there is a valid topological sorting of the nodes in the DAG.</p>
+
+<blockquote class="notice--warning">
+  <p>A topological sorting of a directed graph consisting of vertices $V$ and edges $E$ consists of an ordering of the vertices $v_1, v_2, \ldots, v_n$ such that the edge $v_i \rightarrow v_j$ exists in $E$ if and only if $i &lt; j$.</p>
+</blockquote>
+
+<p>Let’s work as a class to determine a valid topological sorting of the graph above.  Is the sorting unique?</p>
+
+<p><button onclick="HideShowElement('HideShow1')">Show Solution</button></p>
+<div id="HideShow1" style="display:none">
+     A valid solution would consist of the order $A, E, B, C, D$.  For this graph, another valid topological sorting would be $A, B, C, D, E$.  (other sortings exist as well)
+</div>
+
+<p>Kahn’s algorithm can be used to determine if a directed graph has cycles or not.  The pseudocode for Kahn’s algorithm is below.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>L ← Empty list that will contain the sorted elements
+S ← Set of all nodes with no incoming edge
+
+while S is not empty do
+    remove a node n from S
+    add n to L
+    for each node m with an edge e from n to m do
+        remove edge e from the graph
+        if m has no other incoming edges then
+            insert m into S
+
+if graph has edges then
+    return error   (graph has at least one cycle)
+else 
+    return L   (a topologically sorted order)
+</code></pre></div></div>
+
+<p>Let’s go through this example together to see how Kahn’s algorithm works.</p>
+
+<p>Let’s try Kahn’s algorithm on a graph that does contain a cycle to see what happens.</p>
+
+<p>Input graph:</p>
+<div class="mermaid">
+graph LR
+  A --&gt; B
+  B --&gt; C
+  C --&gt; D
+  C --&gt; B
+  A --&gt; D
+</div>
+<p>$L = []$, $S = [A]$</p>
+
+<p>After step 1:
+$L = [A], S = []$</p>
+<div class="mermaid">
+graph LR
+  A
+  B --&gt; C
+  C --&gt; D
+  C --&gt; B
+</div>
+
+<p>Question for us to work through together: How would we prove that Kahn’s algorithm is correct?</p>
 
         
       </section>
