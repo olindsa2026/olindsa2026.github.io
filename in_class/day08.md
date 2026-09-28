@@ -8,25 +8,15 @@ published: true
 
 > If you feel it is consistent with what helps you learn, you may use generative AI tools (e.g., ChatGPT) to help you complete the work in this course.  When using these tools, please disclose how you used generative AI in preparing your work.  Please do not use generative AI in a way that makes your contribution to the work negligible.  The design of the oral quizzes is designed around idea that you should be able to explain how the code that was created by generative AI works and what each line is doing.  You might also strive to be able to rewrite the code without generative AI.
 
-## How fast is Dijkstra?
-
-Let's start with an easy to state, but not so easy to answer problem.
-
-> **Exercise 1**
->
-> What is the runtime complexity ($\Theta$) of Dijkstra's algorithm?  Your answer should be in terms of the number of nodes $n$ and the number of edges $m$.
-{: .notice--success}
-
-
 ## A-Star Search
 
-Before we turn the page to the next topic of the course, sorting, I want to talk about a really another graph traversal algorithm, [A-star](https://en.wikipedia.org/wiki/A*_search_algorithm) search.
+Before we turn the page to the next topic of the course, I want to talk about [A-star](https://en.wikipedia.org/wiki/A*_search_algorithm) search algorithm.
 
-What's beautiful about a-star search is that it can drastically speed up dijkstra's algorithm in certain cases by cutting down on search certain paths.
+What's beautiful about A-star search is that it can drastically speed up Dijkstra's algorithm in certain cases by cutting down on searching fruitless parts of the graph.
 
-Before showing the algorithm, we should realize that A-star is solving a bit different problem than Dijkstra's.  A-star is specifically solving finding a path from a given start vertex to the goal (rather than to any possible destination as we did in Dijkstra's).
+Before showing the algorithm, we must realize that A-star is solving a bit different problem than Dijkstra's.  A-star is specifically finding a path from a given start vertex to the goal.  If you recall, Dijkstra actually gives us the shortest path from the start vertex to any vertex in the graph.
 
-The key insight of A-star is to make use of a heuristic function that serves as a lower in terms of the cost to move from a particular node in the graph to the goal.  Let's do some work at the board to understand what a heuristic means and under what conditions it can work with A-star (this is known as the [admissibility condition](https://en.wikipedia.org/wiki/Admissible_heuristic)).
+The key insight of A-star is to make use of a heuristic function that serves as a lower bound for the cost to move from a particular node in the graph to the goal.  Let's do some work at the board to understand what a heuristic means and under what conditions it can work with A-star (this is known as the [admissibility condition](https://en.wikipedia.org/wiki/Admissible_heuristic)).
 
 We use the notation $h(v)$ denotes the lower bound on traversing from $v$ to the goal node.  Given this construction, we can modify our pseudocode for Dijkstra's algorithm from last time to get the A-star algorithm.
 
@@ -112,26 +102,26 @@ This one is pretty awesome.  You just insert all of your values into a binary mi
 
 ## Complexity of Sorting Algorithms
 
-> **Exercise 2:** Analyzing Selection Sort
+> **Exercise 1:** Analyzing Selection Sort
 >
 > Let's start as a group by analyzing the worst case running time of selection sort.  Compute the number of operations necessary to run selection sort in the worst case.  Determine $\Theta$.
 {: .notice--success}
 
 ### Analyzing Heap Sort
 
-> **Exercise 3:** Determine the $\Theta$ of heap sort.
+> **Exercise 2:** Determine the $\Theta$ of heap sort.
 {: .notice--success}
 
 ### Analyzing Merge Sort
 
-> **Exercise 4:** Determine the $\Theta$ of merge sort by drawing a tree diagram that shows how the problem of size $n$ is divided into subproblems (this will form a tree).  Keep track of how much work you would do at each level of this tree.
+> **Exercise 3:** Determine the $\Theta$ of merge sort by drawing a tree diagram that shows how the problem of size $n$ is divided into subproblems (this will form a tree).  Keep track of how much work you would do at each level of this tree.
 {: .notice--success}
 
 ### Master Theorem
 
 A generalizable recipe for analyzing recursive algorithms like this is the [master theorem](https://en.wikipedia.org/wiki/Master_theorem_(analysis_of_algorithms)).  
 
-> **Exercise 5:** Reanalyze merge sort using the [master theorem](https://en.wikipedia.org/wiki/Master_theorem_(analysis_of_algorithms)).  
+> **Exercise 4:** Reanalyze merge sort using the [master theorem](https://en.wikipedia.org/wiki/Master_theorem_(analysis_of_algorithms)).  
 {: .notice--success}
 
 

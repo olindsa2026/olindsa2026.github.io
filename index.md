@@ -21,7 +21,7 @@ header:
 
 | Day # | Activity                                                                      |
 |-------|-------------------------------------------------------------------------------|
-{% for d in (1..7) %}
+{% for d in (1..8) %}
 {%- assign dd = d -%}
 {%- if d < 10 -%}{% assign dd = '0' | append: d %}{% endif -%}
 {%- assign fname = 'in_class/day' | append: dd | append: '.md' -%}
