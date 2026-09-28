@@ -1,0 +1,432 @@
+<!doctype html>
+<!--
+  Minimal Mistakes Jekyll Theme 4.17.2 by Michael Rose
+  Copyright 2013-2019 Michael Rose - mademistakes.com | @mmistakes
+  Free for personal and commercial use under the MIT license
+  https://github.com/mmistakes/minimal-mistakes/blob/master/LICENSE
+-->
+<html lang="en" class="no-js">
+  <head>
+    <meta charset="utf-8">
+
+<script>
+class AnchorNoProxy extends HTMLElement {
+  constructor() {
+    super();
+    this.attachShadow({ mode: "open" });
+    this._$a = null;
+  }
+  connectedCallback() {
+    const href = this.getAttribute("href") || "#";
+    if (this.dataset.hasOwnProperty('canvas')) {
+        const canvasURL = this.dataset.canvas;
+        this.shadowRoot.innerHTML = `<style>a:hover, a:active { outline: 0; }\na { color: #5197ad; }\na:visited { color: #5197ad; }\na:hover { color: #266477; outline: 0; }</style><a href="${href}" data-canvas="${canvasURL}"><slot></slot></a>`;
+    } else {
+        this.shadowRoot.innerHTML = `<style>a:hover, a:active { outline: 0; }\na { color: #5197ad; }\na:visited { color: #5197ad; }\na:hover { color: #266477; outline: 0; }</style><a href="${href}"><slot></slot></a>`;
+    }
+    this._$a = this.shadowRoot.querySelector("a");
+    this._$a.addEventListener("click", e => {
+      var url = this.getAttribute('href');
+      e.preventDefault();
+      if (document.referrer.startsWith('https://lms.hypothes.is') && this.dataset.hasOwnProperty('canvas')) {
+        // get rid of proxy if it was added
+        var n = this.dataset.canvas.search('https://olin.instructure.com');
+        window.open(this.dataset.canvas.substring(n), '_blank');
+      } else {
+        window.open(url, '_blank');
+      }
+    });
+  }
+  static get observedAttributes() { return ["href"]; }
+  attributeChangedCallback(name, oldValue, newValue) {
+    if (oldValue !== newValue) {
+      if (this._$a === null) return;
+      this._$a.setAttribute("href", newValue);
+    }
+  }
+}
+
+customElements.define("a-no-proxy", AnchorNoProxy);
+
+class NoProxy extends HTMLAnchorElement {
+  connectedCallback() {
+    this.addEventListener("click", e => {
+      e.preventDefault();
+      if (document.referrer.startsWith('https://lms.hypothes.is') && this.dataset.hasOwnProperty('canvas')) {
+        // get rid of proxy if it was added
+        var n = this.dataset.canvas.search('https://olin.instructure.com');
+      	window.open(this.dataset.canvas.substring(n), '_blank');
+      } else {
+      	window.open(this.href, '_blank');
+      }
+    });
+  }
+}
+
+customElements.define("no-proxy", NoProxy, { extends: "a" });
+
+class ConfirmLink extends HTMLAnchorElement {
+  connectedCallback() {
+    this.addEventListener("click", e => {
+      const result = confirm(`Are you sure you want to go to '${this.href}'?`);
+      if (!result) e.preventDefault();
+    });
+  }
+}
+
+customElements.define("confirm-link", ConfirmLink, { extends: "a" });
+
+</script>
+
+<!-- begin _includes/seo.html --><title>Assignment 4: Sorting Algorithms - Data Structures Fall 2026 @ Olin College</title>
+<meta name="description" content="">
+
+
+
+<meta property="og:type" content="website">
+<meta property="og:locale" content="en_US">
+<meta property="og:site_name" content="Data Structures Fall 2026 @ Olin College">
+<meta property="og:title" content="Assignment 4: Sorting Algorithms">
+<meta property="og:url" content="/assignments/assignment_04.html">
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="canonical" href="/assignments/assignment_04.html">
+
+
+
+
+<script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    
+      "@type": "Person",
+      "name": null,
+      "url": "/"
+    
+  }
+</script>
+
+
+
+
+
+
+<!-- end _includes/seo.html -->
+
+
+<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="Data Structures Fall 2026 @ Olin College Feed">
+
+<!-- https://t.co/dKP3o1e -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script>
+  document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/g, '') + ' js ';
+</script>
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="/assets/css/main.css">
+
+<!--[if IE]>
+  <style>
+    /* old IE unsupported flexbox fixes */
+    .greedy-nav .site-title {
+      padding-right: 3em;
+    }
+    .greedy-nav button {
+      position: absolute;
+      top: 0;
+      right: 0;
+      height: 100%;
+    }
+  </style>
+<![endif]-->
+
+
+
+    <!-- start custom head snippets -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11.9.0/dist/mermaid.min.js"></script>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.28/dist/katex.min.css" integrity="sha384-Wsr4Nh3yrvMf2KCebJchRJoVo1gTU6kcP05uRSh5NV3sj9+a8IomuJoQzf3sMq4T" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.28/dist/katex.min.js" integrity="sha384-+W9OcrYK2/bD7BmUAk+xeFAyKp0QjyRQUCxeU31dfyTt/FrPsUgaBTLLkVf33qWt" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.28/dist/contrib/auto-render.min.js" integrity="sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh" crossorigin="anonymous"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", async function () {
+  // Render Mermaid first, from untouched source.
+  mermaid.initialize({ startOnLoad: false });
+  await mermaid.run(); // renders all .mermaid blocks
+
+  // render KaTeX
+  renderMathInElement(document.body, {
+          delimiters: [
+              {left: '$$', right: '$$', display: true},
+              {left: '$', right: '$', display: false},
+              {left: '\\(', right: '\\)', display: false},
+              {left: '\\[', right: '\\]', display: true}
+          ],
+    throwOnError: false,
+  });
+});
+</script>
+
+<script type="text/javascript">
+function HideShowElement(divID) {
+    const x = document.getElementById(divID);
+    if (x.style.display === "none") {
+        x.style.display = "block";
+    } else {
+        x.style.display = "none";
+    }
+}
+</script>
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+
+<!-- insert favicons. use https://realfavicongenerator.net/ -->
+
+<!-- end custom head snippets -->
+
+  </head>
+
+  <body class="layout--single">
+    <nav class="skip-links">
+  <h2 class="screen-reader-text">Skip links</h2>
+  <ul>
+    <li><a href="#site-nav" class="screen-reader-shortcut">Skip to primary navigation</a></li>
+    <li><a href="#main" class="screen-reader-shortcut">Skip to content</a></li>
+    <li><a href="#footer" class="screen-reader-shortcut">Skip to footer</a></li>
+  </ul>
+</nav>
+
+    <!--[if lt IE 9]>
+<div class="notice--danger align-center" style="margin: 0;">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience.</div>
+<![endif]-->
+
+    
+
+<div class="masthead">
+  <div class="masthead__inner-wrap">
+    <div class="masthead__menu">
+      <nav id="site-nav" class="greedy-nav">
+        
+          <a class="site-logo" href="/"><img src="https://qeacourse.github.io/RoboNinjaWarrior/website_graphics/olinlogo.png" alt=""></a>
+        
+        <a class="site-title" href="/">
+          Data Structures Fall 2026 @ Olin College
+          
+        </a>
+        <ul class="visible-links"></ul>
+        
+        <button class="greedy-nav__toggle hidden" type="button">
+          <span class="visually-hidden">Toggle menu</span>
+          <div class="navicon"></div>
+        </button>
+        <ul class="hidden-links hidden"></ul>
+      </nav>
+    </div>
+  </div>
+</div>
+
+
+    <div class="initial-content">
+      
+
+
+
+<div id="main" role="main">
+  
+
+  <article class="page" itemscope itemtype="https://schema.org/CreativeWork">
+    <meta itemprop="headline" content="Assignment 4: Sorting Algorithms">
+    
+    
+    
+
+    <div class="page__inner-wrap">
+      
+        <header>
+          <h1 id="page-title" class="page__title" itemprop="headline">Assignment 4: Sorting Algorithms
+</h1>
+          
+        </header>
+      
+
+      <section class="page__content" itemprop="text">
+        
+          <aside class="sidebar__right sticky">
+            <nav class="toc">
+              <header><h4 class="nav__title"><i class="fas fa-file-alt"></i> On this page</h4></header>
+	      
+                <ul class="toc__menu">
+  <li><a href="#overview">Overview</a></li>
+  <li><a href="#sorting-algorithm-implementation-and-complexity-analysis">Sorting Algorithm Implementation and Complexity Analysis</a></li>
+  <li><a href="#sorting-algorithm-benchmarking">Sorting Algorithm Benchmarking</a></li>
+  <li><a href="#new-frontiers-in-sorting">New Frontiers in Sorting</a></li>
+  <li><a href="#practice-with-the-master-theorem">Practice with the master theorem</a></li>
+  <li><a href="#turning-in-your-work">Turning in your work</a></li>
+  <li><a href="#assessment">Assessment</a></li>
+</ul>
+	      	
+            </nav>
+          </aside>
+        
+        <h2 id="overview">Overview</h2>
+
+<p>This assignment is about implementing, benchmarking, and solving problems with sorting algorithms.</p>
+
+<h2 id="sorting-algorithm-implementation-and-complexity-analysis">Sorting Algorithm Implementation and Complexity Analysis</h2>
+
+<p>Implement at least four sorting algorithms.  For each sorting algorithm you implement, provide an analysis of its computational complexity.  At least one of your algorithms should be $\Theta(n \log n)$.</p>
+
+<p>Here are some possible algorithms to implement.</p>
+<ul>
+  <li>Heap sort</li>
+  <li>Radix sort</li>
+  <li>Insertion sort</li>
+  <li>Selection sort</li>
+  <li>Merge sort</li>
+  <li>Quick sort</li>
+</ul>
+
+<h2 id="sorting-algorithm-benchmarking">Sorting Algorithm Benchmarking</h2>
+
+<p>Test the performance (meaning how long it takes for the code to run) of your sorting algorithms on sorting different sized lists of numbers.  Create some representation (e.g., a table or a plot) of the runtimes of the algorithms as a function of list size.  In a writeup (I would suggest a markdown file), discuss how you tested your algorithms (e.g., how you generated the lists to be sorted, how many times you performed each experiment).  Draw some conclusions based on your experiment (e.g., which algorithm seems faster and in which cases).</p>
+
+<p>Tips 1: You should try running your algorithms on lists of vastly different sizes (think different orders of magnitude).  For example, try a lists of size $10$, $100$, $1,000$, $1,000,000$.</p>
+
+<p>Tip 2: To generate your lists, you should consider using random numbers.  This code generated a list of <code class="language-plaintext highlighter-rouge">desiredSize</code> where each number is from 0 to 999.  Please adjust as you see fit.</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// somewhere above you need: import kotlin.random.Random</span>
+<span class="kd">val</span> <span class="py">x</span> <span class="p">=</span> <span class="p">(</span><span class="mi">1</span> <span class="n">until</span> <span class="n">desiredSize</span><span class="p">).</span><span class="nf">map</span> <span class="p">{</span> <span class="nc">Random</span><span class="p">.</span><span class="nf">nextInt</span><span class="p">(</span><span class="mi">1000</span><span class="p">)</span> <span class="p">}</span>
+</code></pre></div></div>
+
+<p>Tip 3: to time your code, you can use the <code class="language-plaintext highlighter-rouge">measureTime</code> Kotlin function (or an equivalent function in the language oc your choice)</p>
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// somewhere above you need: import kotlin.time.measureTime</span>
+<span class="kd">val</span> <span class="py">runTime</span> <span class="p">=</span> <span class="nf">measureTime</span> <span class="p">{</span>
+    <span class="c1">// put in call to your sorting algorithm here</span>
+<span class="p">}</span>
+<span class="nf">println</span><span class="p">(</span><span class="s">"my algorithm took $runTime to run"</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>Tip 4: it helps to automate as much of this as possible.  Here is some code that runs built-in sorting algorithm on a few different list sizes.</p>
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// somewhere above you need: import kotlin.time.measureTime</span>
+<span class="c1">// somewhere above you need: import kotlin.time.DurationUnit</span>
+<span class="c1">// somewhere above you need: import kotlin.random.Random</span>
+
+<span class="kd">val</span> <span class="py">runTimes</span> <span class="p">=</span> <span class="n">mutableListOf</span><span class="p">&lt;</span><span class="nc">Double</span><span class="p">&gt;()</span>
+<span class="k">for</span> <span class="p">(</span><span class="n">size</span> <span class="k">in</span> <span class="nf">listOf</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">1000</span><span class="p">,</span> <span class="mi">10000</span><span class="p">,</span> <span class="mi">100000</span><span class="p">))</span> <span class="p">{</span>
+    <span class="kd">val</span> <span class="py">x</span> <span class="p">=</span> <span class="p">(</span><span class="mi">1</span> <span class="n">until</span> <span class="n">size</span><span class="p">).</span><span class="nf">map</span> <span class="p">{</span> <span class="nc">Random</span><span class="p">.</span><span class="nf">nextInt</span><span class="p">(</span><span class="mi">100000</span><span class="p">)</span> <span class="p">}</span>
+    <span class="kd">val</span> <span class="py">runTime</span> <span class="p">=</span> <span class="nf">measureTime</span> <span class="p">{</span>
+        <span class="n">x</span><span class="p">.</span><span class="nf">sorted</span><span class="p">()</span>
+    <span class="p">}</span>
+    <span class="n">runTimes</span><span class="p">.</span><span class="nf">add</span><span class="p">(</span><span class="n">runTime</span><span class="p">.</span><span class="nf">toDouble</span><span class="p">(</span><span class="nc">DurationUnit</span><span class="p">.</span><span class="nc">SECONDS</span><span class="p">))</span>
+<span class="p">}</span>
+<span class="nf">println</span><span class="p">(</span><span class="s">"Runtimes are $runTimes"</span><span class="p">)</span>
+</code></pre></div></div>
+
+<h2 id="new-frontiers-in-sorting">New Frontiers in Sorting</h2>
+
+<blockquote class="notice--warning">
+  <p>This is now extra credit</p>
+</blockquote>
+
+<p>We know that the speed limit for comparison-based sorting algorithms in $\Theta(n \log n)$ and that this speed limit can be achieved by many algorithms.  Despite this fact, sorting is still an active area of research in computer science.  Learn about at least one newish development in sorting algorithms.  Make sure to explain the problem settings, what the algorithm does that is new / different from the methods we learned about in class, and why the result is significant.  You can learn from the original source (likely an academic paper), a blog that discusses the algorithm, a video, etc.  In your writeup be sure to mention how you learned about the result.  Here are some ideas to get started.</p>
+<ul>
+  <li>Learn about the <a href="https://www.youtube.com/watch?v=WnOfx3iBtAo">AlphaDev algorithm from Google DeepMind</a></li>
+  <li>Read about <a href="https://arxiv.org/abs/1705.02257">$IPS^4o$</a>, which achieves very good performance by optimizing to the modern computer architectures (even though it doesn’t have a faster $\Theta$).</li>
+  <li>Read about <a href="https://arxiv.org/html/1403.2777v1">Zig-zag sort</a>, which performs the same pattern of comparisons no matter what the input data is!  (this has some implications for data privacy)</li>
+  <li>Find another algorithm of your choice.</li>
+</ul>
+
+<h2 id="practice-with-the-master-theorem">Practice with the master theorem</h2>
+
+<blockquote class="notice--warning">
+  <p>Time box this to an hour or so</p>
+</blockquote>
+
+<p>Do <a href="https://courses.csail.mit.edu/6.046/spring02/handouts/master.pdf">this worksheet</a> from MIT 6.046 by applying the master theorem.  There <a href="https://courses.csail.mit.edu/6.046/spring02/handouts/mastersol.pdf">are solutions available</a> here.  Note that the master theorem doesn’t apply to all of these problems, so if it doesn’t fit the patterns, you can just say it doesn’t apply (no need to try to work out the solution).</p>
+
+<blockquote class="notice--danger">
+  <p>Please ignore the part on the worksheet where it says you can go through the whole worksheet in 10 minutes!! Not the case!</p>
+</blockquote>
+
+<h2 id="turning-in-your-work">Turning in your work</h2>
+
+<p>Submit a link to a repository that has your code and writeup.  Make sure to add me <code class="language-plaintext highlighter-rouge">paulruvolo</code> as a collaborator if the repo is private.</p>
+
+<h2 id="assessment">Assessment</h2>
+
+<p>See the rubric on Canvas.</p>
+
+        
+      </section>
+
+      <footer class="page__meta">
+        
+        
+
+
+        
+      </footer>
+
+      
+
+      
+    </div>
+
+    
+  </article>
+
+  
+  
+</div>
+
+    </div>
+
+    
+
+    <div id="footer" class="page__footer">
+      <footer>
+        <!-- start custom footer snippets -->
+
+<!-- end custom footer snippets -->
+        <div class="page__footer-follow">
+  <ul class="social-icons">
+    
+
+    
+  </ul>
+</div>
+
+<div class="page__footer-copyright">&copy; 2026 Data Structures Fall 2026 @ Olin College.</div>
+
+      </footer>
+    </div>
+
+    <script src="/assets/js/copyCode.js"></script>
+
+
+  <script src="/assets/js/main.min.js"></script>
+  <script src="https://kit.fontawesome.com/4eee35f757.js"></script>
+
+
+
+
+
+
+
+
+
+
+  </body>
+</html>
