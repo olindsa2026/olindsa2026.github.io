@@ -269,7 +269,6 @@ function HideShowElement(divID) {
 	      
                 <ul class="toc__menu">
   <li><a href="#a-quick-reminder-about-genai-policy">A quick reminder about GenAI policy</a></li>
-  <li><a href="#how-fast-is-dijkstra">How fast is Dijkstra?</a></li>
   <li><a href="#a-star-search">A-Star Search</a></li>
   <li><a href="#sorting">Sorting</a></li>
   <li><a href="#complexity-of-sorting-algorithms">Complexity of Sorting Algorithms</a></li>
@@ -284,25 +283,15 @@ function HideShowElement(divID) {
   <p>If you feel it is consistent with what helps you learn, you may use generative AI tools (e.g., ChatGPT) to help you complete the work in this course.  When using these tools, please disclose how you used generative AI in preparing your work.  Please do not use generative AI in a way that makes your contribution to the work negligible.  The design of the oral quizzes is designed around idea that you should be able to explain how the code that was created by generative AI works and what each line is doing.  You might also strive to be able to rewrite the code without generative AI.</p>
 </blockquote>
 
-<h2 id="how-fast-is-dijkstra">How fast is Dijkstra?</h2>
-
-<p>Let’s start with an easy to state, but not so easy to answer problem.</p>
-
-<blockquote class="notice--success">
-  <p><strong>Exercise 1</strong></p>
-
-  <p>What is the runtime complexity ($\Theta$) of Dijkstra’s algorithm?  Your answer should be in terms of the number of nodes $n$ and the number of edges $m$.</p>
-</blockquote>
-
 <h2 id="a-star-search">A-Star Search</h2>
 
-<p>Before we turn the page to the next topic of the course, sorting, I want to talk about a really another graph traversal algorithm, <a href="https://en.wikipedia.org/wiki/A*_search_algorithm">A-star</a> search.</p>
+<p>Before we turn the page to the next topic of the course, I want to talk about <a href="https://en.wikipedia.org/wiki/A*_search_algorithm">A-star</a> search algorithm.</p>
 
-<p>What’s beautiful about a-star search is that it can drastically speed up dijkstra’s algorithm in certain cases by cutting down on search certain paths.</p>
+<p>What’s beautiful about A-star search is that it can drastically speed up Dijkstra’s algorithm in certain cases by cutting down on searching fruitless parts of the graph.</p>
 
-<p>Before showing the algorithm, we should realize that A-star is solving a bit different problem than Dijkstra’s.  A-star is specifically solving finding a path from a given start vertex to the goal (rather than to any possible destination as we did in Dijkstra’s).</p>
+<p>Before showing the algorithm, we must realize that A-star is solving a bit different problem than Dijkstra’s.  A-star is specifically finding a path from a given start vertex to the goal.  If you recall, Dijkstra actually gives us the shortest path from the start vertex to any vertex in the graph.</p>
 
-<p>The key insight of A-star is to make use of a heuristic function that serves as a lower in terms of the cost to move from a particular node in the graph to the goal.  Let’s do some work at the board to understand what a heuristic means and under what conditions it can work with A-star (this is known as the <a href="https://en.wikipedia.org/wiki/Admissible_heuristic">admissibility condition</a>).</p>
+<p>The key insight of A-star is to make use of a heuristic function that serves as a lower bound for the cost to move from a particular node in the graph to the goal.  Let’s do some work at the board to understand what a heuristic means and under what conditions it can work with A-star (this is known as the <a href="https://en.wikipedia.org/wiki/Admissible_heuristic">admissibility condition</a>).</p>
 
 <p>We use the notation $h(v)$ denotes the lower bound on traversing from $v$ to the goal node.  Given this construction, we can modify our pseudocode for Dijkstra’s algorithm from last time to get the A-star algorithm.</p>
 
@@ -417,7 +406,7 @@ graph LR
 <h2 id="complexity-of-sorting-algorithms">Complexity of Sorting Algorithms</h2>
 
 <blockquote class="notice--success">
-  <p><strong>Exercise 2:</strong> Analyzing Selection Sort</p>
+  <p><strong>Exercise 1:</strong> Analyzing Selection Sort</p>
 
   <p>Let’s start as a group by analyzing the worst case running time of selection sort.  Compute the number of operations necessary to run selection sort in the worst case.  Determine $\Theta$.</p>
 </blockquote>
@@ -425,13 +414,13 @@ graph LR
 <h3 id="analyzing-heap-sort">Analyzing Heap Sort</h3>
 
 <blockquote class="notice--success">
-  <p><strong>Exercise 3:</strong> Determine the $\Theta$ of heap sort.</p>
+  <p><strong>Exercise 2:</strong> Determine the $\Theta$ of heap sort.</p>
 </blockquote>
 
 <h3 id="analyzing-merge-sort">Analyzing Merge Sort</h3>
 
 <blockquote class="notice--success">
-  <p><strong>Exercise 4:</strong> Determine the $\Theta$ of merge sort by drawing a tree diagram that shows how the problem of size $n$ is divided into subproblems (this will form a tree).  Keep track of how much work you would do at each level of this tree.</p>
+  <p><strong>Exercise 3:</strong> Determine the $\Theta$ of merge sort by drawing a tree diagram that shows how the problem of size $n$ is divided into subproblems (this will form a tree).  Keep track of how much work you would do at each level of this tree.</p>
 </blockquote>
 
 <h3 id="master-theorem">Master Theorem</h3>
@@ -439,7 +428,7 @@ graph LR
 <p>A generalizable recipe for analyzing recursive algorithms like this is the <a href="https://en.wikipedia.org/wiki/Master_theorem_(analysis_of_algorithms)">master theorem</a>.</p>
 
 <blockquote class="notice--success">
-  <p><strong>Exercise 5:</strong> Reanalyze merge sort using the <a href="https://en.wikipedia.org/wiki/Master_theorem_(analysis_of_algorithms)">master theorem</a>.</p>
+  <p><strong>Exercise 4:</strong> Reanalyze merge sort using the <a href="https://en.wikipedia.org/wiki/Master_theorem_(analysis_of_algorithms)">master theorem</a>.</p>
 </blockquote>
 
 <p>You may find the following special cases of the master theorem useful (we’ll discuss the more general form next class).</p>
