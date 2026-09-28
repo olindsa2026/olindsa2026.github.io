@@ -1,7 +1,7 @@
 ---
 title: "Assignment 4: Sorting Algorithms"
 toc_sticky: true
-published: false
+published: true
 due_on_class: 10
 ---
 
@@ -35,7 +35,7 @@ Tip 2: To generate your lists, you should consider using random numbers.  This c
 val x = (1 until desiredSize).map { Random.nextInt(1000) }
 ```
 
-Tip 3: to time your code, you can use the ``measureTime`` Kotlin function.
+Tip 3: to time your code, you can use the ``measureTime`` Kotlin function (or an equivalent function in the language oc your choice)
 ```kotlin
 // somewhere above you need: import kotlin.time.measureTime
 val runTime = measureTime {
@@ -63,12 +63,16 @@ println("Runtimes are $runTimes")
 
 
 
-## New Frontiers in Sorting?
+## New Frontiers in Sorting
 
 > This is now extra credit
 {: .notice--warning}
 
-Do some research to determine what new problems exist in terms of sorting.  In your writeup, discuss at least one variant of sorting that has active research.  Make sure you explain what solving this problem entails.  Read one research paper that is related to this sorting problem and summarize its contributions (you may not be able to understand the paper at full detail, but hopefully you can get the gist).
+We know that the speed limit for comparison-based sorting algorithms in $\Theta(n \log n)$ and that this speed limit can be achieved by many algorithms.  Despite this fact, sorting is still an active area of research in computer science.  Learn about at least one newish development in sorting algorithms.  Make sure to explain the problem settings, what the algorithm does that is new / different from the methods we learned about in class, and why the result is significant.  You can learn from the original source (likely an academic paper), a blog that discusses the algorithm, a video, etc.  In your writeup be sure to mention how you learned about the result.  Here are some ideas to get started.
+* Learn about the [AlphaDev algorithm from Google DeepMind](https://www.youtube.com/watch?v=WnOfx3iBtAo)
+* Read about [$IPS^4o$](https://arxiv.org/abs/1705.02257), which achieves very good performance by optimizing to the modern computer architectures (even though it doesn't have a faster $\Theta$).
+* Read about [Zig-zag sort](https://arxiv.org/html/1403.2777v1), which performs the same pattern of comparisons no matter what the input data is!  (this has some implications for data privacy)
+* Find another algorithm of your choice.
 
 ## Practice with the master theorem
 
