@@ -4,10 +4,6 @@ toc_sticky: true
 published: true
 ---
 
-## Oral Quizzes
-
-Our first oral quiz will be assigned next Thursday (the 9th) and due the Thursday after that.  This is not at all required, but I will open up some practice spots for people if they want to get a flavor for what the oral quizzes will be like.  Look for those to be posted tomorrow and be scheduled for early next week.
-
 ## Class Overview
 
 Last class we saw heap sort, merge sort, and selection sort, but there are many more to learn about. Today we'll learn a few more sorting algorithms, but we'll also formally introduce the master theorem as a generalizable way to find $\Theta$ for divide and conquer algorithms.  There's an optional section at the end on the speed limit of sorting (if you are interested).  That content is not part of the assignments or oral quizzes.
@@ -43,15 +39,15 @@ Now, we have to determine which of the three cases of the master theorem applies
 
 Okay, so here are the three cases of the master theorem.  I'll list the condition, state if merge sort meets it, and if it does, show the runtime.  To apply this to other problems, you will need to look back at the more general versions of these cases.
 
-Case 1: $n = O(n^c)$ for some $c < 1$.  **Nope can't be true.  If $c$ is less than 1, it grows more slowly than $n$ and cannot be bounded from above.**
+Case 1: $n = O(n^c)$ for some $c < 1$.  **Nope can't be true.  If $c$ is less than 1, $n^c$ grows more slowly than $n$ and cannot serve as an upper bound.**
 
 Case 2: $n = \Theta(n (\log n)^k)$ for some $k \geq 0$.  **Yes!  If we set $k=0$, then the $\log$ drops out, and we are left with $n = \Theta(n)$, which is true.**
 
-Case 3: $n = \Omega(n^c)$ for some $c > 1$.  **Nope.  If we set $c$ bigger than 1, it will grow faster than $n$ and won't bound $n$ from below.**
+Case 3: $n = \Omega(n^c)$ for some $c > 1$.  **Nope.  If we set $c$ bigger than 1, $n^c$ will grow faster than $n$ and cannot serve as a lower bound.**
 
 Okay, so case 2 is the winner.  The runtime as dictated by case 2 is $T(n) = \Theta(n^{c_{crit}} (\log n)^{k+1}) = \Theta(n \log n)$ (since $c_{crit} = 1$ and $k = 0$).
 
-> **Exercise 1:** Reanalyze binary search using the master theorem.  Hint: first find a recurrence relation, and then try to find the case that matches.
+> **Exercise 1:** Imagine you have an array of $n$ sorted numbers.  You are given a number $k$, and you would like to determine if the number $k$ occurs in the array of numbers.  This problem can be solved using a binary search.  First: Make sure you understand what binary search is.  Use the master theorem to determine the runtime of ($\Theta$) for using binary search procedure to determine of the number $k$ is in the list.  Hint: first find a recurrence relation, and then try to find the case of the master theorem that matches.
 {: .notice--success}
 
 At first the formulas for the master theorem might seem a bit strange, but one quantity that comes up, $n^{c_{crit}}$, is related to the number of nodes in the recursive tree when you apply a divide and conquer strategy.  For example, if we had $a = 4$ and $b=2$, the following tree would have approximately $n^2$ nodes.
@@ -79,6 +75,8 @@ graph TD
   f --> v[n/4]
   f --> w[n/4]
 </div>
+
+This value $c_{crit}$ is important because it controls whether the tree is wide (like the tree above), narrow (in the case of $c_{crit} < 1$), or in between (in the case of $c_{crit} = 1$).
 
 > **Exercise 2:** Choose a few problems from the homework and do them together.  If you want to hit each case at least once, try these three.
 > * Problem 1-5
@@ -114,7 +112,7 @@ There's a theorem that states that any algorithm for sorting that works by compa
 
 The basic idea is to shift how you think about sorting a list of $n$ items.  Instead of thinking of reordering the items such that the list is sorted, let's think about sorting as the problem of determining a function that maps indices from the unsorted list to where they should go in the sorted list.  Here's an example.
 
-Suppose we have a list $x = [3, 9, 2, 10]$.  A function that sorts the list specifies a mapping from the original indices ($0, 1, 2, 3$) to their positions in the sorted list.  A function $f$ that achieves thi goal could be defined as follows.
+Suppose we have a list $x = [3, 9, 2, 10]$.  A function that sorts the list specifies a mapping from the original indices ($0, 1, 2, 3$) to their positions in the sorted list.  A function $f$ that achieves this goal would be defined as follows.
 
 $$\begin{align*}
 f(0) &= 1,~\text{since 3 would appear at index 1 in the sorted list} \\
@@ -125,9 +123,9 @@ f(3) &= 3,~\text{since 10 would appear at index 3 in the sorted list}
 
 With this new definition of sorting in mind, let's think about how many possible functions $f$ there are as a function of $n$.  To determine this, we can imagine that for $f(0)$ there are $n$ possible choices, for $f(1)$ there are $n-1$ possible choices (since we can't repeat what we chose for $f(0)$), for $f(2)$ there are $n-2$ possible choices, etc.  Overall, we have that the number of choices is $n (n-1)(n-2)\ldots 1 = n!$.  If you took Discrete, you might recognize this as the number of ways to permute $n$ items (which should line up intuitively with what we are doing here).
 
-Now let's think about what happens when we perform some comparison $x_i < x_j$ for the purposes of determining which of the $n!$ functions will sort our list.  Some proportion will return true to this comparison the others will return false.  By this logic, if you think of the worst case scenario (which is what we consider when thinking about runtime complexity), at best we are left with half as many possible permutations that we are still considering (as compared to before the comparison).
+Now let's think about what happens when we perform some comparison $x_i < x_j$ for the purposes of determining which of the $n!$ functions will sort our list.  Some proportion will return true to this comparison the others will return false.  By this logic, if you think of the worst case scenario (which is what we consider when thinking about runtime complexity), at best we are left with half as many possible functions that we are still considering (in relation to the number we had before the comparison $x_i < x_j$).
 
-Let's say our sorting algorithm perfectly divides the number of possible permutations that are consistent with each comparison it performs. We can represent this scenario as a tree where at each level of the tree we perform a comparison to try to eliminate some of the $n!$ possible permutations.  The number written on the node in the tree represents the number of permutations that are still under consideration after performing a particular comparison.
+Let's say our sorting algorithm perfectly divides the number of possible functions that are consistent with the two possible outcomes of each of the comparisons it performs. We can represent this scenario as a tree where at each level of the tree we perform a comparison to eliminate some of the $n!$ possible functions.  The number written on the node in the tree below represents the number of functions that are still under consideration after performing a particular comparison.
 
 <div class="mermaid">
 graph TD
@@ -139,16 +137,16 @@ graph TD
   c --> h[n!/4]
 </div>
 
-If we were to extend this tree, eventually we would reach leaf nodes where there is exactly $1$ permutation remaining (this would allow us to sort our list).  What is the runtime of this sorting algorithm?  Well, it has to be the number of comparisons, which is given by the height of the tree.  The height of the tree would be $\log_2(n!)$ (since each level reduces the number of consistent permutations by a factor of $2$).  This shows that the fastest sorting algorithm based on comparisons has to perform at least $\log_2(n!)$ operations in the worst case.  We could stop here, but we'd like to derive our desired result, which states that all sorting algorithms are $\Omega(n \log n)$.
+If we were to extend this tree, eventually we would reach leaf nodes where there is exactly $1$ functions remaining (this function would sort our list).  What is the runtime of this sorting algorithm?  Well, it has to be the number of comparisons, which is given by the height of the tree.  The height of the tree would be $\log_2(n!)$ (since each level reduces the number of consistent functions by a factor of $2$).  This shows that the fastest sorting algorithm based on comparisons has to perform at least $\log_2(n!)$ operations in the worst case.  We could stop here, but we'd like to derive our desired result, which states that all sorting algorithms are $\Omega(n \log n)$.
 
 To accomplish our goal, we now show that $\log_2(n!) = \Omega (n \log n)$.  To do this we need to find a value $n_0$ and a constant $c$ such that $\log_2(n!) > c n \log_2 n$ for $n \geq n_0$.  Note: I'm using $\log_2$ here to make it clearer in the proof coming up, but the base of the log doesn't matter since it's just a constant factor (that doesn't affect $\Omega$).
 
 The first fact we use is that $n! > \left(\frac{n}{2}\right)^\frac{n}{2}$.  This is because the first $\frac{n}{2}$ terms of $n!$ are all bigger than $\frac{n}{2}$.
 
 $$\begin{align*}
-\log_2(n!) &> \log_2\left (\frac{n}{2} \right)^\frac{n}{2}\\
-&= \frac{n}{2} (\log_2(n) - 1) \\
-&\geq c n \log_2(n), \text{for }n\geq 4, \text{and }c=\frac{1}{4}
+\log_2(n!) &> \log_2\left (\left (\frac{n}{2} \right)^\frac{n}{2}\right )\\
+&= \frac{n}{2} (\log_2(n) - 1)~~~~~~\text{Note: applied some basic properties of logs}\\
+&\geq c n \log_2(n), \text{for }n\geq 4, \text{and }c=\frac{1}{4}~~~~~~~~~~\text{Note: there are lots of constants that will work here}
 \end{align*}$$
 
 That's it!  We've shown that $\log_2(n!) = \Omega(n \log_2 n)$, and we have proven our speed limit.

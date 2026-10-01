@@ -4,6 +4,10 @@ toc_sticky: true
 published: true
 ---
 
+## Oral Quizzes
+
+Our first oral quiz will be assigned next Thursday (the 9th) and due the Thursday after that.  This is not at all required, but I will open up some practice spots for people if they want to get a flavor for what the oral quizzes will be like.  Look for those to be posted tomorrow and be scheduled for early next week.
+
 ## Draft of Oral Quiz 1
 
 I have posted [the tentative structure for the oral quiz](https://olin.instructure.com/courses/940/assignments/16951) on Canvas.  Please review it and discuss with those around you.  I'll take some comments, and then finalize it in the next day or so.  The assignment will start on Thursday, October 9th and be due on Thursday, October 16th.
