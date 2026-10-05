@@ -291,21 +291,27 @@ function HideShowElement(divID) {
 <blockquote class="notice--success">
   <p><strong>Exercise 1</strong></p>
 
-  <p>Multiplying square matrices.  Given two square matrices, $A$ and $B$, each of size $n \times n$.  Determine a divide and conquer method for determining the product of the two matrices $C = AB$.  To solve the problem, you can make use of the technique of <a href="https://en.wikipedia.org/wiki/Block_matrix#Block_matrix_multiplication">block matrix multiplication</a>.  Show that the running time you get from using block matrix multiplication is the same as you get from the traditional method of matrix multiplication (the one you learned about in math class).</p>
+  <p>Multiplying square matrices.  Given two square matrices, $A$ and $B$, each of size $n \times n$ and where $n$ is power of two, determine a divide and conquer method for determining the product of the two matrices $C = AB$.  To solve the problem, you can make use of the technique of <a href="https://en.wikipedia.org/wiki/Block_matrix#Block_matrix_multiplication">block matrix multiplication</a>.  Show that the running time you get from using block matrix multiplication is the same as you get from the traditional method of matrix multiplication (the one you learned about in math class).</p>
 </blockquote>
 
 <blockquote class="notice--success">
   <p><strong>Exercise 2</strong></p>
 
-  <p>Create a divide and conquer algorithm to compute $x^n$ where $n$ is a positive integer.  Consider each multiplication operation as taking $\Theta(1)$.  What is the runtime of your divide and conquer algorithm?  Hint: you should be able to do better thant $\Theta(n)$.  How does it compare to the approach of just multiplying $x$ $n$ times.</p>
+  <p>Create a divide and conquer algorithm to compute $x^n$ where $n$ is a positive integer.  Consider each multiplication operation as taking $\Theta(1)$.  What is the runtime of your divide and conquer algorithm?  Hint: you should be able to do better than $\Theta(n)$.  How does your algorithm compare to the approach of just multiplying $x$ $n$ times.</p>
+</blockquote>
+
+<blockquote>
+  <p>Timing check: we’ll skip past this problem and leave it as a challenge problem for later in class (or for those that are working ahead).</p>
 </blockquote>
 
 <blockquote class="notice--success">
   <p><strong>Exercise 3</strong></p>
 
-  <p>Solve the maximum contiguous subsequence problem by determining a divide and conquer algorithm to solve it.  Once you have the algorithm, use the master theorem to determine its runtime.  Note that there are other algorithm you can use to solve this problem (that are actually faster, but here we want to focus on divide and conquer).</p>
+  <p>Solve the maximum contiguous subsequence (MCS) problem by determining a divide and conquer algorithm to solve it.  Once you have the algorithm, use the master theorem to determine its runtime.  Note that there are other algorithm you can use to solve this problem (that are actually faster, but here we want to focus on divide and conquer).</p>
 
   <p>The maximum contiguous sub-sequence problem involves taking an input list of numbers $x_1, \ldots, x_n$ and determining two index values $i$ and $j$ such that $\sum_{k=i}^j x_k$ is as large as possible.  Note that the numbers can be negative.  For simplicity, you can just return the maximum sum (rather than the indices).</p>
+
+  <p>Before getting started, take some time to draw the problem and consider where you might find the maximum contiguous subsequence.  For your divide and conquer approach, consider diving the list into two halves ad solving the MCS problem on each half.</p>
 
   <p><button onclick="HideShowElement('HideShow1')">Show / Hide Hint 1</button></p>
   <div id="HideShow1" style="display:none">
