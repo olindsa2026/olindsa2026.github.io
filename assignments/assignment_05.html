@@ -1,0 +1,456 @@
+<!doctype html>
+<!--
+  Minimal Mistakes Jekyll Theme 4.17.2 by Michael Rose
+  Copyright 2013-2019 Michael Rose - mademistakes.com | @mmistakes
+  Free for personal and commercial use under the MIT license
+  https://github.com/mmistakes/minimal-mistakes/blob/master/LICENSE
+-->
+<html lang="en" class="no-js">
+  <head>
+    <meta charset="utf-8">
+
+<script>
+class AnchorNoProxy extends HTMLElement {
+  constructor() {
+    super();
+    this.attachShadow({ mode: "open" });
+    this._$a = null;
+  }
+  connectedCallback() {
+    const href = this.getAttribute("href") || "#";
+    if (this.dataset.hasOwnProperty('canvas')) {
+        const canvasURL = this.dataset.canvas;
+        this.shadowRoot.innerHTML = `<style>a:hover, a:active { outline: 0; }\na { color: #5197ad; }\na:visited { color: #5197ad; }\na:hover { color: #266477; outline: 0; }</style><a href="${href}" data-canvas="${canvasURL}"><slot></slot></a>`;
+    } else {
+        this.shadowRoot.innerHTML = `<style>a:hover, a:active { outline: 0; }\na { color: #5197ad; }\na:visited { color: #5197ad; }\na:hover { color: #266477; outline: 0; }</style><a href="${href}"><slot></slot></a>`;
+    }
+    this._$a = this.shadowRoot.querySelector("a");
+    this._$a.addEventListener("click", e => {
+      var url = this.getAttribute('href');
+      e.preventDefault();
+      if (document.referrer.startsWith('https://lms.hypothes.is') && this.dataset.hasOwnProperty('canvas')) {
+        // get rid of proxy if it was added
+        var n = this.dataset.canvas.search('https://olin.instructure.com');
+        window.open(this.dataset.canvas.substring(n), '_blank');
+      } else {
+        window.open(url, '_blank');
+      }
+    });
+  }
+  static get observedAttributes() { return ["href"]; }
+  attributeChangedCallback(name, oldValue, newValue) {
+    if (oldValue !== newValue) {
+      if (this._$a === null) return;
+      this._$a.setAttribute("href", newValue);
+    }
+  }
+}
+
+customElements.define("a-no-proxy", AnchorNoProxy);
+
+class NoProxy extends HTMLAnchorElement {
+  connectedCallback() {
+    this.addEventListener("click", e => {
+      e.preventDefault();
+      if (document.referrer.startsWith('https://lms.hypothes.is') && this.dataset.hasOwnProperty('canvas')) {
+        // get rid of proxy if it was added
+        var n = this.dataset.canvas.search('https://olin.instructure.com');
+      	window.open(this.dataset.canvas.substring(n), '_blank');
+      } else {
+      	window.open(this.href, '_blank');
+      }
+    });
+  }
+}
+
+customElements.define("no-proxy", NoProxy, { extends: "a" });
+
+class ConfirmLink extends HTMLAnchorElement {
+  connectedCallback() {
+    this.addEventListener("click", e => {
+      const result = confirm(`Are you sure you want to go to '${this.href}'?`);
+      if (!result) e.preventDefault();
+    });
+  }
+}
+
+customElements.define("confirm-link", ConfirmLink, { extends: "a" });
+
+</script>
+
+<!-- begin _includes/seo.html --><title>Assignment 5: Divide and Conquer and Dynamic Programming - Data Structures Fall 2026 @ Olin College</title>
+<meta name="description" content="">
+
+
+
+<meta property="og:type" content="website">
+<meta property="og:locale" content="en_US">
+<meta property="og:site_name" content="Data Structures Fall 2026 @ Olin College">
+<meta property="og:title" content="Assignment 5: Divide and Conquer and Dynamic Programming">
+<meta property="og:url" content="/assignments/assignment_05.html">
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="canonical" href="/assignments/assignment_05.html">
+
+
+
+
+<script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    
+      "@type": "Person",
+      "name": null,
+      "url": "/"
+    
+  }
+</script>
+
+
+
+
+
+
+<!-- end _includes/seo.html -->
+
+
+<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="Data Structures Fall 2026 @ Olin College Feed">
+
+<!-- https://t.co/dKP3o1e -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script>
+  document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/g, '') + ' js ';
+</script>
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="/assets/css/main.css">
+
+<!--[if IE]>
+  <style>
+    /* old IE unsupported flexbox fixes */
+    .greedy-nav .site-title {
+      padding-right: 3em;
+    }
+    .greedy-nav button {
+      position: absolute;
+      top: 0;
+      right: 0;
+      height: 100%;
+    }
+  </style>
+<![endif]-->
+
+
+
+    <!-- start custom head snippets -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11.9.0/dist/mermaid.min.js"></script>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.28/dist/katex.min.css" integrity="sha384-Wsr4Nh3yrvMf2KCebJchRJoVo1gTU6kcP05uRSh5NV3sj9+a8IomuJoQzf3sMq4T" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.28/dist/katex.min.js" integrity="sha384-+W9OcrYK2/bD7BmUAk+xeFAyKp0QjyRQUCxeU31dfyTt/FrPsUgaBTLLkVf33qWt" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.28/dist/contrib/auto-render.min.js" integrity="sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh" crossorigin="anonymous"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", async function () {
+  // Render Mermaid first, from untouched source.
+  mermaid.initialize({ startOnLoad: false });
+  await mermaid.run(); // renders all .mermaid blocks
+
+  // render KaTeX
+  renderMathInElement(document.body, {
+          delimiters: [
+              {left: '$$', right: '$$', display: true},
+              {left: '$', right: '$', display: false},
+              {left: '\\(', right: '\\)', display: false},
+              {left: '\\[', right: '\\]', display: true}
+          ],
+    throwOnError: false,
+  });
+});
+</script>
+
+<script type="text/javascript">
+function HideShowElement(divID) {
+    const x = document.getElementById(divID);
+    if (x.style.display === "none") {
+        x.style.display = "block";
+    } else {
+        x.style.display = "none";
+    }
+}
+</script>
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+
+<!-- insert favicons. use https://realfavicongenerator.net/ -->
+
+<!-- end custom head snippets -->
+
+  </head>
+
+  <body class="layout--single">
+    <nav class="skip-links">
+  <h2 class="screen-reader-text">Skip links</h2>
+  <ul>
+    <li><a href="#site-nav" class="screen-reader-shortcut">Skip to primary navigation</a></li>
+    <li><a href="#main" class="screen-reader-shortcut">Skip to content</a></li>
+    <li><a href="#footer" class="screen-reader-shortcut">Skip to footer</a></li>
+  </ul>
+</nav>
+
+    <!--[if lt IE 9]>
+<div class="notice--danger align-center" style="margin: 0;">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience.</div>
+<![endif]-->
+
+    
+
+<div class="masthead">
+  <div class="masthead__inner-wrap">
+    <div class="masthead__menu">
+      <nav id="site-nav" class="greedy-nav">
+        
+          <a class="site-logo" href="/"><img src="https://qeacourse.github.io/RoboNinjaWarrior/website_graphics/olinlogo.png" alt=""></a>
+        
+        <a class="site-title" href="/">
+          Data Structures Fall 2026 @ Olin College
+          
+        </a>
+        <ul class="visible-links"></ul>
+        
+        <button class="greedy-nav__toggle hidden" type="button">
+          <span class="visually-hidden">Toggle menu</span>
+          <div class="navicon"></div>
+        </button>
+        <ul class="hidden-links hidden"></ul>
+      </nav>
+    </div>
+  </div>
+</div>
+
+
+    <div class="initial-content">
+      
+
+
+
+<div id="main" role="main">
+  
+
+  <article class="page" itemscope itemtype="https://schema.org/CreativeWork">
+    <meta itemprop="headline" content="Assignment 5: Divide and Conquer and Dynamic Programming">
+    
+    
+    
+
+    <div class="page__inner-wrap">
+      
+        <header>
+          <h1 id="page-title" class="page__title" itemprop="headline">Assignment 5: Divide and Conquer and Dynamic Programming
+</h1>
+          
+        </header>
+      
+
+      <section class="page__content" itemprop="text">
+        
+          <aside class="sidebar__right sticky">
+            <nav class="toc">
+              <header><h4 class="nav__title"><i class="fas fa-file-alt"></i> On this page</h4></header>
+	      
+                <ul class="toc__menu">
+  <li><a href="#overview">Overview</a></li>
+  <li><a href="#part-1-creating-a-matrix-class">Part 1: Creating a matrix class</a></li>
+  <li><a href="#part-2-strassens-algorithm-for-matrix-multiplication">Part 2: Strassen’s Algorithm for Matrix Multiplication</a></li>
+  <li><a href="#part-3-dynamic-programming-for-aligning-protein-sequences">Part 3: Dynamic Programming for Aligning Protein Sequences</a></li>
+  <li><a href="#turning-in-your-work">Turning in your work</a></li>
+  <li><a href="#assessment">Assessment</a></li>
+</ul>
+	      	
+            </nav>
+          </aside>
+        
+        <h2 id="overview">Overview</h2>
+
+<p>This assignment is about solving problems using by breaking the problem down into smaller problems and then reassembling the solutions to the smaller problems into the solution to the original problem.  We will use a combination of divide and conquer algorithms and dynamic programming to solve these problems.</p>
+
+<h2 id="part-1-creating-a-matrix-class">Part 1: Creating a matrix class</h2>
+
+<p>For the first part of the assignment, we will be learning about a divide-and-conquer algorithm for matrix multiplication called <a href="https://en.wikipedia.org/wiki/Strassen_algorithm">Strassen’s Algorithm</a>.</p>
+
+<p>To get started, create Kotlin class capable of storing square matrices.  I won’t be overly prescriptive about how you write your class, but you should support basic operations like creating a matrix of size $n$, setting / getting values at specified row and column indices, dividing the matrix into four $n/2 \times n/2$ matrices (this is needed for Strassen).  Don’t worry about matrix multiplication yet, that’s coming!</p>
+
+<blockquote class="notice--success">
+  <p><strong>Pro tips:</strong></p>
+
+  <ul>
+    <li>You can make your matrix class especially nice by overloading operators (e.g., <code class="language-plaintext highlighter-rouge">+</code>, <code class="language-plaintext highlighter-rouge">*</code>). This will let you do things like <code class="language-plaintext highlighter-rouge">A * B</code> (assuming you have two <code class="language-plaintext highlighter-rouge">Matrix</code> objects <code class="language-plaintext highlighter-rouge">A</code> and <code class="language-plaintext highlighter-rouge">B</code>).  If you don’t use overloading, you might write <code class="language-plaintext highlighter-rouge">A.multiply(B)</code>.  For more information, check out <a href="https://kotlinlang.org/docs/operator-overloading.html">the Kotlin documentation on operator overloading</a>.</li>
+    <li>To store the underlying data for your matrix, I have two recommendations.  First, you could store your data using an array of arrays structure (e.g., <code class="language-plaintext highlighter-rouge">val data: Array&lt;DoubleArray&gt; = Array(n) { DoubleArray(n) }</code>).  Second, you could store your data as a linear array (e.g., <code class="language-plaintext highlighter-rouge">DoubleArray(n*n)</code>) where the first row is laid out as the first <code class="language-plaintext highlighter-rouge">n</code> elements of the array, the next row is the following <code class="language-plaintext highlighter-rouge">n</code> elements of the array, etc.  This type of storage is called <em>row major</em> ordering.</li>
+  </ul>
+</blockquote>
+
+<h2 id="part-2-strassens-algorithm-for-matrix-multiplication">Part 2: Strassen’s Algorithm for Matrix Multiplication</h2>
+
+<p>Add the functions <code class="language-plaintext highlighter-rouge">multiply</code> and <code class="language-plaintext highlighter-rouge">strassenMultiply</code> to your matrix class. These functions should do the following (note: here I’m using <code class="language-plaintext highlighter-rouge">Matrix</code> as a stand-in for whatever you call your class from part 1 of the assignment)</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">class</span> <span class="nc">Matrix</span> <span class="p">{</span>
+    <span class="c1">// ... (other stuff omitted)</span>
+    
+    <span class="cm">/**
+     * Multiply [this] matrix by [other].
+     * You can implement this either using block-based matrix multiplication or
+     * traditional matrix multiplication (the kind you learn about in math
+     * classes!)
+     * @return [this]*[other] if the dimensions are compatible and null otherwise
+     */</span>
+    <span class="k">fun</span> <span class="nf">multiply</span><span class="p">(</span><span class="n">other</span><span class="p">:</span> <span class="nc">Matrix</span><span class="p">):</span><span class="nc">Matrix</span><span class="p">?</span> <span class="p">{</span>
+        <span class="c1">// your implementation here</span>
+    <span class="p">}</span>
+
+
+    <span class="cm">/**
+     * Multiply [this] matrix by [other].
+     * Your code should use Strassen's algorithm
+     * @return [this]*[other] if the dimensions are compatible and null otherwise
+     */</span>
+    <span class="k">fun</span> <span class="nf">strassenMultiply</span><span class="p">(</span><span class="n">other</span><span class="p">:</span> <span class="nc">Matrix</span><span class="p">):</span><span class="nc">Matrix</span><span class="p">?</span> <span class="p">{</span>
+        <span class="c1">// your implementation here</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<blockquote class="notice--danger">
+  <p>Warning: there are some writeups of Strassen’s algorithm that have errors in them.  Last time I ran this course, we found at least two different sets of class notes that had errors.  If you go from description on the Wikipedia page, then you should be good.</p>
+</blockquote>
+
+<p>Write some unit tests to show your code is correct.</p>
+
+<ul>
+  <li>Time Strassen and regular matrix multiplication on various size problems.</li>
+  <li>You may find the Strassen does not reliably outperform conventional matrix multiplication.  A hybrid approach may work better where you use conventional matrix multiplication for smaller matrices and Strassen for larger matrices.  What appears to be the optimal size matrix where you should switch between Strassen and conventional multiplication?</li>
+</ul>
+
+<blockquote class="notice--warning">
+  <p>What to turn in for this part:</p>
+  <ul>
+    <li>Your Matrix class with all operations implemented, unit tested, and documented.</li>
+    <li>Benchmarks (meaning the runtime) of the two algorithms (as described above).</li>
+    <li>Your analysis of the performance of a hybrid algorithm that uses Strassen for large matrices and switches to conventional matrix multiplication for smaller matrices.</li>
+  </ul>
+</blockquote>
+
+<h2 id="part-3-dynamic-programming-for-aligning-protein-sequences">Part 3: Dynamic Programming for Aligning Protein Sequences</h2>
+
+<p>Watch the following video <a href="https://www.youtube.com/watch?v=dYuktSSPfYQ">on the sequence alignment problem</a>.  Hopefully, it will give some good motivation behind what the problem is and why it’s important.  There is also <a href="https://www.youtube.com/watch?v=Lsa-VfSQgt4">a walkthrough of Needleman-Wunsch</a> that is pretty good.</p>
+
+<p>Implement either the <a href="https://en.wikipedia.org/wiki/Needleman%E2%80%93Wunsch_algorithm">Needleman-Wunsch Algorithm</a> or the <a href="https://en.wikipedia.org/wiki/Smith%E2%80%93Waterman_algorithm">Smith-Waterman Algorithm</a> for sequence alignment.  Needleman-Wunsch is used for aligning two DNA sequences globally (an alignment between the entirety of each sequence is returned).  Smith-Waterman finds a local sequence alignment (it finds a part from each of the sequences that align well to each other).</p>
+
+<p>You may find <a href="https://rna.informatik.uni-freiburg.de/Teaching/index.jsp?toolName=Needleman-Wunsch">this resource</a> useful for testing your code and understanding the algorithms.  The Wikipedia pages are also a nice source for unit tests.</p>
+
+<p>Your code should find both the best alignment and use backtracing to display the alignment itself.  You should use dynamic programming when implementing your algorithm.</p>
+
+<p>Run your code on <a href="https://github.com/OlinDSA2024/DivideAndConquerSample/blob/main/src/main/kotlin/Genome.kt">the DNA sequence in this Kotlin file</a>.  This file has three variables.</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">genomeSnippet</code> is a snippet of a Salmonella genome.</li>
+  <li><code class="language-plaintext highlighter-rouge">targetGenome</code> is a long section of the Salmonella DNA (<code class="language-plaintext highlighter-rouge">genomeSnippet</code> is contained completely within this string)</li>
+  <li><code class="language-plaintext highlighter-rouge">testAgainst</code> is a different segment from the Salmonella genome (not exactly the same as <code class="language-plaintext highlighter-rouge">genomeSnippet</code>) that you can use for matching.</li>
+</ul>
+
+<p>If you are doing Smith-waterman you would match <code class="language-plaintext highlighter-rouge">testAgainst</code> and <code class="language-plaintext highlighter-rouge">targetGenome</code>.  If all goes well, you should find that <code class="language-plaintext highlighter-rouge">testAgainst</code> matches well to the portion of <code class="language-plaintext highlighter-rouge">targetGenome</code> that contains <code class="language-plaintext highlighter-rouge">genomeSnippet</code>.</p>
+
+<p>If you are doing Needleman-Wunch, you can match <code class="language-plaintext highlighter-rouge">genomeSnippet</code> against <code class="language-plaintext highlighter-rouge">testAgainst</code>.  You should find that your algorithm is able to closely align the two sequences.</p>
+
+<p>Here is an alignment between part of a Salmonella genome and another part of the same genome.</p>
+
+<p><img src="/images/alignmentsample.jpg" alt="A sequence alignment" /></p>
+
+<p>I got this alignment by using a tool call <a href="https://blast.ncbi.nlm.nih.gov/Blast.cgi?PROGRAM=blastn&amp;PAGE_TYPE=BlastSearch&amp;LINK_LOC=blasthome">Nucleotide blast</a> on <code class="language-plaintext highlighter-rouge">genomeSnippet</code> and selecting optimize for somewhat similar sequences.  The two parts of the alignment correspond to proteins that help the Salmonella cell infect the cells of the body.  One protein helps with the initial entry into the cell whereas the other protein helps with manipulating the functions of the cell the bacteria has entered the cell.</p>
+
+<blockquote class="notice--warning">
+  <p>What to turn in for this part:</p>
+  <ul>
+    <li>Your implementation of one of the two algorithms for sequence alignment.  Functions should be unit tested and commented.</li>
+    <li>The result of running your code on the provided DNA sequences.  This should consist of the best matching sequence to the query.</li>
+  </ul>
+</blockquote>
+
+<h2 id="turning-in-your-work">Turning in your work</h2>
+
+<p>Submit a link to a repository that has your code and writeup.  Make sure to add <code class="language-plaintext highlighter-rouge">paulruvolo</code> as a collaborator if the repo is private.  See the <strong>what to turn in for this part</strong> sections above for guidance on completing each part.</p>
+
+<h2 id="assessment">Assessment</h2>
+
+<p>See the rubric on Canvas.</p>
+
+        
+      </section>
+
+      <footer class="page__meta">
+        
+        
+
+
+        
+      </footer>
+
+      
+
+      
+    </div>
+
+    
+  </article>
+
+  
+  
+</div>
+
+    </div>
+
+    
+
+    <div id="footer" class="page__footer">
+      <footer>
+        <!-- start custom footer snippets -->
+
+<!-- end custom footer snippets -->
+        <div class="page__footer-follow">
+  <ul class="social-icons">
+    
+
+    
+  </ul>
+</div>
+
+<div class="page__footer-copyright">&copy; 2026 Data Structures Fall 2026 @ Olin College.</div>
+
+      </footer>
+    </div>
+
+    <script src="/assets/js/copyCode.js"></script>
+
+
+  <script src="/assets/js/main.min.js"></script>
+  <script src="https://kit.fontawesome.com/4eee35f757.js"></script>
+
+
+
+
+
+
+
+
+
+
+  </body>
+</html>
