@@ -8,7 +8,7 @@ published: true
 
 Our first oral quiz will be assigned this Thursday (the 9th) and due Monday the 19th.  This is not at all required, but the CAs are running some practice sessions for people if they want to get a flavor for what the oral quizzes will be like.
 
-TODO: post availability.
+* This is a placeholder for where I'll post Aidan and Evi's availability.
 
 ## Divide and Conquer and Intro to Dynamic Programming
 
