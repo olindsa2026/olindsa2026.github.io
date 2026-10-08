@@ -1,5 +1,5 @@
 ---
-title: "Day 12: Dynamic Programming Wrapup and Starting Our Deep Dive"
+title: "Day 12: Dynamic Programming Wrap-up and Starting Our Deep Dive"
 toc_sticky: true
 published: true
 ---
