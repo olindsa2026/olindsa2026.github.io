@@ -271,6 +271,7 @@ function HideShowElement(divID) {
   <li><a href="#oral-quiz-1">Oral Quiz 1</a></li>
   <li><a href="#dynamic-programming-general-structure">Dynamic Programming General Structure</a></li>
   <li><a href="#practice-problems">Practice Problems</a></li>
+  <li><a href="#strassens-algorithm-intuition">Strassen’s Algorithm Intuition</a></li>
 </ul>
 	      	
             </nav>
@@ -280,7 +281,7 @@ function HideShowElement(divID) {
 
 <p>First, sign up for a time to meet with me (see link on Canvas).  You need to make it to this time unless something catastrophic happens.</p>
 
-<p>Here are some things I noticed in the practice quizzes.</p>
+<p>Here are some things I noticed in the practice quizzes (Note: this is from last year, but the advice is still relevant).</p>
 <ul>
   <li>When determining runtimes (non divide and conquer), figure out what are the main steps you have to perform, determine how many operations each step takes, and then add up the total number of operations.  Conclude by converting to $\Theta$.</li>
   <li>For divide and conquer algorithms, be ready to draw a tree diagram or use the master theorem.</li>
@@ -301,32 +302,41 @@ function HideShowElement(divID) {
 
 <h2 id="practice-problems">Practice Problems</h2>
 
-<p>(You won’t be able to do all of these.  This is just for reference.  Turn in what you’d like.)</p>
+<blockquote>
+  <p><strong>Exercise 0 (as a class)</strong>
+We’ll go over the solution to exercise 4 from the previous day.</p>
+</blockquote>
 
 <blockquote class="notice--success">
   <p><strong>Exercise 1</strong></p>
 
-  <p>Change making.  Given $n$ different coin denominations worth $x_1, x_2, \ldots, x_n$ cents and a target value of $D$ cents, determine the minimum number of coins you can use to add up exactly $D$ cents.  You can use as many of each denomination of coin as you’d like.  Solve the problem using dynamic programming where you create a table to store the solutions to various subproblems, fill out rows and/or columns of the table that correspond to small or easy to solve subproblem, and then determine a rule for filling out the rest of the table.  Finally, determine how you would compute the solution to your original problem by referencing a particular cell in your table.</p>
+  <p>Revisit the maximum contiguous subsequence problem from last class.  Instead of using divide and conquer, use dynamic programming.  We’re planning to use this one as an intuition building exercise, so don’t look up the solution until you’ve had a chance to really sit with this problem.</p>
 
-  <p>Bonus question (if you have time): can you modify your approach to count the number of ways you can make change for $D$ cents.</p>
+  <p>Here is a potential sequence for how you might break this problem down</p>
+  <ul>
+    <li>First, write an example on the board and make sure you understand what the problem is asking.  Compute the solution to your example by hand.</li>
+    <li>Consider a set of smaller problems that you could solve that might be useful to solving the full problem.  What space does this set of problems live in (Is it a table or a list?).  Start by thinking of a problem you could solve without referencing a solution to a smaller problem.</li>
+    <li>See if you can come up with a rule to solve a larger instance of the space of problems you came up with above by referencing the solution to the smaller problems.  If you find that you are unable to come up with a rule to solve this larger problem, perhaps revisit the definition of the subproblems in the previous step (you may need to tweak them).</li>
+    <li>Assuming you can find a recipe for solving larger problems in terms of smaller ones, now extract the overall solution to the problem from the solutions to the smaller problems.</li>
+  </ul>
+</blockquote>
+
+<blockquote class="notice--warning">
+  <p><strong>Solution 1</strong></p>
+
+  <iframe width="560" height="315" src="https://www.youtube.com/embed/sPtrhdlCxaE?si=M7jgNiKG3CSVhhPr" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen=""></iframe>
 </blockquote>
 
 <blockquote class="notice--success">
   <p><strong>Exercise 2</strong></p>
 
-  <p>The Longest Common Subsequence (LCS) problem asks: given two sequences, what is the longest sequence that appears in both of them in the same order? In other words, it’s the longest sequence that you can form by deleting some elements (without changing the order) from each of the two original sequences.</p>
+  <p>Change making part 2.  Given $n$ different coin denominations worth $x_1, x_2, \ldots, x_n$ cents and a target value of $D$ cents, determine the minimum number of coins you can use to add up exactly $D$ cents.  You can use as many of each denomination of coin as you’d like.  Solve the problem using dynamic programming where you create a table to store the solutions to various subproblems, fill out rows and/or columns of the table that correspond to small or easy to solve subproblem, and then determine a rule for filling out the rest of the table.  Finally, determine how you would compute the solution to your original problem by referencing a particular cell in your table.</p>
 </blockquote>
 
 <blockquote class="notice--success">
   <p><strong>Exercise 3</strong></p>
 
-  <p>Revisit the maximum contiguous subsequence problem from last class.  Instead of using divide and conquer, use dynamic programming.</p>
-</blockquote>
-
-<blockquote class="notice--warning">
-  <p><strong>Solution 3:</strong></p>
-
-  <iframe width="560" height="315" src="https://www.youtube.com/embed/sPtrhdlCxaE?si=M7jgNiKG3CSVhhPr" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen=""></iframe>
+  <p>The Longest Common Subsequence (LCS) problem asks: given two sequences, what is the longest sequence that appears in both of them in the same order? In other words, it’s the longest sequence that you can form by deleting some elements (without changing the order) from each of the two original sequences.</p>
 </blockquote>
 
 <blockquote class="notice--success">
@@ -345,6 +355,79 @@ function HideShowElement(divID) {
 
   <p>Output: Knapsack value is 60 value = 20 + 40 = 60 (weight = 1 + 8 = 9 &lt; W)</p>
 </blockquote>
+
+<h2 id="strassens-algorithm-intuition">Strassen’s Algorithm Intuition</h2>
+
+<p>On your homework, you will be implementing Strassen’s algorithm for matrix multiplication.  The algorithm builds on the idea of blockwise matrix multiplication that we saw last class, but through some clever algebra, we can eliminate one of the recursive calls.</p>
+
+\[A = \begin{bmatrix}
+A_{11} &amp; A_{12} \\
+A_{21} &amp; A_{22}
+\end{bmatrix},
+\quad
+B = \begin{bmatrix}
+B_{11} &amp; B_{12} \\
+B_{21} &amp; B_{22}
+\end{bmatrix},
+\quad
+C = \begin{bmatrix}
+C_{11} &amp; C_{12} \\
+C_{21} &amp; C_{22}
+\end{bmatrix}\]
+
+\[\begin{aligned}
+M_1 &amp;= (A_{11} + A_{22}) \times (B_{11} + B_{22}) \\
+M_2 &amp;= (A_{21} + A_{22}) \times B_{11} \\
+M_3 &amp;= A_{11} \times (B_{12} - B_{22}) \\
+M_4 &amp;= A_{22} \times (B_{21} - B_{11}) \\
+M_5 &amp;= (A_{11} + A_{12}) \times B_{22} \\
+M_6 &amp;= (A_{21} - A_{11}) \times (B_{11} + B_{12}) \\
+M_7 &amp;= (A_{12} - A_{22}) \times (B_{21} + B_{22})
+\end{aligned}\]
+
+\[\begin{bmatrix}
+C_{11} &amp; C_{12} \\
+C_{21} &amp; C_{22}
+\end{bmatrix}
+=
+\begin{bmatrix}
+M_1 + M_4 - M_5 + M_7 &amp; M_3 + M_5 \\
+M_2 + M_4 &amp; M_1 - M_2 + M_3 + M_6
+\end{bmatrix}\]
+
+<p>Wow!  To build some confidence as to how this can possibly be true, let’s look at one block of the resultant matrix $C$.  In traditional blockwise matrix multiplication:</p>
+
+\[C_{11} = A_{11}B_{11} + A_{12}B_{21}\]
+
+<p>Strassen’s algorithm instead computes:</p>
+
+\[C_{11} = M_1 + M_4 - M_5 + M_7\]
+
+<p>Substituting the definitions:</p>
+
+\[\begin{aligned}
+C_{11} ={}&amp;
+(A_{11}+A_{22})(B_{11}+B_{22})\\
+&amp;+ A_{22}(B_{21}-B_{11})\\
+&amp;- (A_{11}+A_{12})B_{22}\\
+&amp;+ (A_{12}-A_{22})(B_{21}+B_{22})
+\end{aligned}\]
+
+<p>Expanding each product:</p>
+
+\[\begin{aligned}
+C_{11} ={}&amp;
+A_{11}B_{11}+A_{11}B_{22}
++A_{22}B_{11}+A_{22}B_{22}\\
+&amp;+A_{22}B_{21}-A_{22}B_{11}\\
+&amp;-A_{11}B_{22}-A_{12}B_{22}\\
+&amp;+A_{12}B_{21}+A_{12}B_{22}
+-A_{22}B_{21}-A_{22}B_{22}
+\end{aligned}\]
+
+<p>After canceling terms:</p>
+
+\[\boxed{C_{11} = A_{11}B_{11} + A_{12}B_{21}}\]
 
         
       </section>
