@@ -1,3 +1,4 @@
+@charset "UTF-8";
 /* ========================================================================== Default skin ========================================================================== */
 /*!
  * Minimal Mistakes Jekyll Theme 4.17.2 by Michael Rose
@@ -1270,3 +1271,25 @@ body { display: -webkit-box; display: -ms-flexbox; display: flex; min-height: 10
 .solution__body { padding: 0.2em 0.8em 0.6em; }
 .solution__body > :first-child { margin-top: 0.6em; }
 .solution__body > :last-child { margin-bottom: 0; }
+
+/* ========================================================================== Instructor-only material Shown on screen, dropped from the printout (see the print rules below). Use this for whole blocks that are not answers to a specific question, e.g. the backup sorting implementations on the oral quiz. ========================================================================== */
+.instructor-only { margin: 1.2em 0; padding: 0.1em 1em 0.6em; border: 1px dashed #b7bbbe; border-radius: 4px; }
+.instructor-only::before { content: "Instructor only — omitted from printout"; display: block; margin: 0.9em 0 0.3em; font-family: -apple-system, BlinkMacSystemFont, "Roboto", "Segoe UI", "Helvetica Neue", "Lucida Grande", Arial, sans-serif; font-size: 0.72em; font-weight: bold; letter-spacing: 0.05em; text-transform: uppercase; color: #6f777d; }
+
+/* ========================================================================== PRINT The theme's own _print.scss already drops the masthead, TOC, sidebar and footer.  These rules add two things on top of that: keep answers off the student handout, and make code blocks legible on paper. ========================================================================== */
+@media print { /* Nothing written for the instructor goes on the handout. */
+  .solution, .instructor-only, .no-print { display: none !important; }
+  /* The copy-to-clipboard control is meaningless on paper. */
+  .copy-code-button, .code-header { display: none !important; }
+  /* Syntax highlighting is tuned for a screen, so its greys and pastels come out far too faint in print.  Force plain black on white instead. */
+  div.highlighter-rouge, figure.highlight, .highlight, pre, pre.highlight, code, kbd, samp, tt { background-color: #fff !important; color: #000 !important; }
+  /* Rouge wraps every token in its own coloured span. */
+  .highlight span { color: #000 !important; background: transparent !important; }
+  /* Put the distinctions back in a way that survives a black and white printer: comments go italic, keywords and function names go bold. */
+  .highlight .c, .highlight .c1, .highlight .cm, .highlight .cs, .highlight .cd, .highlight .cp { color: #444 !important; font-style: italic; }
+  .highlight .k, .highlight .kc, .highlight .kd, .highlight .kn, .highlight .kp, .highlight .kr, .highlight .kt, .highlight .nf, .highlight .nd { font-weight: bold; }
+  /* Give the block a real edge now that the background fill is gone, and keep it on one page. */
+  div.highlighter-rouge, figure.highlight { border: 1px solid #000 !important; border-radius: 0; page-break-inside: avoid; }
+  div.highlighter-rouge pre, figure.highlight pre { font-size: 0.78rem; line-height: 1.45; }
+  /* Inline `code` also needs an edge once its grey fill is dropped. */
+  p > code, li > code, td > code { border: 1px solid #999 !important; padding: 0 0.2em; } }
