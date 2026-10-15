@@ -6,7 +6,7 @@ published: true
 
 ## More Practice With Dynamic Programming
 
-For the first half of class you can either work on assignment 5 or try some more dynamic programming problems.  You may not have finished the problems from last time, so feel free to do those.  You can also look for additional problems, by searching for terms like "dynamic programming sample problems".  You will get some like:
+For the first half of class, you can work on some more dynamic programming problems.  You may not have finished the problems from last time, so feel free to do those.  You can also look for additional problems, by searching for terms like "dynamic programming sample problems".  You will get some like:
 * [Longest Increasing Subsequence](https://www.techiedelight.com/longest-increasing-subsequence-using-dynamic-programming/)
 * [Matrix Chain Multiplication](https://www.techiedelight.com/matrix-chain-multiplication/)
 

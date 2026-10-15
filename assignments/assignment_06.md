@@ -1,7 +1,7 @@
 ---
 title: "Assignment 6: Individual Deep Dive"
 toc_sticky: true
-published: false
+published: true
 due_on_class: 15
 ---
 
@@ -27,7 +27,7 @@ Turn in a project proposal that lays out your plan for the project.  Clearly spe
 ### Other Deliverables (8 points)
 
 You are required to include a brief summary of what you did for the project and a summary of all other deliverables.   Some other deliverables you might have (***this is a list of options... you will not have all of these***):
-* Kotlin code (so you will want to send a link to a repository).
+* Code (so you will want to send a link to a repository).
 * A summary of how an algorithm a particular algorithm you studied works
 * A report on former and current applications of your algorithm.
 * A report on the changes in performance that resulted in optimizing your code.
@@ -37,7 +37,7 @@ You are required to include a brief summary of what you did for the project and 
 
 Think back to why you took this class.  Are there learning goals that you would like to bolster now that we are roughly halfway through the semester?  Is there a new area you learned about that you are excited about that you want to investigate in greater detail?  What sort of work do you want your project experience to consist of (e.g., writing code, reading papers, recording a whiteboard walkthrough of an algorithm)?
 
-## Some Sample Projects from Last Time
+## Some Sample Projects from Past DSA Courses
 
 * learn about the [KMP algorithm](https://en.wikipedia.org/wiki/Knuth%E2%80%93Morris%E2%80%93Pratt_algorithm) and use it to efficiently implement a find / replace feature.
 * Implement and benchmark the Fast Fourier Transform (FFT)
