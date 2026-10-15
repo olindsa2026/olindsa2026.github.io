@@ -2,7 +2,7 @@
 title: "Assignment 5: Divide and Conquer and Dynamic Programming"
 toc_sticky: true
 published: true
-due_on_class: 12
+due_on_class: 13
 ---
 
 ## Overview
