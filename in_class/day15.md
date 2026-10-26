@@ -79,7 +79,7 @@ This design should bring to mind two questions:
 
 With respect to question 1, there are two commonly used schemes.  The first is called **separate chaining**.  In separate chaining, instead of storing the values directly in the buckets, each bucket points to an association list that stores the key-value pairs.  In the example of the phone book, separate chaining would look like this.
 
-![A hash table with separate chaining](https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/Hash_table_5_0_1_1_1_1_1_LL.svg/900px-Hash_table_5_0_1_1_1_1_1_LL.svg.png).  credit: Wikimedia ([license](https://commons.wikimedia.org/wiki/File:Hash_table_5_0_1_1_1_1_1_LL.svg))
+![A hash table with separate chaining](https://upload.wikimedia.org/wikipedia/commons/5/5a/Hash_table_5_0_1_1_1_1_0_LL.svg).  credit: Wikimedia ([license](https://commons.wikimedia.org/wiki/File:Hash_table_5_0_1_1_1_1_1_LL.svg))
 
 Notice how the John Smith and Sandra Dee both map to the same bucket (this is called a *collision*), which points to a two element association list.  Separate chaining works well when the load factor (defined as the ratio of the number of elements stored, $n$, to the number of buckets, $m$) is less than 3 ([citation](https://www.cs.cornell.edu/courses/cs312/2008sp/lectures/lec20.html)).  When the load factor exceeds some specified threshold, the table must be rehashed (meaning each element must be reinserted with a new hashing function where with a larger number of buckets).
 
@@ -87,7 +87,7 @@ An alternative to separate chaining is direct addressing.  When using direct add
 
 In linear probing, when you insert an item and a collision occurs, you simply search ahead in your array into you find an unused bucket and place the value there.  This scheme requires updating your algorithm for lookup and deletion of elements accordingly.  Here is what our running example would look like when using linear probing.
 
-![A phonebook stored with linear probing](https://upload.wikimedia.org/wikipedia/commons/thumb/9/90/HASHTB12.svg/600px-HASHTB12.svg.png)  credit: Wikimedia ([license](https://commons.wikimedia.org/wiki/File:HASHTB12.svg))
+![A phonebook stored with linear probing](https://upload.wikimedia.org/wikipedia/commons/b/bf/Hash_table_5_0_1_1_1_1_0_SP.svg)  credit: Wikimedia ([license](https://commons.wikimedia.org/wiki/File:HASHTB12.svg))
 
 Notice how the colliding elements are now stored in two separate buckets located sequentially in the array.
 
@@ -140,6 +140,25 @@ In division hashing, we typically choose $m$ to be a prime number (we also requi
 > **Exercise 4**
 > Let's examine why we might want to choose our table size to be a prime number.  Suppose we are hashing the first 50 non-negative even numbers (0 through 98).  Let $h_1(k) = mod(k, 13)$ and $h_2(k) = mod(k, 16)$.  Show that despite the $h_1$ using fewer bins, it will result in better utilization of its bins than $h_2$.
 {: .notice--success}
+
+> **(Optional) Theoretical Background**
+> 
+> It turns out that there is some interesting number theory that underlies this result.  The theory of [cyclic groups](https://en.wikipedia.org/wiki/Cyclic_group) can be applied.  In this case, if we have look at the set of integers $\mathbb{Z}_n$, which includes the integers $0, 1, 2, \ldots n-1$, there is a result that says that if we start at 0 and keep adding any number $k$ (modding by $n$ when needed) such that $n$ and $k$ are relatively prime, we will eventually cover all values in $\mathbb{Z}_n$.
+> 
+> Here is an example showing this.
+> Let's set $n=7$ and $k=4$.
+> 
+> $$\begin{align*}
+> 4 &\equiv 4\text{ (mod 7)} \\
+> 4 + 4 &\equiv 1\text{ (mod 7)} \\
+> 4 + 4 + 4 &\equiv 5\text{ (mod 7)} \\
+> 4 + 4 + 4 + 4 &\equiv 2\text{ (mod 7)} \\
+> 4 + 4 + 4 + 4 + 4 &\equiv 6\text{ (mod 7)} \\
+> 4 + 4 + 4 + 4 + 4 + 4 &\equiv 3\text{ (mod 7)} \\
+> 4 + 4 + 4 + 4 + 4 + 4 + 4 &\equiv 0\text{ (mod 7)} \\
+> 4 + 4 + 4 + 4 + 4 + 4 + 4 + 4 &\equiv 4\text{ (mod 7)}
+> \end{align*}$$
+{: .notice--warning}
 
 
 ### More Hashing Algorithms
