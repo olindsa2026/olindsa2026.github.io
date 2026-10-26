@@ -366,7 +366,7 @@ credit: Wikimedia (<a href="https://commons.wikimedia.org/wiki/File:Hash_table_3
 
 <p>With respect to question 1, there are two commonly used schemes.  The first is called <strong>separate chaining</strong>.  In separate chaining, instead of storing the values directly in the buckets, each bucket points to an association list that stores the key-value pairs.  In the example of the phone book, separate chaining would look like this.</p>
 
-<p><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/Hash_table_5_0_1_1_1_1_1_LL.svg/900px-Hash_table_5_0_1_1_1_1_1_LL.svg.png" alt="A hash table with separate chaining" />.  credit: Wikimedia (<a href="https://commons.wikimedia.org/wiki/File:Hash_table_5_0_1_1_1_1_1_LL.svg">license</a>)</p>
+<p><img src="https://upload.wikimedia.org/wikipedia/commons/5/5a/Hash_table_5_0_1_1_1_1_0_LL.svg" alt="A hash table with separate chaining" />.  credit: Wikimedia (<a href="https://commons.wikimedia.org/wiki/File:Hash_table_5_0_1_1_1_1_1_LL.svg">license</a>)</p>
 
 <p>Notice how the John Smith and Sandra Dee both map to the same bucket (this is called a <em>collision</em>), which points to a two element association list.  Separate chaining works well when the load factor (defined as the ratio of the number of elements stored, $n$, to the number of buckets, $m$) is less than 3 (<a href="https://www.cs.cornell.edu/courses/cs312/2008sp/lectures/lec20.html">citation</a>).  When the load factor exceeds some specified threshold, the table must be rehashed (meaning each element must be reinserted with a new hashing function where with a larger number of buckets).</p>
 
@@ -374,7 +374,7 @@ credit: Wikimedia (<a href="https://commons.wikimedia.org/wiki/File:Hash_table_3
 
 <p>In linear probing, when you insert an item and a collision occurs, you simply search ahead in your array into you find an unused bucket and place the value there.  This scheme requires updating your algorithm for lookup and deletion of elements accordingly.  Here is what our running example would look like when using linear probing.</p>
 
-<p><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/90/HASHTB12.svg/600px-HASHTB12.svg.png" alt="A phonebook stored with linear probing" />  credit: Wikimedia (<a href="https://commons.wikimedia.org/wiki/File:HASHTB12.svg">license</a>)</p>
+<p><img src="https://upload.wikimedia.org/wikipedia/commons/b/bf/Hash_table_5_0_1_1_1_1_0_SP.svg" alt="A phonebook stored with linear probing" />  credit: Wikimedia (<a href="https://commons.wikimedia.org/wiki/File:HASHTB12.svg">license</a>)</p>
 
 <p>Notice how the colliding elements are now stored in two separate buckets located sequentially in the array.</p>
 
@@ -437,6 +437,26 @@ credit: Wikimedia (<a href="https://commons.wikimedia.org/wiki/File:Hash_table_3
 <blockquote class="notice--success">
   <p><strong>Exercise 4</strong>
 Let’s examine why we might want to choose our table size to be a prime number.  Suppose we are hashing the first 50 non-negative even numbers (0 through 98).  Let $h_1(k) = mod(k, 13)$ and $h_2(k) = mod(k, 16)$.  Show that despite the $h_1$ using fewer bins, it will result in better utilization of its bins than $h_2$.</p>
+</blockquote>
+
+<blockquote class="notice--warning">
+  <p><strong>(Optional) Theoretical Background</strong></p>
+
+  <p>It turns out that there is some interesting number theory that underlies this result.  The theory of <a href="https://en.wikipedia.org/wiki/Cyclic_group">cyclic groups</a> can be applied.  In this case, if we have look at the set of integers $\mathbb{Z}_n$, which includes the integers $0, 1, 2, \ldots n-1$, there is a result that says that if we start at 0 and keep adding any number $k$ (modding by $n$ when needed) such that $n$ and $k$ are relatively prime, we will eventually cover all values in $\mathbb{Z}_n$.</p>
+
+  <p>Here is an example showing this.
+Let’s set $n=7$ and $k=4$.</p>
+
+\[\begin{align*}
+4 &amp;\equiv 4\text{ (mod 7)} \\
+4 + 4 &amp;\equiv 1\text{ (mod 7)} \\
+4 + 4 + 4 &amp;\equiv 5\text{ (mod 7)} \\
+4 + 4 + 4 + 4 &amp;\equiv 2\text{ (mod 7)} \\
+4 + 4 + 4 + 4 + 4 &amp;\equiv 6\text{ (mod 7)} \\
+4 + 4 + 4 + 4 + 4 + 4 &amp;\equiv 3\text{ (mod 7)} \\
+4 + 4 + 4 + 4 + 4 + 4 + 4 &amp;\equiv 0\text{ (mod 7)} \\
+4 + 4 + 4 + 4 + 4 + 4 + 4 + 4 &amp;\equiv 4\text{ (mod 7)}
+\end{align*}\]
 </blockquote>
 
 <h3 id="more-hashing-algorithms">More Hashing Algorithms</h3>
