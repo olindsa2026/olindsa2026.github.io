@@ -1,7 +1,7 @@
 ---
 title: "Assignment 7: Associative Arrays and Applications"
 toc_sticky: true
-published: false
+published: true
 due_on_class: 18
 ---
 
@@ -11,7 +11,7 @@ In this assignment you will explore the idea of associative arrays and how they 
 
 ## Associative Arrays
 
-Create an associative array class that implements the following interface.
+Create an associative array class that implements the following interface.  Note: if you are working outside of Kotlin, you do not have to use this interface, but you may use it as a guide.
 
 ```kotlin
 /**
@@ -72,6 +72,8 @@ Implement the Lempel-Ziv algorithm for lossless data compression.  There are a l
 * [Lempel Ziv Algorithm Video](https://www.youtube.com/watch?v=hHQgu4qILGs)
 
 You should at least write the encoding part.  If you write the decoder, you can get 2 points of extra credit.
+
+> To receive full credit, you must actually encode the data into a string (not just build the codebook).  I'll provide some guidance on how to process binary data soon.
 
 ### Option 2: Markov Text Analysis
 
