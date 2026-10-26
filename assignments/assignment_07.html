@@ -1,0 +1,441 @@
+<!doctype html>
+<!--
+  Minimal Mistakes Jekyll Theme 4.17.2 by Michael Rose
+  Copyright 2013-2019 Michael Rose - mademistakes.com | @mmistakes
+  Free for personal and commercial use under the MIT license
+  https://github.com/mmistakes/minimal-mistakes/blob/master/LICENSE
+-->
+<html lang="en" class="no-js">
+  <head>
+    <meta charset="utf-8">
+
+<script>
+class AnchorNoProxy extends HTMLElement {
+  constructor() {
+    super();
+    this.attachShadow({ mode: "open" });
+    this._$a = null;
+  }
+  connectedCallback() {
+    const href = this.getAttribute("href") || "#";
+    if (this.dataset.hasOwnProperty('canvas')) {
+        const canvasURL = this.dataset.canvas;
+        this.shadowRoot.innerHTML = `<style>a:hover, a:active { outline: 0; }\na { color: #5197ad; }\na:visited { color: #5197ad; }\na:hover { color: #266477; outline: 0; }</style><a href="${href}" data-canvas="${canvasURL}"><slot></slot></a>`;
+    } else {
+        this.shadowRoot.innerHTML = `<style>a:hover, a:active { outline: 0; }\na { color: #5197ad; }\na:visited { color: #5197ad; }\na:hover { color: #266477; outline: 0; }</style><a href="${href}"><slot></slot></a>`;
+    }
+    this._$a = this.shadowRoot.querySelector("a");
+    this._$a.addEventListener("click", e => {
+      var url = this.getAttribute('href');
+      e.preventDefault();
+      if (document.referrer.startsWith('https://lms.hypothes.is') && this.dataset.hasOwnProperty('canvas')) {
+        // get rid of proxy if it was added
+        var n = this.dataset.canvas.search('https://olin.instructure.com');
+        window.open(this.dataset.canvas.substring(n), '_blank');
+      } else {
+        window.open(url, '_blank');
+      }
+    });
+  }
+  static get observedAttributes() { return ["href"]; }
+  attributeChangedCallback(name, oldValue, newValue) {
+    if (oldValue !== newValue) {
+      if (this._$a === null) return;
+      this._$a.setAttribute("href", newValue);
+    }
+  }
+}
+
+customElements.define("a-no-proxy", AnchorNoProxy);
+
+class NoProxy extends HTMLAnchorElement {
+  connectedCallback() {
+    this.addEventListener("click", e => {
+      e.preventDefault();
+      if (document.referrer.startsWith('https://lms.hypothes.is') && this.dataset.hasOwnProperty('canvas')) {
+        // get rid of proxy if it was added
+        var n = this.dataset.canvas.search('https://olin.instructure.com');
+      	window.open(this.dataset.canvas.substring(n), '_blank');
+      } else {
+      	window.open(this.href, '_blank');
+      }
+    });
+  }
+}
+
+customElements.define("no-proxy", NoProxy, { extends: "a" });
+
+class ConfirmLink extends HTMLAnchorElement {
+  connectedCallback() {
+    this.addEventListener("click", e => {
+      const result = confirm(`Are you sure you want to go to '${this.href}'?`);
+      if (!result) e.preventDefault();
+    });
+  }
+}
+
+customElements.define("confirm-link", ConfirmLink, { extends: "a" });
+
+</script>
+
+<!-- begin _includes/seo.html --><title>Assignment 7: Associative Arrays and Applications - Data Structures Fall 2026 @ Olin College</title>
+<meta name="description" content="">
+
+
+
+<meta property="og:type" content="website">
+<meta property="og:locale" content="en_US">
+<meta property="og:site_name" content="Data Structures Fall 2026 @ Olin College">
+<meta property="og:title" content="Assignment 7: Associative Arrays and Applications">
+<meta property="og:url" content="/assignments/assignment_07.html">
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="canonical" href="/assignments/assignment_07.html">
+
+
+
+
+<script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    
+      "@type": "Person",
+      "name": null,
+      "url": "/"
+    
+  }
+</script>
+
+
+
+
+
+
+<!-- end _includes/seo.html -->
+
+
+<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="Data Structures Fall 2026 @ Olin College Feed">
+
+<!-- https://t.co/dKP3o1e -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script>
+  document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/g, '') + ' js ';
+</script>
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="/assets/css/main.css">
+
+<!--[if IE]>
+  <style>
+    /* old IE unsupported flexbox fixes */
+    .greedy-nav .site-title {
+      padding-right: 3em;
+    }
+    .greedy-nav button {
+      position: absolute;
+      top: 0;
+      right: 0;
+      height: 100%;
+    }
+  </style>
+<![endif]-->
+
+
+
+    <!-- start custom head snippets -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11.9.0/dist/mermaid.min.js"></script>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.28/dist/katex.min.css" integrity="sha384-Wsr4Nh3yrvMf2KCebJchRJoVo1gTU6kcP05uRSh5NV3sj9+a8IomuJoQzf3sMq4T" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.28/dist/katex.min.js" integrity="sha384-+W9OcrYK2/bD7BmUAk+xeFAyKp0QjyRQUCxeU31dfyTt/FrPsUgaBTLLkVf33qWt" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.28/dist/contrib/auto-render.min.js" integrity="sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh" crossorigin="anonymous"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", async function () {
+  // Render Mermaid first, from untouched source.
+  mermaid.initialize({ startOnLoad: false });
+  await mermaid.run(); // renders all .mermaid blocks
+
+  // render KaTeX
+  renderMathInElement(document.body, {
+          delimiters: [
+              {left: '$$', right: '$$', display: true},
+              {left: '$', right: '$', display: false},
+              {left: '\\(', right: '\\)', display: false},
+              {left: '\\[', right: '\\]', display: true}
+          ],
+    throwOnError: false,
+  });
+});
+</script>
+
+<script type="text/javascript">
+function HideShowElement(divID) {
+    const x = document.getElementById(divID);
+    if (x.style.display === "none") {
+        x.style.display = "block";
+    } else {
+        x.style.display = "none";
+    }
+}
+</script>
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+
+<!-- insert favicons. use https://realfavicongenerator.net/ -->
+
+<!-- end custom head snippets -->
+
+  </head>
+
+  <body class="layout--single">
+    <nav class="skip-links">
+  <h2 class="screen-reader-text">Skip links</h2>
+  <ul>
+    <li><a href="#site-nav" class="screen-reader-shortcut">Skip to primary navigation</a></li>
+    <li><a href="#main" class="screen-reader-shortcut">Skip to content</a></li>
+    <li><a href="#footer" class="screen-reader-shortcut">Skip to footer</a></li>
+  </ul>
+</nav>
+
+    <!--[if lt IE 9]>
+<div class="notice--danger align-center" style="margin: 0;">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience.</div>
+<![endif]-->
+
+    
+
+<div class="masthead">
+  <div class="masthead__inner-wrap">
+    <div class="masthead__menu">
+      <nav id="site-nav" class="greedy-nav">
+        
+          <a class="site-logo" href="/"><img src="https://qeacourse.github.io/RoboNinjaWarrior/website_graphics/olinlogo.png" alt=""></a>
+        
+        <a class="site-title" href="/">
+          Data Structures Fall 2026 @ Olin College
+          
+        </a>
+        <ul class="visible-links"></ul>
+        
+        <button class="greedy-nav__toggle hidden" type="button">
+          <span class="visually-hidden">Toggle menu</span>
+          <div class="navicon"></div>
+        </button>
+        <ul class="hidden-links hidden"></ul>
+      </nav>
+    </div>
+  </div>
+</div>
+
+
+    <div class="initial-content">
+      
+
+
+
+<div id="main" role="main">
+  
+
+  <article class="page" itemscope itemtype="https://schema.org/CreativeWork">
+    <meta itemprop="headline" content="Assignment 7: Associative Arrays and Applications">
+    
+    
+    
+
+    <div class="page__inner-wrap">
+      
+        <header>
+          <h1 id="page-title" class="page__title" itemprop="headline">Assignment 7: Associative Arrays and Applications
+</h1>
+          
+        </header>
+      
+
+      <section class="page__content" itemprop="text">
+        
+          <aside class="sidebar__right sticky">
+            <nav class="toc">
+              <header><h4 class="nav__title"><i class="fas fa-file-alt"></i> On this page</h4></header>
+	      
+                <ul class="toc__menu">
+  <li><a href="#overview">Overview</a></li>
+  <li><a href="#associative-arrays">Associative Arrays</a></li>
+  <li><a href="#solving-problems-with-hashing">Solving Problems with Hashing</a></li>
+  <li><a href="#modifications-for-additional-challenge-not-required">Modifications (for additional challenge, not required)</a></li>
+  <li><a href="#deliverables">Deliverables</a></li>
+</ul>
+	      	
+            </nav>
+          </aside>
+        
+        <h2 id="overview">Overview</h2>
+
+<p>In this assignment you will explore the idea of associative arrays and how they can be implemented using hash tables.  You will then use your associative array to implement a data compression algorithm!</p>
+
+<h2 id="associative-arrays">Associative Arrays</h2>
+
+<p>Create an associative array class that implements the following interface.  Note: if you are working outside of Kotlin, you do not have to use this interface, but you may use it as a guide.</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/**
+ * Represents a mapping of keys to values.
+ * @param K the type of the keys
+ * @param V the type of the values
+ */</span>
+<span class="kd">interface</span> <span class="nc">AssociativeArray</span><span class="p">&lt;</span><span class="nc">K</span><span class="p">,</span> <span class="nc">V</span><span class="p">&gt;</span> <span class="p">{</span>
+    <span class="cm">/**
+     * Insert the mapping from the key, [k], to the value, [v].
+     * If the key already maps to a value, replace the mapping.
+     */</span>
+    <span class="k">operator</span> <span class="k">fun</span> <span class="nf">set</span><span class="p">(</span><span class="n">k</span><span class="p">:</span> <span class="nc">K</span><span class="p">,</span> <span class="n">v</span><span class="p">:</span> <span class="nc">V</span><span class="p">)</span>
+
+    <span class="cm">/**
+     * @return true if [k] is a key in the associative array
+     */</span>
+    <span class="k">operator</span> <span class="k">fun</span> <span class="nf">contains</span><span class="p">(</span><span class="n">k</span><span class="p">:</span> <span class="nc">K</span><span class="p">):</span> <span class="nc">Boolean</span>
+
+    <span class="cm">/**
+     * @return the value associated with the key [k] or null if it doesn't exist
+     */</span>
+    <span class="k">operator</span> <span class="k">fun</span> <span class="nf">get</span><span class="p">(</span><span class="n">k</span><span class="p">:</span> <span class="nc">K</span><span class="p">):</span> <span class="nc">V</span><span class="p">?</span>
+
+    <span class="cm">/**
+     * Remove the key, [k], from the associative array
+     * @param k the key to remove
+     * @return true if the item was successfully removed and false if the element was not found
+     */</span>
+    <span class="k">fun</span> <span class="nf">remove</span><span class="p">(</span><span class="n">k</span><span class="p">:</span> <span class="nc">K</span><span class="p">):</span> <span class="nc">Boolean</span>
+
+    <span class="cm">/**
+     * @return the number of elements stored in the hash table
+     */</span>
+    <span class="k">fun</span> <span class="nf">size</span><span class="p">():</span> <span class="nc">Int</span>
+
+    <span class="cm">/**
+     * @return the full list of key value pairs for the associative array
+     */</span>
+    <span class="k">fun</span> <span class="nf">keyValuePairs</span><span class="p">():</span> <span class="nc">List</span><span class="p">&lt;</span><span class="nc">Pair</span><span class="p">&lt;</span><span class="nc">K</span><span class="p">,</span> <span class="nc">V</span><span class="p">&gt;&gt;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Your associative array should use separate chaining and the division-based method for hashing (consider using this resource <a href="https://planetmath.org/goodhashtableprimes">to determine primes to use in your hashing function</a>).  Your code should handle rehashing as the number of elements stored in your associative array grows.</p>
+
+<p>You will almost certainly need to create additional classes and/or functions to implement the associative array (don’t assume that the list of functions above is sufficient).</p>
+
+<p>Make sure your code is documented and has sufficient unit tests (the specific number and nature of the unit tests is up to you).</p>
+
+<h2 id="solving-problems-with-hashing">Solving Problems with Hashing</h2>
+
+<p>Choose one of these two problems to solve with hashing.  Note: you will also do a very brief writeup on your results from this, so make sure to look in the deliverables section for this.</p>
+
+<h3 id="option-1-lempel-ziv">Option 1: Lempel-Ziv</h3>
+
+<p>Implement the Lempel-Ziv algorithm for lossless data compression.  There are a lot of resources for learning this. Here are some that I’ve found useful so far (please share more).</p>
+<ul>
+  <li><a href="https://math.mit.edu/~djk/18.310/Lecture-Notes/LZ-worst-case.pdf">Peter Schor’s notes</a></li>
+  <li><a href="https://www.youtube.com/watch?v=hHQgu4qILGs">Lempel Ziv Algorithm Video</a></li>
+</ul>
+
+<p>You should at least write the encoding part.  If you write the decoder, you can get 2 points of extra credit.</p>
+
+<blockquote>
+  <p>To receive full credit, you must actually encode the data into a string (not just build the codebook).  I’ll provide some guidance on how to process binary data soon.</p>
+</blockquote>
+
+<h3 id="option-2-markov-text-analysis">Option 2: Markov Text Analysis</h3>
+
+<p>Download a text from some source (e.g., Project Gutenberg) and create a Markov model.  That is, given any word in the text, you should be able to return the number of times each word follows the given word in the text.  If you want to have some more fun with it, you could do a Markov Text Generator (a la Allen’s Think Python, e.g.).</p>
+
+<p>Markov text analysis is very useful for applications like predictive text completion (e.g., in texting or emailing).</p>
+
+<h2 id="modifications-for-additional-challenge-not-required">Modifications (for additional challenge, not required)</h2>
+
+<ol>
+  <li>Choose a different hashing function to explore.</li>
+  <li>Do some benchmarking (meaning measure the time it takes for your code to run on a computer) to see how sensitive the performance of your associative array is to different choices for number of bins (e.g., using a power of 2 instead of a prime number).</li>
+  <li>As mentioned earlier, the decoder for the Lempel-Ziv algorithm is extra credit.  If you do something else that is above and beyond what is written here, let me know, and we can discuss extra credit.</li>
+</ol>
+
+<h2 id="deliverables">Deliverables</h2>
+
+<p>Turn in a link to a GitHub repo with your deliverables.</p>
+
+<h3 id="code">Code</h3>
+
+<p>Your code contain the associative array data structure as well as the application to text processing.  Make sure your code is documented and has unit tests.</p>
+
+<h3 id="writeup">Writeup</h3>
+
+<p>Include a brief writeup of the results you got applying associative arrays to solving a problem.  For example, if you did Lempel-Ziv, you might run it on several different input texts and discuss how much the algorithm compresses the data.  You can include the writeup as a markdown file in your repository.</p>
+
+        
+      </section>
+
+      <footer class="page__meta">
+        
+        
+
+
+        
+      </footer>
+
+      
+
+      
+    </div>
+
+    
+  </article>
+
+  
+  
+</div>
+
+    </div>
+
+    
+
+    <div id="footer" class="page__footer">
+      <footer>
+        <!-- start custom footer snippets -->
+
+<!-- end custom footer snippets -->
+        <div class="page__footer-follow">
+  <ul class="social-icons">
+    
+
+    
+  </ul>
+</div>
+
+<div class="page__footer-copyright">&copy; 2026 Data Structures Fall 2026 @ Olin College.</div>
+
+      </footer>
+    </div>
+
+    <script src="/assets/js/copyCode.js"></script>
+
+
+  <script src="/assets/js/main.min.js"></script>
+  <script src="https://kit.fontawesome.com/4eee35f757.js"></script>
+
+
+
+
+
+
+
+
+
+
+  </body>
+</html>
