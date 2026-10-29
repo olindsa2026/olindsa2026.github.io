@@ -4,34 +4,15 @@ toc_sticky: true
 published: true
 ---
 
-## Some Additional Notes From Last Time
+## Practical consideration for hash map: How do I hash non-integer data?
 
-### Why a prime number-sized hash table could be a good thing
-
-I didn't have the right result to describe why using a prime number can handle the case where the numbers you are hashing are all multiples of a single number $k$ (e.g., for even numbers $k=2$).  The result can be formalized using the notion of generators of groups (and that is not something you need to know in this class, but you could learn about it in Sarah's class next semester).  In [this Wikipedia article](https://en.wikipedia.org/wiki/Cyclic_group), see the section on "Integer and modular addition."  The article states that if $k$ is relatively prime to the modulus number $n$, then repeatedly adding $k$ to itself will cover all the slots in our hash table.  (Note: $n$ is relatively prime to $k$ if the greatest common divisor of $n$ and $k$ is 1).
-
-Let's try a simple example.  Let's set $n=7$ and $k=4$.
-
-$$\begin{align*}
-4 &\equiv 4\text{ (mod 7)} \\
-4 + 4 &\equiv 1\text{ (mod 7)} \\
-4 + 4 + 4 &\equiv 5\text{ (mod 7)} \\
-4 + 4 + 4 + 4 &\equiv 2\text{ (mod 7)} \\
-4 + 4 + 4 + 4 + 4 &\equiv 6\text{ (mod 7)} \\
-4 + 4 + 4 + 4 + 4 + 4 &\equiv 3\text{ (mod 7)} \\
-4 + 4 + 4 + 4 + 4 + 4 + 4 &\equiv 0\text{ (mod 7)} \\
-4 + 4 + 4 + 4 + 4 + 4 + 4 + 4 &\equiv 4\text{ (mod 7)}
-\end{align*}$$
-
-### How do I hash non-integer data?
-
-Kotlin defines a function called ``.hashCode()`` that turns any data into a number that can be used for hashing.
+Kotlin defines a function called ``.hashCode()`` that turns any data into a number that can be used for hashing.  All the languages being used in this class have something of this form (I can help you do research if needed);
 
 ## Lempel-Ziv Compression
 
-One of the options for the current assignment is to implement Lempel-Ziv Compression.  Lempel-Ziv is a lossless compression algorithm, which means that the original data can be recovered exactly (without any loss of information) from the compressed data.
+One of the options for the current assignment is to implement Lempel-Ziv Compression.  Lempel-Ziv is a lossless compression algorithm, which means that the original data can be recovered exactly (without any loss of information) from the compressed data.  In this assignment, you will be implementing the LZ78 algorithm.
 
-There are a number of different variants of Lempel-Ziv, but the one we're going to talk about in class today is the simplest to implement.
+There are a number of different variants of Lempel-Ziv, but the one we're going to talk about in class today is the simplest to implement (LZ78).
 
 It's also worth noting that Lempel-Ziv is an optimal algorithm for lossless compression in a certain information-theoretic sense.  We likely won't have time to go over the details of this in class, but if you are interested you may consider looking at [this Wikipedia article](https://en.wikipedia.org/wiki/LZ77_and_LZ78#Theoretical_efficiency) that presents the sense in which the algorithm is optimal and links to some external sources that explore this topic in more depth.  The main article is Peter Shor's notes that are also linked below.  If there is time, and people are interested, I'll go over a quick explanation of the claim at the end of class.
 
@@ -67,34 +48,29 @@ Let's go through the process of decompressing the string that we compressed in o
 
 When I wrote my own implementation, I found that it took me a while to figure out how to actually encode the data to binary (even though getting the codebook was fairly straightforward).  I found a nice helper class from Princeton that made the process a lot easier.  For your convenience, I (more accurately IntelliJ with some help from me) translated it into Java.  I modified the original design a bit to arrive at [this version](https://github.com/OlinDSA2024/HashingSample/blob/main/src/main/kotlin/BinaryUtils.kt).
 
-The important functions in here are the following:
+The starter code provides two classes:
+
+- `BinaryWriter` lets you write individual bits or integers using a
+  specified number of bits.
+- `BinaryReader` lets you recover the original values from the encoded bytes.
+
+For example, suppose we want to encode the numbers 5, 2, and 9
+using 3, 2, and 4 bits, respectively.
+
 ```kotlin
-/**
- * Writes the specified bit to the output binary data.
- * @param x the `boolean` to write.
- */
-fun write(x: Boolean) {}
+val writer = BinaryWriter(keepTrackOfBinaryString = true)
 
-/**
- * Writes the *r*-bit int to the output binary data.
- * @param x the `int` to write.
- * @param r the number of relevant bits in the char.
- * @throws IllegalArgumentException if `r` is not between 1 and 32.
- * @throws IllegalArgumentException if `x` is not between 0 and 2<sup>r</sup> - 1.
- */
-fun write(x: Int, r: Int) {}
+writer.write(5, 3)   // 101
+writer.write(2, 2)   // 10
+writer.write(9, 4)   // 1001
 
+println(writer.toBinaryString()) // 101101001
 
-/**
- * @return the output as a byte array
- */
-fun toByteArray(): ByteArray {
-    return out.toByteArray()
-}
+val encoded = writer.toByteArray()
 
-/**
- * @return the output as a sequence of bytes that represent a string of
- * 0's and 1's
- */
-fun toBinaryString():ByteArray? {}
+val reader = BinaryReader(encoded)
+
+println(reader.readInt(3))      // 5
+println(reader.readInt(2))      // 2
+println(reader.readInt(4))      // 9
 ```
