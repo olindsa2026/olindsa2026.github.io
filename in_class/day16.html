@@ -268,7 +268,7 @@ function HideShowElement(divID) {
               <header><h4 class="nav__title"><i class="fas fa-file-alt"></i> On this page</h4></header>
 	      
                 <ul class="toc__menu">
-  <li><a href="#some-additional-notes-from-last-time">Some Additional Notes From Last Time</a></li>
+  <li><a href="#practical-consideration-for-hash-map-how-do-i-hash-non-integer-data">Practical consideration for hash map: How do I hash non-integer data?</a></li>
   <li><a href="#lempel-ziv-compression">Lempel-Ziv Compression</a></li>
   <li><a href="#encoding">Encoding</a></li>
   <li><a href="#decoding">Decoding</a></li>
@@ -278,34 +278,15 @@ function HideShowElement(divID) {
             </nav>
           </aside>
         
-        <h2 id="some-additional-notes-from-last-time">Some Additional Notes From Last Time</h2>
+        <h2 id="practical-consideration-for-hash-map-how-do-i-hash-non-integer-data">Practical consideration for hash map: How do I hash non-integer data?</h2>
 
-<h3 id="why-a-prime-number-sized-hash-table-could-be-a-good-thing">Why a prime number-sized hash table could be a good thing</h3>
-
-<p>I didn’t have the right result to describe why using a prime number can handle the case where the numbers you are hashing are all multiples of a single number $k$ (e.g., for even numbers $k=2$).  The result can be formalized using the notion of generators of groups (and that is not something you need to know in this class, but you could learn about it in Sarah’s class next semester).  In <a href="https://en.wikipedia.org/wiki/Cyclic_group">this Wikipedia article</a>, see the section on “Integer and modular addition.”  The article states that if $k$ is relatively prime to the modulus number $n$, then repeatedly adding $k$ to itself will cover all the slots in our hash table.  (Note: $n$ is relatively prime to $k$ if the greatest common divisor of $n$ and $k$ is 1).</p>
-
-<p>Let’s try a simple example.  Let’s set $n=7$ and $k=4$.</p>
-
-\[\begin{align*}
-4 &amp;\equiv 4\text{ (mod 7)} \\
-4 + 4 &amp;\equiv 1\text{ (mod 7)} \\
-4 + 4 + 4 &amp;\equiv 5\text{ (mod 7)} \\
-4 + 4 + 4 + 4 &amp;\equiv 2\text{ (mod 7)} \\
-4 + 4 + 4 + 4 + 4 &amp;\equiv 6\text{ (mod 7)} \\
-4 + 4 + 4 + 4 + 4 + 4 &amp;\equiv 3\text{ (mod 7)} \\
-4 + 4 + 4 + 4 + 4 + 4 + 4 &amp;\equiv 0\text{ (mod 7)} \\
-4 + 4 + 4 + 4 + 4 + 4 + 4 + 4 &amp;\equiv 4\text{ (mod 7)}
-\end{align*}\]
-
-<h3 id="how-do-i-hash-non-integer-data">How do I hash non-integer data?</h3>
-
-<p>Kotlin defines a function called <code class="language-plaintext highlighter-rouge">.hashCode()</code> that turns any data into a number that can be used for hashing.</p>
+<p>Kotlin defines a function called <code class="language-plaintext highlighter-rouge">.hashCode()</code> that turns any data into a number that can be used for hashing.  All the languages being used in this class have something of this form (I can help you do research if needed);</p>
 
 <h2 id="lempel-ziv-compression">Lempel-Ziv Compression</h2>
 
-<p>One of the options for the current assignment is to implement Lempel-Ziv Compression.  Lempel-Ziv is a lossless compression algorithm, which means that the original data can be recovered exactly (without any loss of information) from the compressed data.</p>
+<p>One of the options for the current assignment is to implement Lempel-Ziv Compression.  Lempel-Ziv is a lossless compression algorithm, which means that the original data can be recovered exactly (without any loss of information) from the compressed data.  In this assignment, you will be implementing the LZ78 algorithm.</p>
 
-<p>There are a number of different variants of Lempel-Ziv, but the one we’re going to talk about in class today is the simplest to implement.</p>
+<p>There are a number of different variants of Lempel-Ziv, but the one we’re going to talk about in class today is the simplest to implement (LZ78).</p>
 
 <p>It’s also worth noting that Lempel-Ziv is an optimal algorithm for lossless compression in a certain information-theoretic sense.  We likely won’t have time to go over the details of this in class, but if you are interested you may consider looking at <a href="https://en.wikipedia.org/wiki/LZ77_and_LZ78#Theoretical_efficiency">this Wikipedia article</a> that presents the sense in which the algorithm is optimal and links to some external sources that explore this topic in more depth.  The main article is Peter Shor’s notes that are also linked below.  If there is time, and people are interested, I’ll go over a quick explanation of the claim at the end of class.</p>
 
@@ -346,35 +327,32 @@ function HideShowElement(divID) {
 
 <p>When I wrote my own implementation, I found that it took me a while to figure out how to actually encode the data to binary (even though getting the codebook was fairly straightforward).  I found a nice helper class from Princeton that made the process a lot easier.  For your convenience, I (more accurately IntelliJ with some help from me) translated it into Java.  I modified the original design a bit to arrive at <a href="https://github.com/OlinDSA2024/HashingSample/blob/main/src/main/kotlin/BinaryUtils.kt">this version</a>.</p>
 
-<p>The important functions in here are the following:</p>
-<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/**
- * Writes the specified bit to the output binary data.
- * @param x the `boolean` to write.
- */</span>
-<span class="k">fun</span> <span class="nf">write</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="nc">Boolean</span><span class="p">)</span> <span class="p">{}</span>
+<p>The starter code provides two classes:</p>
 
-<span class="cm">/**
- * Writes the *r*-bit int to the output binary data.
- * @param x the `int` to write.
- * @param r the number of relevant bits in the char.
- * @throws IllegalArgumentException if `r` is not between 1 and 32.
- * @throws IllegalArgumentException if `x` is not between 0 and 2&lt;sup&gt;r&lt;/sup&gt; - 1.
- */</span>
-<span class="k">fun</span> <span class="nf">write</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="nc">Int</span><span class="p">,</span> <span class="n">r</span><span class="p">:</span> <span class="nc">Int</span><span class="p">)</span> <span class="p">{}</span>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">BinaryWriter</code> lets you write individual bits or integers using a
+specified number of bits.</li>
+  <li><code class="language-plaintext highlighter-rouge">BinaryReader</code> lets you recover the original values from the encoded bytes.</li>
+</ul>
 
+<p>For example, suppose we want to encode the numbers 5, 2, and 9
+using 3, 2, and 4 bits, respectively.</p>
 
-<span class="cm">/**
- * @return the output as a byte array
- */</span>
-<span class="k">fun</span> <span class="nf">toByteArray</span><span class="p">():</span> <span class="nc">ByteArray</span> <span class="p">{</span>
-    <span class="k">return</span> <span class="k">out</span><span class="p">.</span><span class="nf">toByteArray</span><span class="p">()</span>
-<span class="p">}</span>
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">val</span> <span class="py">writer</span> <span class="p">=</span> <span class="nc">BinaryWriter</span><span class="p">(</span><span class="n">keepTrackOfBinaryString</span> <span class="p">=</span> <span class="k">true</span><span class="p">)</span>
 
-<span class="cm">/**
- * @return the output as a sequence of bytes that represent a string of
- * 0's and 1's
- */</span>
-<span class="k">fun</span> <span class="nf">toBinaryString</span><span class="p">():</span><span class="nc">ByteArray</span><span class="p">?</span> <span class="p">{}</span>
+<span class="n">writer</span><span class="p">.</span><span class="nf">write</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>   <span class="c1">// 101</span>
+<span class="n">writer</span><span class="p">.</span><span class="nf">write</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>   <span class="c1">// 10</span>
+<span class="n">writer</span><span class="p">.</span><span class="nf">write</span><span class="p">(</span><span class="mi">9</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>   <span class="c1">// 1001</span>
+
+<span class="nf">println</span><span class="p">(</span><span class="n">writer</span><span class="p">.</span><span class="nf">toBinaryString</span><span class="p">())</span> <span class="c1">// 101101001</span>
+
+<span class="kd">val</span> <span class="py">encoded</span> <span class="p">=</span> <span class="n">writer</span><span class="p">.</span><span class="nf">toByteArray</span><span class="p">()</span>
+
+<span class="kd">val</span> <span class="py">reader</span> <span class="p">=</span> <span class="nc">BinaryReader</span><span class="p">(</span><span class="n">encoded</span><span class="p">)</span>
+
+<span class="nf">println</span><span class="p">(</span><span class="n">reader</span><span class="p">.</span><span class="nf">readInt</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>      <span class="c1">// 5</span>
+<span class="nf">println</span><span class="p">(</span><span class="n">reader</span><span class="p">.</span><span class="nf">readInt</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>      <span class="c1">// 2</span>
+<span class="nf">println</span><span class="p">(</span><span class="n">reader</span><span class="p">.</span><span class="nf">readInt</span><span class="p">(</span><span class="mi">4</span><span class="p">))</span>      <span class="c1">// 9</span>
 </code></pre></div></div>
 
         
