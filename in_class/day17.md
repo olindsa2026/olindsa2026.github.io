@@ -68,8 +68,6 @@ We'll fill them out together, and I'll update the website after with the finishe
 
 ## Linear and Binary Search
 
-We've seen these concepts in some form already this semester, but let's make sure we have them at the forefront of our minds.
-
 Suppose we have a collection integers stored in an array $x_1, x_2, \ldots, x_n$.  Further, let's suppose the array is sorted in ascending order (i.e., $x_i < x_j$ if and only if $i < j$).  Now suppose given a query point $x_q$ we'd like to find the element in our array that satisfies the following equation.
 
 $\begin{aligned} x^\star &= \underset{i}{\text{argmin}} \| x_i - x_q \| \end{aligned}$
