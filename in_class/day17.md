@@ -165,16 +165,19 @@ Together, we'll watch the first four videos (with an exercise as an intermediary
 > </div>
 {: .notice--success}
 
-* [Rotations](https://www.youtube.com/watch?v=95s3ndZRGbk)
+* [Rotations](https://www.youtube.com/watch?v=95s3ndZRGbk).
+
+> **Exercise 6:**
+>
+> Draw a picture of a tree on the board (or on a piece of paper at your table).  Pick a node and perform a left rotation on it.  Pick another node and perform a right rotation on it.
+>
+> Here is an animation that shows the rotation procedure on a red-black tree.
+> 
+> ![An animation showing a binary tree rotation to the left and then to the right.](../images/Binary_Tree_Rotation_(animated).gif)
+> Source: [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Binary_Tree_Rotation_(animated).gif)
+{: .notice--success}
+
 * [Insertions (strategy)](https://www.youtube.com/watch?v=5IBxA-bZZH8) (note: there is an error at 3:27 where you would have to apply case 3 to fix the node "A". This is discussed in the comments of the video).
-
-Here are some additional resources to help you think through the information covered in these videos.
-
-First, here is an animation that shows the rotation procedure on a red-black tree.
-
-![An animation showing a binary tree rotation to the left and then to the right.](../images/Binary_Tree_Rotation_(animated).gif)
-Source: [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Binary_Tree_Rotation_(animated).gif)
-
 
 When inserting nodes into an RB-tree we follow the following process:
 
@@ -194,7 +197,7 @@ Here is the pseudocode for fixing up the red-black tree following an insertion.
 ![RBTree fixup from the CLRS textbook](../images/rbtreefixup.png)
 Source: CLRS Textbook
 
-> **Exercise 6**
+> **Exercise 7**
 > 
 > Given the RB tree below, insert the value 4.  Use the pseudocode above to fix the RB-tree properties.  As you go, keep track of which properties are violated.
 > 
@@ -208,7 +211,7 @@ Source: CLRS textbook
 > </div>
 {: .notice--success}
 
-> **Exercise 7**
+> **Exercise 8**
 >
-> Using exercise 6 as an example, argue that the modifications to the tree move the potential violation closer to root while removing the violation farther from the root.  **Consider the application of case 2 and case 3 to be a single step for the purposes of this question**.
+> Using exercise 7 as an example, argue that the modifications to the tree move the potential violation closer to root while removing the violation farther from the root. **Consider the application of case 2 and case 3 to be a single step for the purposes of this question**.
 {: .notice--success}
