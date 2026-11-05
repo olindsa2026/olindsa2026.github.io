@@ -358,10 +358,25 @@ $x_1 = (1, 5), x_2 = (-1, 2), x_3 = (4, 4), x_4 = (2, 0), x_5 = (-3, -3), x_6 = 
 
 </blockquote>
 
+<details class="solution">
+  <summary class="solution__toggle">Solutions and Interactive Builder</summary>
+  <div class="solution__body">
+    
+<p>Once you’ve built your tree by hand, check it with this interactive builder. Hover over a region to preview a splitting line, then click (or drag and release) to split it. Points with a value less than the split go to the left child; points with a value greater than or equal to it go to the right. Keep splitting until each region has one point, then click <strong>Show decision tree</strong> to see the logic of your splits.</p>
+
+<p>Try some non-median splits too and see how the shape of the tree changes.</p>
+
+<div class="kdtree-builder" data-range="-5,10" data-points="{&quot;x1&quot;:[1,5],&quot;x2&quot;:[-1,2],&quot;x3&quot;:[4,4],&quot;x4&quot;:[2,0],&quot;x5&quot;:[-3,-3],&quot;x6&quot;:[9,1],&quot;x7&quot;:[4,1],&quot;x8&quot;:[3,8]}"></div>
+<script src="/assets/js/kdtree-builder.js"></script>
+
+
+  </div>
+</details>
+
 <blockquote class="notice--success">
   <p><strong>Exercise 3</strong></p>
 
-  <p>How would you represent this tree in Kotlin?  What classes would you use?  What would the basic flow be of your function to construct the tree? Don’t start coding!  Sketch it out with people around you.</p>
+  <p>How would you represent this tree in a programming language?  What classes would you use?  What would the basic flow be of your function to construct the tree? Don’t start coding!  Sketch it out with people around you.</p>
 </blockquote>
 
 <h2 id="k-d-tree-search">k-D Tree Search</h2>
