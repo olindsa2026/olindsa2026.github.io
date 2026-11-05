@@ -80,9 +80,19 @@ Given the fact that we were able to dramatically speed up our search for the clo
 >    </script>
 {: .notice--success}
 
+{% capture solution %}
+Once you've built your tree by hand, check it with this interactive builder. Hover over a region to preview a splitting line, then click (or drag and release) to split it. Points with a value less than the split go to the left child; points with a value greater than or equal to it go to the right. Keep splitting until each region has one point, then click **Show decision tree** to see the logic of your splits.
+
+Try some non-median splits too and see how the shape of the tree changes.
+
+<div class="kdtree-builder" data-range="-5,10" data-points='{"x1":[1,5],"x2":[-1,2],"x3":[4,4],"x4":[2,0],"x5":[-3,-3],"x6":[9,1],"x7":[4,1],"x8":[3,8]}'></div>
+<script src="{{ '/assets/js/kdtree-builder.js' | relative_url }}"></script>
+{% endcapture %}
+{% include solution.html content=solution label="Solutions and Interactive Builder" %}
+
 > **Exercise 3**
 > 
-> How would you represent this tree in Kotlin?  What classes would you use?  What would the basic flow be of your function to construct the tree? Don't start coding!  Sketch it out with people around you.
+> How would you represent this tree in a programming language?  What classes would you use?  What would the basic flow be of your function to construct the tree? Don't start coding!  Sketch it out with people around you.
 {: .notice--success}
 
 ## k-D Tree Search
