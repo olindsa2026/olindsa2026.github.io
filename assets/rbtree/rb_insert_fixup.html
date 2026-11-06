@@ -1,0 +1,717 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RB-Insert-Fixup Visualizer</title>
+<style>
+  :root {
+    --bg: #ffffff;
+    --text: #222;
+    --muted: #666;
+    --border: #d8d8d8;
+    --panel: #f7f7f7;
+    --red: #b83232;
+    --black: #1e1e1e;
+    --code-bg: #fdf6e3;
+    --code-comment: #9a2a1a;
+    --hl: #ffe27a;
+    --ring: #f0a500;
+    --path: #2f7fd1;
+    --ok: #1f8a3b;
+    --bad: #c62828;
+    --btn: #fff;
+    --btn-hover: #eef3fb;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--bg); color: var(--text); }
+  body { font: 14px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+  #app { padding: 10px 4px; }
+
+  .toolbar { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; margin-bottom: 8px; }
+  .toolbar label { display: flex; gap: 6px; align-items: center; }
+  .toolbar input[type=text] { width: 9em; padding: 3px 6px; font: inherit; border: 1px solid var(--border); border-radius: 4px; }
+  .toolbar select { font: inherit; padding: 2px 4px; }
+  #popout { margin-left: auto; font-size: 13px; color: var(--path); }
+  #inputErr { color: var(--bad); font-size: 13px; }
+
+  button { font: inherit; padding: 4px 10px; border: 1px solid var(--border); border-radius: 4px; background: var(--btn); cursor: pointer; }
+  button:hover:not(:disabled) { background: var(--btn-hover); }
+  button:disabled { opacity: .45; cursor: default; }
+  button.primary { border-color: var(--path); color: var(--path); font-weight: 600; }
+
+  .main { display: flex; gap: 16px; align-items: flex-start; }
+  .left { flex: 1.25; min-width: 0; }
+  .right { flex: 1; min-width: 0; }
+  @media (max-width: 960px) {
+    .main { flex-direction: column; }
+    .left, .right { width: 100%; }
+  }
+
+  #tree { width: 100%; height: 330px; display: block; border: 1px solid var(--border); border-radius: 6px; background: #fff; }
+  #tree .edge { stroke: #333; stroke-width: 1.4; }
+  #tree .node circle.body { stroke: #111; stroke-width: 1; transition: fill .45s; }
+  #tree .node.red circle.body { fill: var(--red); }
+  #tree .node.black circle.body { fill: var(--black); }
+  #tree .node text { fill: #fff; font: 700 17px "Times New Roman", Times, serif; text-anchor: middle; dominant-baseline: central; pointer-events: none; }
+  #tree .node circle.ring { fill: none; stroke: var(--ring); stroke-width: 4; opacity: 0; transition: opacity .3s; }
+  #tree .node.changed circle.ring { opacity: 1; }
+  #tree .node circle.pathring { fill: none; stroke: var(--path); stroke-width: 2.5; stroke-dasharray: 4 3; opacity: 0; }
+  #tree .node.onpath circle.pathring { opacity: 1; }
+  #tree .nil rect { fill: var(--black); }
+  #tree .nil text { fill: #fff; font: 600 8px sans-serif; text-anchor: middle; dominant-baseline: central; }
+  #tree .label { font: italic 22px Georgia, "Times New Roman", serif; text-anchor: middle; dominant-baseline: central; }
+  #tree .label.z { fill: var(--path); font-weight: 700; }
+  #tree .label.y { fill: #7a4bb5; }
+
+  .controls { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 8px 0; }
+  .controls input[type=range] { flex: 1; min-width: 120px; }
+  #stepCount { font-variant-numeric: tabular-nums; color: var(--muted); font-size: 13px; min-width: 7.5em; text-align: right; }
+  .controls .nilToggle { font-size: 13px; color: var(--muted); display: flex; gap: 4px; align-items: center; }
+
+  #msg { background: var(--panel); border: 1px solid var(--border); border-left: 4px solid var(--path); border-radius: 4px; padding: 8px 10px; min-height: 4.6em; }
+  #msg .hdr { font-weight: 700; margin-bottom: 2px; }
+  #msg .badge { display: inline-block; font-size: 12px; font-weight: 700; padding: 0 7px; border-radius: 10px; background: var(--code-comment); color: #fff; margin-left: 6px; vertical-align: 1px; }
+  #msg .n { font-family: "Times New Roman", Times, serif; font-weight: 700; font-size: 15px; }
+
+  .panels { display: grid; grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr); gap: 10px; margin-top: 8px; }
+  @media (max-width: 560px) { .panels { grid-template-columns: 1fr; } }
+  .panel { border: 1px solid var(--border); border-radius: 4px; padding: 6px 10px; }
+  .panel h4 { margin: 0 0 4px; font-size: 12px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); }
+  .var { display: flex; align-items: center; gap: 8px; margin: 2px 0; font-family: "Times New Roman", Times, serif; font-size: 15px; }
+  .var .name { font-style: italic; min-width: 3.2em; }
+  .chip { display: inline-flex; align-items: center; justify-content: center; min-width: 26px; height: 26px; padding: 0 5px; border-radius: 13px; color: #fff; font-weight: 700; font-size: 13px; }
+  .chip.R { background: var(--red); }
+  .chip.B { background: var(--black); }
+  .chip.nil { border-radius: 3px; font-size: 10px; height: 20px; }
+  .chip.none { background: none; color: var(--muted); font-weight: 400; font-style: italic; }
+  .prop { display: flex; gap: 6px; margin: 2px 0; font-size: 13px; }
+  .prop .mark { font-weight: 700; width: 1.1em; flex: none; }
+  .prop.ok .mark { color: var(--ok); }
+  .prop.bad .mark { color: var(--bad); }
+  .prop.bad { color: var(--bad); }
+  .prop .why { display: block; font-size: 12px; }
+
+  .code { background: var(--code-bg); border: 1px solid #e6dcc0; border-radius: 6px; padding: 8px 6px 8px 4px; font-family: Georgia, "Times New Roman", serif; font-size: 14px; }
+  .code .title { padding: 2px 8px 4px; font-variant: small-caps; }
+  .code .title i { font-variant: normal; }
+  .code table { border-collapse: collapse; width: 100%; }
+  .code td { padding: 0 4px; line-height: 1.5; vertical-align: middle; white-space: nowrap; }
+  .code td.ln { color: #555; text-align: right; width: 1.8em; font-size: 12px; font-family: -apple-system, sans-serif; }
+  .code td.cm { color: var(--code-comment); font-size: 12px; white-space: normal; }
+  .code td.case { color: var(--code-comment); font-size: 13px; border-left: 2px solid var(--code-comment); border-radius: 8px 0 0 8px; padding-left: 6px; width: 3.8em; }
+  .code tr.cur td.ln, .code tr.cur td.src { background: var(--hl); }
+  .code tr.cur td.src { box-shadow: inset 0 0 0 1px #e0b800; }
+  .code tr.ins td { font-family: -apple-system, sans-serif; font-size: 12px; color: var(--muted); white-space: normal; }
+  .code tr.ins.cur td { color: var(--text); }
+  .code .sc { font-variant: small-caps; }
+  .code .kw { font-weight: 700; }
+  .code .k { font-variant: small-caps; }
+  .code .ind1 { padding-left: 1.2em; } .code .ind2 { padding-left: 2.4em; }
+  .code .ind3 { padding-left: 3.6em; } .code .ind4 { padding-left: 4.8em; }
+  @media (max-width: 520px) { .code td.cm { display: none; } .code { font-size: 13px; } }
+
+  .hint { color: var(--muted); font-size: 12px; margin-top: 6px; }
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="toolbar">
+    <label>Start from
+      <select id="startTree">
+        <option value="ex7">Exercise 7 tree</option>
+        <option value="empty">Empty tree</option>
+      </select>
+    </label>
+    <label>Insert <input type="text" id="values" value="4" aria-label="Values to insert (comma-separated)"></label>
+    <button id="runBtn" class="primary">Run</button>
+    <span id="inputErr"></span>
+    <a id="popout" href="rb_insert_fixup.html" target="_blank" rel="noopener">Open full screen ↗</a>
+  </div>
+
+  <div class="main">
+    <div class="left">
+      <svg id="tree" role="img" aria-label="Red-black tree"></svg>
+      <div class="controls">
+        <button id="firstBtn" title="Back to start (Home)">⏮</button>
+        <button id="prevBtn" title="Previous step (←)">◀ Back</button>
+        <button id="nextBtn" class="primary" title="Next step (→)">Next ▶</button>
+        <button id="playBtn" title="Play / pause (space)">▶ Play</button>
+        <input type="range" id="scrub" min="0" max="0" value="0" aria-label="Step">
+        <span id="stepCount"></span>
+        <label class="nilToggle"><input type="checkbox" id="showNil"> show NIL leaves</label>
+      </div>
+      <div id="msg"></div>
+      <div class="panels">
+        <div class="panel" id="vars"></div>
+        <div class="panel" id="props"></div>
+      </div>
+      <div class="hint">Keys: ← / → to step, space to play. Gold ring = changed this step.</div>
+    </div>
+    <div class="right">
+      <div class="code" id="code"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+  const RED = 'R', BLACK = 'B';
+
+  // ---------------------------------------------------------------- tree ops
+  function makeTree() {
+    const nil = { key: 'NIL', color: BLACK, isNil: true };
+    nil.left = nil.right = nil.p = nil;
+    return { nil, root: nil };
+  }
+  function newNode(T, key, color) { return { key, color, left: T.nil, right: T.nil, p: T.nil }; }
+
+  function leftRotate(T, x) {
+    const y = x.right;
+    x.right = y.left;
+    if (y.left !== T.nil) y.left.p = x;
+    y.p = x.p;
+    if (x.p === T.nil) T.root = y;
+    else if (x === x.p.left) x.p.left = y;
+    else x.p.right = y;
+    y.left = x;
+    x.p = y;
+  }
+  function rightRotate(T, x) {
+    const y = x.left;
+    x.left = y.right;
+    if (y.right !== T.nil) y.right.p = x;
+    y.p = x.p;
+    if (x.p === T.nil) T.root = y;
+    else if (x === x.p.right) x.p.right = y;
+    else x.p.left = y;
+    y.right = x;
+    x.p = y;
+  }
+
+  // Exercise 7 starting tree (CLRS Fig. 13.4a without the 4)
+  const EX7 = [11, BLACK,
+    [2, RED, [1, BLACK], [7, BLACK, [5, RED], [8, RED]]],
+    [14, BLACK, null, [15, RED]]];
+  function buildFromSpec(T, spec, parent) {
+    if (!spec) return T.nil;
+    const n = newNode(T, spec[0], spec[1]);
+    n.p = parent;
+    n.left = buildFromSpec(T, spec[2], n);
+    n.right = buildFromSpec(T, spec[3], n);
+    return n;
+  }
+
+  function snapshot(T) {
+    const nodes = {};
+    (function walk(n) {
+      if (n === T.nil) return;
+      nodes[n.key] = {
+        key: n.key, color: n.color,
+        left: n.left === T.nil ? null : n.left.key,
+        right: n.right === T.nil ? null : n.right.key,
+      };
+      walk(n.left); walk(n.right);
+    })(T.root);
+    return { root: T.root === T.nil ? null : T.root.key, nodes };
+  }
+
+  // ------------------------------------------------- step-by-step execution
+  const N = (n) => n.isNil ? 'NIL' : `<span class="n">${n.key}</span>`;
+  const COLOR = (n) => n.color === RED ? 'RED' : 'BLACK';
+  const subtree = (n) => n.isNil ? 'an empty subtree' : `the subtree rooted at ${N(n)}`;
+
+  function buildSteps(startKind, values) {
+    const T = makeTree();
+    if (startKind === 'ex7') T.root = buildFromSpec(T, EX7, T.nil);
+    const steps = [];
+    let z = null, y = null;
+    const ptr = (n) => n == null ? null : (n.isNil ? 'NIL' : n.key);
+    const ptrColor = (n) => n == null ? null : n.color;
+    function rec(line, msg, extra) {
+      steps.push(Object.assign({
+        tree: snapshot(T), line, msg,
+        z: ptr(z), zc: ptrColor(z),
+        zp: z ? ptr(z.p) : null, zpc: z ? z.p.color : null,
+        zpp: z ? ptr(z.p.p) : null, zppc: z ? z.p.p.color : null,
+        y: ptr(y), yc: ptrColor(y),
+        changed: [], path: [],
+      }, extra || {}));
+    }
+
+    rec(null, startKind === 'ex7'
+      ? `This is the tree from Exercise 7. It is a valid red-black tree. Press <b>Next</b> to insert ${values.map(v => `<span class="n">${v}</span>`).join(', ')}.`
+      : `Starting from an empty tree. Press <b>Next</b> to insert ${values.map(v => `<span class="n">${v}</span>`).join(', ')}.`);
+
+    const keys = new Set(startKind === 'ex7' ? [1, 2, 5, 7, 8, 11, 14, 15] : []);
+    for (const v of values) {
+      z = null; y = null;
+      if (keys.has(v)) {
+        rec('ins', `<span class="n">${v}</span> is already in the tree, so it is skipped.`);
+        continue;
+      }
+      keys.add(v);
+
+      // ---- RB-INSERT (ordinary BST insert, colored red)
+      let parent = T.nil, x = T.root;
+      const path = [], hops = [];
+      while (x !== T.nil) {
+        parent = x;
+        path.push(x.key);
+        if (v < x.key) { hops.push(`${v} &lt; ${x.key} → left`); x = x.left; }
+        else { hops.push(`${v} &gt; ${x.key} → right`); x = x.right; }
+      }
+      const node = newNode(T, v, RED);
+      node.p = parent;
+      let where;
+      if (parent === T.nil) { T.root = node; where = 'it becomes the root'; }
+      else if (v < parent.key) { parent.left = node; where = `attach it as the left child of ${N(parent)}`; }
+      else { parent.right = node; where = `attach it as the right child of ${N(parent)}`; }
+      z = node;
+      rec('ins', `<b>RB-INSERT</b>: insert <span class="n">${v}</span> as in an ordinary BST` +
+        (hops.length ? ` (${hops.join(', ')})` : '') + `, ${where}, and color it <b>RED</b>. ` +
+        `Then call RB-INSERT-FIXUP(<i>T</i>, <i>z</i>) with <i>z</i> = <span class="n">${v}</span>.`,
+        { changed: [v], path });
+
+      // ---- RB-INSERT-FIXUP
+      while (true) {
+        if (z.p.color === RED) {
+          rec(1, `<i>z.p</i> = ${N(z.p)} is RED, and so is <i>z</i>, so property 3 is violated. The loop body runs.`);
+        } else if (z.p.isNil) {
+          rec(1, `<i>z</i> = ${N(z)} is the root, so <i>z.p</i> is T.nil, which is BLACK. The loop ends.`);
+          break;
+        } else {
+          rec(1, `<i>z.p</i> = ${N(z.p)} is BLACK, so there is no red-red violation. The loop ends.`);
+          break;
+        }
+
+        const leftSide = z.p === z.p.p.left;
+        const side = leftSide ? 'left' : 'right';
+        const other = leftSide ? 'right' : 'left';
+        const off = leftSide ? 0 : 14;          // mirrored branch = lines 17–29
+        const rotA = leftSide ? leftRotate : rightRotate;  // case 2
+        const rotB = leftSide ? rightRotate : leftRotate;  // case 3
+        const rotAName = leftSide ? 'LEFT-ROTATE' : 'RIGHT-ROTATE';
+        const rotBName = leftSide ? 'RIGHT-ROTATE' : 'LEFT-ROTATE';
+
+        if (leftSide) {
+          rec(2, `<i>z.p</i> = ${N(z.p)} is the <b>left</b> child of <i>z.p.p</i> = ${N(z.p.p)}, so we run lines 3–15.`);
+        } else {
+          rec(2, `<i>z.p</i> = ${N(z.p)} is the <b>right</b> child of <i>z.p.p</i> = ${N(z.p.p)}, so we jump to the mirrored branch on line 16.`);
+          rec(16, `We run lines 17–29: the same as lines 3–15 with "left" and "right" exchanged.`);
+        }
+
+        y = z.p.p[other];
+        rec(3 + off, `<i>y</i> = <i>z.p.p.${other}</i> = ${N(y)}. <i>y</i> is <i>z</i>'s <b>uncle</b>.` +
+          (y.isNil ? ' (T.nil counts as a BLACK leaf.)' : ''));
+
+        if (y.color === RED) {
+          rec(4 + off, `The uncle <i>y</i> = ${N(y)} is RED. The parent and uncle are both red, so this is <b>Case 1</b>: we fix it by recoloring.`);
+          const p = z.p, g = z.p.p;
+          p.color = BLACK;
+          rec(5 + off, `Color <i>z.p</i> (${N(p)}) BLACK.`, { changed: [p.key] });
+          y.color = BLACK;
+          rec(6 + off, `Color the uncle <i>y</i> (${N(y)}) BLACK.`, { changed: [y.key] });
+          g.color = RED;
+          rec(7 + off, `Color the grandparent <i>z.p.p</i> (${N(g)}) RED. Its black has moved down into both of its children, so every path still has the same number of black nodes (property 4 still holds).`, { changed: [g.key] });
+          z = g;
+          rec(8 + off, `Move <i>z</i> up two levels to ${N(z)}. The only possible violation now is between ${N(z)} and its parent, which is closer to the root.`);
+        } else {
+          rec(4 + off, `The uncle <i>y</i> = ${N(y)} is BLACK, so recoloring alone won't work. We need Case 2 and/or Case 3, which use rotations.`);
+          if (z === z.p[other]) {
+            rec(10 + off, `<i>z</i> = ${N(z)} is a <b>${other}</b> child while <i>z.p</i> is a ${side} child: <i>z</i>, <i>z.p</i>, <i>z.p.p</i> form a <b>triangle</b>, so this is <b>Case 2</b>.`);
+            z = z.p;
+            rec(11 + off, `Move <i>z</i> up to its parent, ${N(z)}.`);
+            const piv = z, up = z[other], beta = up[side];
+            const msg = `${rotAName}(<i>T</i>, ${N(piv)}): ${N(up)} moves up into ${N(piv)}'s position, ${N(piv)} becomes ${N(up)}'s ${side} child, and ${N(up)}'s old ${side} subtree (${subtree(beta)}) becomes ${N(piv)}'s ${other} subtree. ` +
+              `The triangle is now a <b>line</b>. <i>z</i> = ${N(piv)} and its parent ${N(up)} are still both red, and Case 3 fixes that.`;
+            rotA(T, piv);
+            rec(12 + off, msg, { changed: [piv.key, up.key] });
+          } else {
+            rec(10 + off, `<i>z</i> = ${N(z)} is a <b>${side}</b> child, and so is <i>z.p</i>: <i>z</i>, <i>z.p</i>, <i>z.p.p</i> form a <b>line</b>. Skip Case 2 and go straight to Case 3.`);
+          }
+          const p = z.p, g = z.p.p;
+          p.color = BLACK;
+          rec(13 + off, `Color <i>z.p</i> (${N(p)}) BLACK.`, { changed: [p.key] });
+          g.color = RED;
+          rec(14 + off, `Color <i>z.p.p</i> (${N(g)}) RED. For now the black counts along paths are off` + (g.p.isNil ? ` and the root is red` : ``) + `. The rotation on the next line fixes that.`, { changed: [g.key] });
+          const beta = p[other];
+          rotB(T, g);
+          rec(15 + off, `${rotBName}(<i>T</i>, ${N(g)}): ${N(p)} moves up into ${N(g)}'s position as a <b>black</b> subtree root with red children ${N(z)} and ${N(g)}, and ${N(p)}'s old ${other} subtree (${subtree(beta)}) becomes ${N(g)}'s ${side} subtree. ` +
+            `Now <i>z.p</i> = ${N(p)} is black, so the loop will end.`, { changed: [p.key, g.key] });
+        }
+      }
+
+      const wasRed = T.root.color === RED;
+      T.root.color = BLACK;
+      rec(30, (wasRed
+        ? `The root ${N(T.root)} was RED, which violated property 2. Color it BLACK. Making the root black adds one black node to every path, so property 4 still holds.`
+        : `Color the root (${N(T.root)}) BLACK. It already was. This line matters only when Case 1 pushes red all the way up to the root.`) +
+        ` <b>Insertion of <span class="n">${v}</span> is complete.</b>`,
+        { changed: wasRed ? [T.root.key] : [] });
+    }
+    return steps;
+  }
+
+  // ---------------------------------------------------- property checking
+  function checkProps(s) {
+    const out = [];
+    out.push({ ok: true, text: '1. Every node is red or black.' });
+    const rootOk = s.root == null || s.nodes[s.root].color === BLACK;
+    out.push({ ok: rootOk, text: '2. The root is black (NIL leaves are black).',
+      why: rootOk ? '' : `The root ${s.root} is RED.` });
+    const rr = [];
+    for (const k in s.nodes) {
+      const n = s.nodes[k];
+      if (n.color !== RED) continue;
+      for (const c of [n.left, n.right]) if (c != null && s.nodes[c].color === RED) rr.push(`${n.key}–${c}`);
+    }
+    out.push({ ok: rr.length === 0, text: '3. A red node has only black children.',
+      why: rr.length ? `Red-red parent–child: ${rr.join(', ')}` : '' });
+    let mismatch = null;
+    function bh(k) {
+      if (k == null) return 1;
+      const n = s.nodes[k];
+      const l = bh(n.left), r = bh(n.right);
+      if (l !== r && !mismatch) mismatch = `At ${k}: left paths have ${l} black, right have ${r}`;
+      return Math.max(l, r) + (n.color === BLACK ? 1 : 0);
+    }
+    bh(s.root);
+    out.push({ ok: !mismatch, text: '4. Every root-to-NIL path has the same number of black nodes.',
+      why: mismatch || '' });
+    return out;
+  }
+
+  // ------------------------------------------------------------ pseudocode
+  const V = (s) => `<i>${s}</i>`;
+  const RB = (s) => `<span class="k">${s}</span>`;
+  const KW = (s) => `<span class="kw">${s}</span>`;
+  const PROC = (s) => `<span class="sc">${s}</span>`;
+  const CODE = [
+    [0, `${KW('while')} ${V('z.p.color')} == ${RB('red')}`],
+    [1, `${KW('if')} ${V('z.p')} == ${V('z.p.p.left')}`, `// is <i>z</i>'s parent a left child?`],
+    [2, `${V('y')} = ${V('z.p.p.right')}`, `// <i>y</i> is <i>z</i>'s uncle`],
+    [2, `${KW('if')} ${V('y.color')} == ${RB('red')}`, `// are <i>z</i>'s parent and uncle both red?`],
+    [3, `${V('z.p.color')} = ${RB('black')}`],
+    [3, `${V('y.color')} = ${RB('black')}`],
+    [3, `${V('z.p.p.color')} = ${RB('red')}`],
+    [3, `${V('z')} = ${V('z.p.p')}`],
+    [2, KW('else')],
+    [3, `${KW('if')} ${V('z')} == ${V('z.p.right')}`],
+    [4, `${V('z')} = ${V('z.p')}`],
+    [4, `${PROC('Left-Rotate')}(${V('T')}, ${V('z')})`],
+    [3, `${V('z.p.color')} = ${RB('black')}`],
+    [3, `${V('z.p.p.color')} = ${RB('red')}`],
+    [3, `${PROC('Right-Rotate')}(${V('T')}, ${V('z.p.p')})`],
+    [1, `${KW('else')}`, `// same as lines 3–15, but with “right” and “left” exchanged`],
+    [2, `${V('y')} = ${V('z.p.p.left')}`],
+    [2, `${KW('if')} ${V('y.color')} == ${RB('red')}`],
+    [3, `${V('z.p.color')} = ${RB('black')}`],
+    [3, `${V('y.color')} = ${RB('black')}`],
+    [3, `${V('z.p.p.color')} = ${RB('red')}`],
+    [3, `${V('z')} = ${V('z.p.p')}`],
+    [2, KW('else')],
+    [3, `${KW('if')} ${V('z')} == ${V('z.p.left')}`],
+    [4, `${V('z')} = ${V('z.p')}`],
+    [4, `${PROC('Right-Rotate')}(${V('T')}, ${V('z')})`],
+    [3, `${V('z.p.color')} = ${RB('black')}`],
+    [3, `${V('z.p.p.color')} = ${RB('red')}`],
+    [3, `${PROC('Left-Rotate')}(${V('T')}, ${V('z.p.p')})`],
+    [0, `${V('T.root.color')} = ${RB('black')}`],
+  ];
+  const CASES = [[5, 8, 'case 1'], [11, 12, 'case 2'], [13, 15, 'case 3'],
+                 [19, 22, 'case 1'], [25, 26, 'case 2'], [27, 29, 'case 3']];
+  function caseOf(line) {
+    if (typeof line !== 'number') return null;
+    for (const [a, b, name] of CASES) if (line >= a && line <= b) return name;
+    return null;
+  }
+
+  function renderCode() {
+    let h = `<div class="title">RB-Insert-Fixup(<i>T</i>, <i>z</i>)</div><table>`;
+    h += `<tr class="ins" data-line="ins"><td class="ln">·</td><td class="src" colspan="3">RB-INSERT(<i>T</i>, <i>z</i>) places <i>z</i> like an ordinary BST insert, colors it red, then calls this procedure</td></tr>`;
+    CODE.forEach(([ind, src, cm], i) => {
+      const ln = i + 1;
+      const c = CASES.find(([a]) => a === ln);
+      const inside = CASES.some(([a, b]) => ln > a && ln <= b);
+      h += `<tr data-line="${ln}"><td class="ln">${ln}</td><td class="src ind${ind}">${src}</td>`;
+      if (c) h += `<td class="cm">${cm || ''}</td><td class="case" rowspan="${c[1] - c[0] + 1}">${c[2]}</td>`;
+      else if (inside) h += `<td class="cm">${cm || ''}</td>`;
+      else h += `<td class="cm" colspan="2">${cm || ''}</td>`;
+      h += `</tr>`;
+    });
+    h += `</table>`;
+    document.getElementById('code').innerHTML = h;
+  }
+
+  // --------------------------------------------------------------- layout
+  const DX = 54, NILW = 0.6, DY = 66;
+  let showNil = false;
+
+  function layout(step) {
+    const s = step.tree, L = {}, parentOf = {}, edges = [];
+    let cursor = 0;
+    function walk(k, d, pid, side) {
+      if (k == null) {
+        if (showNil && pid) {
+          const id = `nil-${pid}-${side}`;
+          L[id] = { x: (cursor + NILW / 2) * DX, y: d * DY - 14, type: 'nil' };
+          cursor += NILW;
+          edges.push([pid, id]); parentOf[id] = pid;
+        }
+        return;
+      }
+      const n = s.nodes[k], id = 'n' + k;
+      walk(n.left, d + 1, id, 'L');
+      L[id] = { x: (cursor + 0.5) * DX, y: d * DY, type: 'node', key: k, color: n.color };
+      cursor += 1;
+      walk(n.right, d + 1, id, 'R');
+      if (pid) { edges.push([pid, id]); parentOf[id] = pid; }
+    }
+    walk(s.root, 0, null, null);
+
+    for (const [name, dx] of [['z', -31], ['y', 31]]) {
+      const k = step[name];
+      if (k != null && k !== 'NIL' && L['n' + k]) {
+        L['lab-' + name] = { x: L['n' + k].x + dx, y: L['n' + k].y - 4, type: 'label', text: name };
+      }
+    }
+
+    let minX = Infinity, maxX = -Infinity, maxY = 0;
+    for (const id in L) {
+      minX = Math.min(minX, L[id].x); maxX = Math.max(maxX, L[id].x); maxY = Math.max(maxY, L[id].y);
+    }
+    if (!isFinite(minX)) { minX = 0; maxX = DX; }
+    const pad = 40;
+    let vb = { x: minX - pad, y: -32, w: (maxX - minX) + 2 * pad, h: maxY + 64 };
+    // Keep a minimum size so small trees don't render huge.
+    const minW = 8 * DX, minH = 4 * DY;
+    if (vb.w < minW) { vb.x -= (minW - vb.w) / 2; vb.w = minW; }
+    if (vb.h < minH) { vb.h = minH; }
+    return { L, edges, parentOf, vb };
+  }
+
+  // -------------------------------------------------------------- drawing
+  const svg = document.getElementById('tree');
+  const NS = 'http://www.w3.org/2000/svg';
+  const edgeLayer = document.createElementNS(NS, 'g');
+  const nodeLayer = document.createElementNS(NS, 'g');
+  const labelLayer = document.createElementNS(NS, 'g');
+  svg.append(edgeLayer, nodeLayer, labelLayer);
+  const els = {};      // id -> svg element
+  const edgeEls = {};  // child id -> line
+  let disp = {};       // id -> {x,y,o} currently drawn
+  let dispVB = null;
+  let anim = null, animFallback = null;
+
+  function el(tag, attrs, parent) {
+    const e = document.createElementNS(NS, tag);
+    for (const a in attrs) e.setAttribute(a, attrs[a]);
+    if (parent) parent.appendChild(e);
+    return e;
+  }
+
+  function ensureEl(id, info) {
+    if (els[id]) return els[id];
+    let g;
+    if (info.type === 'node') {
+      g = el('g', { class: 'node' }, nodeLayer);
+      el('circle', { class: 'pathring', r: 25 }, g);
+      el('circle', { class: 'ring', r: 24 }, g);
+      el('circle', { class: 'body', r: 19 }, g);
+      const t = el('text', {}, g); t.textContent = info.key;
+    } else if (info.type === 'nil') {
+      g = el('g', { class: 'nil' }, nodeLayer);
+      el('rect', { x: -11, y: -7, width: 22, height: 14, rx: 2 }, g);
+      const t = el('text', {}, g); t.textContent = 'NIL';
+    } else {
+      g = el('text', { class: 'label ' + info.text }, labelLayer);
+      g.textContent = info.text;
+    }
+    els[id] = g;
+    return g;
+  }
+
+  function draw(lay, P, step) {
+    const changed = new Set(step.changed.map(k => 'n' + k));
+    const onPath = new Set(step.path.map(k => 'n' + k));
+    for (const id in lay.L) {
+      const info = lay.L[id], e = ensureEl(id, info), p = P[id];
+      e.setAttribute('transform', `translate(${p.x.toFixed(2)},${p.y.toFixed(2)})`);
+      e.style.opacity = p.o;
+      if (info.type === 'node') {
+        e.classList.toggle('red', info.color === RED);
+        e.classList.toggle('black', info.color === BLACK);
+        e.classList.toggle('changed', changed.has(id));
+        e.classList.toggle('onpath', onPath.has(id));
+      }
+    }
+    for (const id in els) if (!lay.L[id]) { els[id].remove(); delete els[id]; }
+
+    const live = new Set();
+    for (const [a, b] of lay.edges) {
+      live.add(b);
+      let line = edgeEls[b];
+      if (!line) line = edgeEls[b] = el('line', { class: 'edge' }, edgeLayer);
+      const pa = P[a], pb = P[b];
+      line.setAttribute('x1', pa.x); line.setAttribute('y1', pa.y);
+      line.setAttribute('x2', pb.x); line.setAttribute('y2', pb.y);
+      line.style.opacity = Math.min(pa.o, pb.o);
+    }
+    for (const id in edgeEls) if (!live.has(id)) { edgeEls[id].remove(); delete edgeEls[id]; }
+  }
+
+  const ease = (t) => t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+  const lerp = (a, b, t) => a + (b - a) * t;
+
+  function animateTo(step, animate) {
+    const lay = layout(step);
+    const from = {};
+    for (const id in lay.L) {
+      if (disp[id]) from[id] = disp[id];
+      else {
+        const par = lay.parentOf[id];
+        const src = (par && disp[par]) || lay.L[id];
+        from[id] = { x: src.x, y: src.y, o: 0 };
+      }
+    }
+    const vb0 = dispVB || lay.vb, vb1 = lay.vb;
+    const dur = animate ? 550 : 0;
+    const t0 = performance.now();
+    if (anim) cancelAnimationFrame(anim);
+    clearTimeout(animFallback);
+    // Use performance.now() rather than the rAF timestamp: the rAF timestamp is the
+    // frame's start time and can precede t0 (by a lot in a throttled iframe), which
+    // made progress negative and the easing curve extrapolate nodes off-screen.
+    function frame(now) {
+      if (now === undefined || now < t0 + dur) now = performance.now();
+      const a = dur ? Math.max(0, Math.min(1, (now - t0) / dur)) : 1, e = ease(a);
+      const P = {};
+      for (const id in lay.L) {
+        const f = from[id], t = lay.L[id];
+        P[id] = { x: lerp(f.x, t.x, e), y: lerp(f.y, t.y, e), o: lerp(f.o, 1, e) };
+      }
+      const vb = { x: lerp(vb0.x, vb1.x, e), y: lerp(vb0.y, vb1.y, e), w: lerp(vb0.w, vb1.w, e), h: lerp(vb0.h, vb1.h, e) };
+      svg.setAttribute('viewBox', `${vb.x} ${vb.y} ${vb.w} ${vb.h}`);
+      draw(lay, P, step);
+      disp = P; dispVB = vb;
+      anim = a < 1 ? requestAnimationFrame(() => frame()) : null;
+    }
+    anim = requestAnimationFrame(() => frame());
+    if (!animate) frame(t0);
+    // rAF can be throttled (e.g. in an embedded iframe); always land on the final frame.
+    else animFallback = setTimeout(() => { if (anim) { cancelAnimationFrame(anim); frame(t0 + dur); } }, dur + 100);
+  }
+
+  // ------------------------------------------------------------ side panels
+  function chip(k, c) {
+    if (k == null) return `<span class="chip none">—</span>`;
+    if (k === 'NIL') return `<span class="chip B nil">NIL</span>`;
+    return `<span class="chip ${c}">${k}</span>`;
+  }
+  function renderPanels(step) {
+    const hasZ = step.z != null;
+    document.getElementById('vars').innerHTML = `<h4>Pointers</h4>` +
+      `<div class="var"><span class="name">z</span>${chip(step.z, step.zc)}</div>` +
+      `<div class="var"><span class="name">z.p</span>${hasZ ? chip(step.zp, step.zpc) : chip(null)}</div>` +
+      `<div class="var"><span class="name">z.p.p</span>${hasZ ? chip(step.zpp, step.zppc) : chip(null)}</div>` +
+      `<div class="var"><span class="name">y</span>${chip(step.y, step.yc)}</div>`;
+    document.getElementById('props').innerHTML = `<h4>Red-black properties</h4>` +
+      checkProps(step.tree).map(p =>
+        `<div class="prop ${p.ok ? 'ok' : 'bad'}"><span class="mark">${p.ok ? '✓' : '✗'}</span><span>${p.text}` +
+        (p.why && !p.ok ? `<span class="why">${p.why}</span>` : '') + `</span></div>`).join('');
+  }
+  function renderMsg(step) {
+    let hdr;
+    if (step.line == null) hdr = 'Start';
+    else if (step.line === 'ins') hdr = 'RB-INSERT';
+    else hdr = `Line ${step.line}`;
+    const c = caseOf(step.line);
+    document.getElementById('msg').innerHTML =
+      `<div class="hdr">${hdr}${c ? `<span class="badge">${c.replace('case', 'Case')}</span>` : ''}</div>${step.msg}`;
+    document.querySelectorAll('#code tr').forEach(tr =>
+      tr.classList.toggle('cur', String(step.line) === tr.dataset.line));
+  }
+
+  // ------------------------------------------------------------ controller
+  let steps = [], cur = 0, playTimer = null;
+  const $ = (id) => document.getElementById(id);
+
+  function show(i, animate = true) {
+    cur = Math.max(0, Math.min(steps.length - 1, i));
+    const step = steps[cur];
+    animateTo(step, animate);
+    renderMsg(step);
+    renderPanels(step);
+    $('scrub').max = steps.length - 1;
+    $('scrub').value = cur;
+    $('stepCount').textContent = `Step ${cur} / ${steps.length - 1}`;
+    $('prevBtn').disabled = $('firstBtn').disabled = cur === 0;
+    $('nextBtn').disabled = cur === steps.length - 1;
+    if (cur === steps.length - 1) stopPlay();
+    fitFrame();
+  }
+
+  function stopPlay() {
+    if (playTimer) { clearInterval(playTimer); playTimer = null; }
+    $('playBtn').textContent = '▶ Play';
+  }
+  function togglePlay() {
+    if (playTimer) return stopPlay();
+    if (cur === steps.length - 1) show(0, false);
+    $('playBtn').textContent = '⏸ Pause';
+    playTimer = setInterval(() => show(cur + 1), 1500);
+  }
+
+  function run() {
+    const raw = $('values').value.trim();
+    const parts = raw ? raw.split(/[\s,]+/).filter(Boolean) : [];
+    const vals = parts.map(Number);
+    if (!parts.length || vals.some(v => !Number.isInteger(v))) {
+      $('inputErr').textContent = 'Enter one or more integers, e.g. 4 or 4, 6, 3';
+      return;
+    }
+    if (vals.length > 40) { $('inputErr').textContent = 'Please insert at most 40 values.'; return; }
+    $('inputErr').textContent = '';
+    stopPlay();
+    steps = buildSteps($('startTree').value, vals);
+    disp = {}; dispVB = null;
+    for (const id in els) { els[id].remove(); delete els[id]; }
+    for (const id in edgeEls) { edgeEls[id].remove(); delete edgeEls[id]; }
+    show(0, false);
+  }
+
+  // Auto-size when embedded in the course page (same-origin iframe).
+  function fitFrame() {
+    try {
+      const fe = window.frameElement;
+      if (fe) fe.style.height = (document.getElementById('app').offsetHeight + 4) + 'px';
+    } catch (e) { /* cross-origin: ignore */ }
+  }
+
+  $('runBtn').addEventListener('click', run);
+  $('values').addEventListener('keydown', (e) => { if (e.key === 'Enter') run(); });
+  $('startTree').addEventListener('change', run);
+  $('firstBtn').addEventListener('click', () => { stopPlay(); show(0); });
+  $('prevBtn').addEventListener('click', () => { stopPlay(); show(cur - 1); });
+  $('nextBtn').addEventListener('click', () => { stopPlay(); show(cur + 1); });
+  $('playBtn').addEventListener('click', togglePlay);
+  $('scrub').addEventListener('input', (e) => { stopPlay(); show(+e.target.value); });
+  $('showNil').addEventListener('change', (e) => { showNil = e.target.checked; show(cur); });
+  document.addEventListener('keydown', (e) => {
+    if (e.target.tagName === 'INPUT' && e.target.type === 'text') return;
+    if (e.key === 'ArrowRight') { e.preventDefault(); stopPlay(); show(cur + 1); }
+    else if (e.key === 'ArrowLeft') { e.preventDefault(); stopPlay(); show(cur - 1); }
+    else if (e.key === 'Home') { e.preventDefault(); stopPlay(); show(0); }
+    else if (e.key === ' ' && e.target.tagName !== 'BUTTON') { e.preventDefault(); togglePlay(); }
+  });
+  window.addEventListener('resize', fitFrame);
+  if (window.self === window.top) $('popout').style.display = 'none';
+
+  renderCode();
+  run();
+})();
+</script>
+</body>
+</html>
