@@ -44,11 +44,11 @@ Here's ICP on a real scan from our data set. We started from a guess that's 0.7 
 
 ### The re-estimation step
 
-Step 3 has a nice closed form in 2D. Suppose we have matched pairs $(a_i, b_i)$ for $i = 1, \ldots, N$, where $a_i$ is a projected scan point and $b_i$ is the map point it matched. We want the rotation angle $\phi$ and translation $t$ that minimize
+Step 3 has a very surprising closed form solution. To formalize this, suppose we have matched pairs $(a_i, b_i)$ for $i = 1, \ldots, N$, where $a_i$ is a projected scan point and $b_i$ is the map point it matched. We want the rotation angle $\phi$ and translation $t$ that minimize
 
 $$\sum_{i=1}^{N} \left\| R(\phi)\, a_i + t - b_i \right\|^2.$$
 
-You might think you'd have to run some sort of gradient descent algorithm to figure out this solution.  It turns out you can compute the answer by performing a singular value decomposition (SVD).  If you want to read more about this, you can look up the [Kabsch algorithm](https://en.wikipedia.org/wiki/Kabsch_algorithm) in two dimensions. There is also a [detailed (and highly mathy) tutorial](https://igl.ethz.ch/projects/ARAP/svd_rot.pdf) on the connection available from ETH Zurich.
+You might think you'd have to run some sort of gradient descent algorithm to figure out this solution.  It turns out you can compute the answer by performing a singular value decomposition (SVD).  This also works in 3-d as well!  If you want to read more about this, you can look up the [Kabsch algorithm](https://en.wikipedia.org/wiki/Kabsch_algorithm). There is also a [detailed (and highly mathy but scaffolded) tutorial](https://igl.ethz.ch/projects/ARAP/svd_rot.pdf) on the connection available from ETH Zurich.
 
 ### ICP by hand
 
