@@ -321,11 +321,11 @@ function HideShowElement(divID) {
 
 <h3 id="the-re-estimation-step">The re-estimation step</h3>
 
-<p>Step 3 has a nice closed form in 2D. Suppose we have matched pairs $(a_i, b_i)$ for $i = 1, \ldots, N$, where $a_i$ is a projected scan point and $b_i$ is the map point it matched. We want the rotation angle $\phi$ and translation $t$ that minimize</p>
+<p>Step 3 has a very surprising closed form solution. To formalize this, suppose we have matched pairs $(a_i, b_i)$ for $i = 1, \ldots, N$, where $a_i$ is a projected scan point and $b_i$ is the map point it matched. We want the rotation angle $\phi$ and translation $t$ that minimize</p>
 
 \[\sum_{i=1}^{N} \left\| R(\phi)\, a_i + t - b_i \right\|^2.\]
 
-<p>You might think you’d have to run some sort of gradient descent algorithm to figure out this solution.  It turns out you can compute the answer by performing a singular value decomposition (SVD).  If you want to read more about this, you can look up the <a href="https://en.wikipedia.org/wiki/Kabsch_algorithm">Kabsch algorithm</a> in two dimensions. There is also a <a href="https://igl.ethz.ch/projects/ARAP/svd_rot.pdf">detailed (and highly mathy) tutorial</a> on the connection available from ETH Zurich.</p>
+<p>You might think you’d have to run some sort of gradient descent algorithm to figure out this solution.  It turns out you can compute the answer by performing a singular value decomposition (SVD).  This also works in 3-d as well!  If you want to read more about this, you can look up the <a href="https://en.wikipedia.org/wiki/Kabsch_algorithm">Kabsch algorithm</a>. There is also a <a href="https://igl.ethz.ch/projects/ARAP/svd_rot.pdf">detailed (and highly mathy but scaffolded) tutorial</a> on the connection available from ETH Zurich.</p>
 
 <h3 id="icp-by-hand">ICP by hand</h3>
 
