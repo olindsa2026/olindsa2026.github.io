@@ -78,7 +78,7 @@ customElements.define("confirm-link", ConfirmLink, { extends: "a" });
 
 </script>
 
-<!-- begin _includes/seo.html --><title>Day 19: Some Additional Kotlin Fun and Time to Work on K-D Trees - Data Structures Fall 2026 @ Olin College</title>
+<!-- begin _includes/seo.html --><title>Day 19: Iterative Closest Point via k-d Trees - Data Structures Fall 2026 @ Olin College</title>
 <meta name="description" content="">
 
 
@@ -86,7 +86,7 @@ customElements.define("confirm-link", ConfirmLink, { extends: "a" });
 <meta property="og:type" content="website">
 <meta property="og:locale" content="en_US">
 <meta property="og:site_name" content="Data Structures Fall 2026 @ Olin College">
-<meta property="og:title" content="Day 19: Some Additional Kotlin Fun and Time to Work on K-D Trees">
+<meta property="og:title" content="Day 19: Iterative Closest Point via k-d Trees">
 <meta property="og:url" content="/in_class/day19.html">
 
 
@@ -247,7 +247,7 @@ function HideShowElement(divID) {
   
 
   <article class="page" itemscope itemtype="https://schema.org/CreativeWork">
-    <meta itemprop="headline" content="Day 19: Some Additional Kotlin Fun and Time to Work on K-D Trees">
+    <meta itemprop="headline" content="Day 19: Iterative Closest Point via k-d Trees">
     
     
     
@@ -255,7 +255,7 @@ function HideShowElement(divID) {
     <div class="page__inner-wrap">
       
         <header>
-          <h1 id="page-title" class="page__title" itemprop="headline">Day 19: Some Additional Kotlin Fun and Time to Work on K-D Trees
+          <h1 id="page-title" class="page__title" itemprop="headline">Day 19: Iterative Closest Point via k-d Trees
 </h1>
           
         </header>
@@ -268,24 +268,335 @@ function HideShowElement(divID) {
               <header><h4 class="nav__title"><i class="fas fa-file-alt"></i> On this page</h4></header>
 	      
                 <ul class="toc__menu">
-  <li><a href="#kotlins-multiplatform-compose">Kotlin’s Multiplatform Compose</a></li>
-  <li><a href="#kotlin-linear-algebra">Kotlin Linear Algebra</a></li>
+  <li><a href="#robot-localization">Robot Localization</a></li>
+  <li><a href="#the-iterative-closest-point-icp-algorithm">The Iterative Closest Point (ICP) Algorithm</a></li>
+  <li><a href="#estimating-computational-efficiency">Estimating Computational Efficiency</a></li>
+  <li><a href="#speeding-things-up-with-a-k-d-tree">Speeding Things Up with a K-d Tree</a></li>
+  <li><a href="#interpreting-results-from-a-reference-implementation">Interpreting Results from a Reference Implementation</a></li>
 </ul>
 	      	
             </nav>
           </aside>
         
-        <h2 id="kotlins-multiplatform-compose">Kotlin’s Multiplatform Compose</h2>
+        <blockquote class="notice--warning">
+  <p><strong><em>AI Use Acknowledgment:</em></strong></p>
 
-<p>I put together <a href="https://github.com/OlinDSA2025/MultiPlatformDemo">an example app</a> using <a href="https://www.jetbrains.com/help/kotlin-multiplatform-dev/get-started.html">Kotlin’s Multiplatform Compose</a> architecture.</p>
+  <p>I have been thinking of having a class on this topic for a while.  I used AI for initial language for today and also to create and run the evaluation of a k-d tree on the robot scan data.  I went back and forth several times on the details of the particular exercises.</p>
+</blockquote>
 
-<p>For certain platforms, this is a nice way to create a GUI and package your app for distribution.  I’ll do a quick demo of the app and show some of the project structure.</p>
+<p>Today, we will see an algorithm called Iterative Closest Point (ICP), which pairs really nicely with KD-Trees.  I hope that seeing an application of KD-trees will make the case that they are very powerful!</p>
 
-<h2 id="kotlin-linear-algebra">Kotlin Linear Algebra</h2>
+<h2 id="robot-localization">Robot Localization</h2>
 
-<p>The <a href="https://github.com/Kotlin/multik">Multik</a> library gives some matrix and linear algebra functionality to Kotlin.</p>
+<p>Picture a mobile robot driving around the first floor of the MAC. It carries a LiDAR: a spinning laser rangefinder that measures the distance to the nearest obstacle at 720 angles around the robot (one reading every half degree), several times per second. Each set of 720 readings is called a scan. Given the angle and distance reading from each measurement (distance and angle), convert the reading into an $(x, y)$ point to get a 2D outline of the walls, furniture, and people around the robot.</p>
 
-<p>I put together <a href="https://github.com/OlinDSA2024/MultikSample">a sample project</a> that shows matrix multiplication as well as the discrete fourier transform.</p>
+<p>We also have a map of the building, built from earlier lidar scans. We store the map as a 2D point cloud: a list of $(x, y)$ points marking where objects are in the environment (these could be walls, people, furniture).</p>
+
+<p>Here’s the map we’ll use: the first floor of the MAC, with 16,871 points spaced 3 cm apart.</p>
+
+<p><img src="/images/icp_mac_map.png" alt="The MAC first floor map drawn as a 2D point cloud, with a 5 meter scale bar" /></p>
+
+<p>The robot is capable of coarsely estimating its own motion as it moves through the world (odometry).  This estimate is based on computing how far the wheels have turned and fusing that with inertial measurements (angular velocity and acceleration) to come up with a rough <strong>guess</strong> of its pose consisting of its position $(x, y)$ and heading $\theta$ in the map.  This calculation is subject to error, so the guess drifts further from the truth as the robot drives. Our job is to fix the guess by lining up what the lidar sees with the map.</p>
+
+<h2 id="the-iterative-closest-point-icp-algorithm">The Iterative Closest Point (ICP) Algorithm</h2>
+
+<blockquote class="notice--warning">
+  <p><strong>Iterative closest point (ICP)</strong> for one scan.</p>
+
+  <p>Inputs: the map points, the scan end points (in the robot’s frame), a guess of the robot’s pose, and a match distance threshold $d_{\max}$.</p>
+
+  <ol>
+    <li><strong>Project</strong> every scan end point into the map frame using the current pose guess (rotate by $\theta$, then shift by $(x, y)$).</li>
+    <li><strong>Match</strong> each projected point to its <em>nearest neighbor</em> among the map points. If that neighbor is farther away than $d_{\max}$, throw the match away; the point probably hit something that isn’t in the map (a person, a moved chair), or our guess is still too far off.</li>
+    <li><strong>Re-estimate</strong> the pose: find the rotation and translation that best lines up the matched pairs and apply it to the pose guess.</li>
+    <li><strong>Iterate</strong> steps 1 to 3 until the pose stops changing (convergence).</li>
+  </ol>
+
+  <p>For the next scan, start from the pose we just found, moved by however much odometry says the robot moved since then.</p>
+</blockquote>
+
+<p>Here’s ICP on a real scan from our data set. We started from a guess that’s 0.7 m and 20° off, and each iteration pulls the scan (red) closer to the map (gray).</p>
+
+<p><img src="/images/icp_iterations.png" alt="Four panels showing a lidar scan being pulled into alignment with the map over successive ICP iterations" /></p>
+
+<h3 id="the-re-estimation-step">The re-estimation step</h3>
+
+<p>Step 3 has a nice closed form in 2D. Suppose we have matched pairs $(a_i, b_i)$ for $i = 1, \ldots, N$, where $a_i$ is a projected scan point and $b_i$ is the map point it matched. We want the rotation angle $\phi$ and translation $t$ that minimize</p>
+
+\[\sum_{i=1}^{N} \left\| R(\phi)\, a_i + t - b_i \right\|^2.\]
+
+<p>You might think you’d have to run some sort of gradient descent algorithm to figure out this solution.  It turns out you can compute the answer by performing a singular value decomposition (SVD).  If you want to read more about this, you can look up the <a href="https://en.wikipedia.org/wiki/Kabsch_algorithm">Kabsch algorithm</a> in two dimensions. There is also a <a href="https://igl.ethz.ch/projects/ARAP/svd_rot.pdf">detailed (and highly mathy) tutorial</a> on the connection available from ETH Zurich.</p>
+
+<h3 id="icp-by-hand">ICP by hand</h3>
+
+<blockquote class="notice--success">
+  <p><strong>Exercise 1</strong></p>
+
+  <p>Show that you understand ICP by running one iteration by hand on a chalkboard with the people around you. Use two colors if you can: one for the truth and one for the guess.</p>
+
+  <ol>
+    <li><strong>Map.</strong> Sketch a coarse map: a few walls, such as an L-shaped hallway or a room with a doorway. Put dots every so often along the wall. These dots are your map point cloud.</li>
+    <li><strong>True pose and scan.</strong> Pick where the robot <em>really</em> is and draw it as a circle with an arrow for its heading. Draw 8 to 10 laser beams from the robot to the walls, and mark where each one hits. These hit points are the scan end points. What the robot actually records is each beam’s distance and angle <em>relative to itself</em>.</li>
+    <li><strong>Initial guess and projected scan.</strong> Draw a guessed pose that’s a bit off from the true one: shifted a little and rotated by maybe 10 to 20 degrees. Now project the scan: from the guessed pose, redraw each beam with the <em>same</em> distance and the <em>same</em> angle relative to the robot’s heading, and mark the end points. You should get the same shape as the true scan, but moved and turned so it no longer lines up with the walls.</li>
+    <li><strong>Match.</strong> Pick a threshold $d_{\max}$. For each projected end point, draw an arrow to its nearest map dot. Cross out any arrow longer than $d_{\max}$.</li>
+    <li><strong>Re-estimate.</strong> Decide roughly how to shift and rotate the whole projected scan, as one rigid shape, so the remaining arrows get shorter overall. (Hint: if you only shift without rotating, the best shift is the average of the arrows.) Apply the same shift and rotation to the guessed pose, then redraw the pose and the projected scan.</li>
+    <li><strong>Check.</strong> Is the new projected scan closer to the map than before? Redo the matching: do any end points now match a <em>different</em> map dot than in step 4? What would the next iteration do?</li>
+    <li><strong>Break it.</strong> Can you choose an initial guess for which ICP pulls the scan into the <em>wrong</em> place? What features of the map make that more or less likely?</li>
+  </ol>
+</blockquote>
+
+<details class="solution">
+  <summary class="solution__toggle">Show solution</summary>
+  <div class="solution__body">
+    
+<p>Things to look for in your sketch:</p>
+
+<ul>
+  <li><strong>The scan keeps its shape.</strong> Projecting just rotates and shifts the scan as a rigid whole. If your projected scan is stretched or distorted, recheck step 3: each beam keeps its length and its angle relative to the robot.</li>
+  <li><strong>The arrows point roughly the same way.</strong> If the guess is shifted, most arrows point in the direction the scan needs to move. If it’s rotated, arrows on opposite sides of the robot point in roughly opposite directions around it. The re-estimation step finds the single rigid motion that best agrees with all of the arrows at once.</li>
+  <li><strong>One iteration helps, but it usually doesn’t finish the job.</strong> Nearest-neighbor matches made from a wrong pose are only partly right: an end point that belongs on the far wall may be matched to a closer wall instead. After the update the scan sits closer to the map, so the new matches are more accurate, and the next iteration moves it closer still. That’s why ICP <em>iterates</em>.</li>
+  <li><strong>Crossed-out arrows.</strong> Points with no map dot within $d_{\max}$ have no say in the update. On the real robot these are usually beams that hit people or furniture that aren’t in the map. In your sketch they might be end points that landed in a doorway or in empty space.</li>
+  <li><strong>Ways to break it.</strong> A long, featureless hallway: sliding the scan along the hallway doesn’t change any of the distances, so ICP can’t tell where along the hallway the robot is. A big initial rotation or shift: end points get matched to the wrong wall, and ICP can settle confidently into the wrong pose (a <em>local minimum</em>). A symmetric room: several poses fit equally well. Corners, doorways, and other distinctive features make ICP more reliable, and so does a good initial guess from odometry.</li>
+</ul>
+
+  </div>
+</details>
+
+<h2 id="estimating-computational-efficiency">Estimating Computational Efficiency</h2>
+
+<blockquote class="notice--success">
+  <p><strong>Exercise 2</strong></p>
+
+  <p>Suppose the map has $n$ points, each scan has $m$ end points, and ICP takes $I$ iterations to converge.</p>
+
+  <ol>
+    <li>If we find each nearest neighbor by brute force (checking every map point), what is the time complexity of one ICP iteration? Of processing one scan?</li>
+    <li>Plug in numbers from our data: $n \approx 17{,}000$ map points, $m \approx 550$ valid end points per scan, $I \approx 17$ iterations per scan, and 716 scans in a 93 second drive. About how many distance computations is that in total? If a computer does roughly a billion of them per second, can we keep up with the robot in real time?</li>
+    <li>Compare the cost of step 2 (matching) with steps 1 and 3 (projecting and re-estimating). Which one dominates?</li>
+  </ol>
+</blockquote>
+
+<details class="solution">
+  <summary class="solution__toggle">Show solution</summary>
+  <div class="solution__body">
+    
+<ol>
+  <li>Each of the $m$ scan points is compared with all $n$ map points, so one iteration is $\Theta(nm)$ and one scan is $\Theta(nmI)$.</li>
+  <li>$17{,}000 \times 550 \times 17 \approx 1.6 \times 10^8$ distance computations per scan, or about $1.1 \times 10^{11}$ (110 billion) for the whole drive. At $10^9$ per second that’s about 2 minutes of computing for 93 seconds of driving, so we can’t keep up. (Our reference implementation measured 121 billion distance computations and 1 minute 34 seconds.)</li>
+  <li>Projecting and re-estimating are $\Theta(m)$ per iteration, so matching completely dominates as it is $\Theta(nm)$.</li>
+</ol>
+
+  </div>
+</details>
+
+<h2 id="speeding-things-up-with-a-k-d-tree">Speeding Things Up with a K-d Tree</h2>
+
+<p>Last class we built k-d trees for fast nearest neighbor search. Matching is exactly a pile of nearest neighbor queries, in 2 dimensions, which is where k-d trees shine. Throughout this page, a <strong>query</strong> means matching one scan end point to the map: finding the map point closest to that end point, or reporting no match if nothing is within $d_{\max}$.</p>
+
+<blockquote class="notice--success">
+  <p><strong>Exercise 3</strong></p>
+
+  <p>Work out how to use a k-d tree to speed up ICP. Sketch the plan with the people around you before looking at any code.</p>
+
+  <ol>
+    <li>Which set of points should go into the tree: the map points or the scan points? Why?</li>
+    <li>When do you build the tree? Once overall, once per scan, or once per ICP iteration?</li>
+    <li>What is the new time complexity for one ICP iteration? How much does building the tree cost, and how often do you pay that cost?  Note: for simplicity, you can assume that you do not need to visit any alternative branches when backtracking.</li>
+    <li>Estimate the speedup for our data set.</li>
+  </ol>
+</blockquote>
+
+<details class="solution">
+  <summary class="solution__toggle">Show solution</summary>
+  <div class="solution__body">
+    
+<ol>
+  <li><strong>The map.</strong> The map points never move; the scan points move every time the pose estimate changes. Each query is “which map point is closest to this scan point?”, so the tree holds the map and the scan points are the queries.</li>
+  <li><strong>Once overall.</strong> A tree built on the scan points would have to be rebuilt every iteration, and we’d still need to answer queries about map points.</li>
+  <li>Building costs $\Theta(n \log n)$ (median splits), paid once. Each query takes about $\Theta(\log n)$ on average for well-spread 2D data, so an iteration costs about $\Theta(m \log n)$ instead of $\Theta(mn)$.</li>
+  <li>$\log_2 17{,}000 \approx 14$, versus 17,000 comparisons per query for brute force. A query visits a few more nodes than the tree’s depth because it sometimes has to backtrack, so expect hundreds of times fewer distance computations. In our reference implementation a query computes about 25 distances on average, roughly <strong>650 times fewer</strong> than brute force.</li>
+</ol>
+
+  </div>
+</details>
+
+<blockquote class="notice--success">
+  <p><strong>Exercise 4</strong></p>
+
+  <p>ICP throws away any match farther than $d_{\max}$ (we use 0.3 m). How can a k-d tree search use this threshold to do even <em>less</em> work than a normal nearest neighbor search? Think about the pruning test from Exercise 5 last class.</p>
+</blockquote>
+
+<details class="solution">
+  <summary class="solution__toggle">Show solution</summary>
+  <div class="solution__body">
+    
+<p>A normal search needs to check an alternate branch of the tree if it could possibly find a closer match than the closest found so far.  In this alternate formulation, we can avoid searching the additional branch if it’s impossible for a point to be within $d_{\max}$ of the query.</p>
+
+  </div>
+</details>
+
+<blockquote class="notice--success">
+  <p><strong>Exercise 5</strong></p>
+
+  <ol>
+    <li>The two scan end points that sit next to each other in a scan (half a degree apart) usually land very close together in the map, and a scan point barely moves between ICP iterations. How could you use these facts to speed up nearest neighbor search even more?</li>
+    <li>Here’s another approach: precompute, for every cell of a fine grid over the building, which map point is closest (a <em>distance transform</em>). What does a query cost now? What are the downsides? When would you choose a k-d tree instead?</li>
+  </ol>
+</blockquote>
+
+<details class="solution">
+  <summary class="solution__toggle">Show solution</summary>
+  <div class="solution__body">
+    
+<ol>
+  <li>Use the previous answer as a starting guess: begin the search with the best distance set to the distance to last iteration’s match (or the neighboring scan point’s match). That makes the pruning radius small from the very first node. Some implementations also cache the leaf they ended at and search outward from there.</li>
+  <li>A query becomes a $\Theta(1)$ array lookup, which is why many real localization systems do this! The downsides are memory (proportional to the area times $1/\text{resolution}^2$, not to the number of points), a fixed resolution, and the whole grid has to be recomputed whenever the map changes. All of this gets much worse in 3D. A k-d tree adapts to wherever the points actually are, handles any resolution, and generalizes to 3D lidar point clouds.</li>
+</ol>
+
+  </div>
+</details>
+
+<h2 id="interpreting-results-from-a-reference-implementation">Interpreting Results from a Reference Implementation</h2>
+
+<p>I implemented ICP twice in Kotlin. The two versions are identical except for how they find nearest neighbors: one uses brute force, and the other uses a k-d tree built from the map with median splits. Both run nearest neighbor searches with a starting radius of $d_{\max} = 0.3$ m, as in Exercise 4.</p>
+
+<p>The data comes from the <a href="https://github.com/comprobo23/robot_localization">comprobo23/robot_localization</a> repository:</p>
+
+<ul>
+  <li><strong>Map:</strong> <code class="language-plaintext highlighter-rouge">maps/mac_1st_floor_final.yaml</code>, the occupancy grid shown at the top of this page. Each occupied 3 cm cell becomes one map point, for $n = 16{,}871$ points.</li>
+  <li><strong>Robot data:</strong> <code class="language-plaintext highlighter-rouge">bags/macfirst_floor_take_1</code>, a recording of a TurtleBot4 robot driving for 93 seconds. It has 716 lidar scans (about 550 valid end points each, one scan every 130 ms) plus wheel odometry.</li>
+</ul>
+
+<p>For each scan, the initial guess is the previous ICP pose moved by however far odometry says the robot traveled.</p>
+
+<p>Localizing all 716 scans on my laptop:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Method</th>
+      <th style="text-align: right">Total time</th>
+      <th style="text-align: right">Time per scan</th>
+      <th style="text-align: right">Distance computations</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Brute force</td>
+      <td style="text-align: right">1 min 34 s</td>
+      <td style="text-align: right">131 ms</td>
+      <td style="text-align: right">121,081,952,288</td>
+    </tr>
+    <tr>
+      <td>k-d tree</td>
+      <td style="text-align: right">1.5 s</td>
+      <td style="text-align: right">2.1 ms</td>
+      <td style="text-align: right">183,605,915</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Building the k-d tree took 11 ms. ICP took about 17 iterations per scan on average, and the two versions produced exactly the same pose for every scan.</p>
+
+<p><img src="/images/icp_mac_result.png" alt="The MAC first floor map with the robot's ICP-corrected trajectory and the raw odometry" /></p>
+
+<p>The dashed blue line is the raw odometry and the green line is the ICP trajectory. Odometry drifts up to almost a meter away from the ICP estimate partway through the drive.</p>
+
+<blockquote class="notice--success">
+  <p><strong>Exercise 6</strong></p>
+
+  <ol>
+    <li>The two versions produced <em>exactly</em> the same trajectory, down to the last bit. Should we have expected that? What would it mean if they differed?</li>
+    <li>Could each version keep up with the robot in real time? How much spare time does the k-d tree version have per scan?</li>
+    <li>The k-d tree does about 650 times fewer distance computations but is only about 60 times faster. Give some reasons why the speedup in time is smaller than the reduction in work.</li>
+    <li>Building the tree costs 11 ms. After how many queries has that investment paid for itself? (On this map, one query takes 14.7 µs with brute force and 0.16 µs with the k-d tree.)</li>
+  </ol>
+</blockquote>
+
+<details class="solution">
+  <summary class="solution__toggle">Show solution</summary>
+  <div class="solution__body">
+    
+<ol>
+  <li>Yes. A correct k-d tree search returns the true nearest neighbor within $d_{\max}$, just as brute force does, so every match, every pose update, and every iteration is identical. (Ties, two map points at exactly the same distance, could be broken differently, but that is extremely rare with real-valued coordinates.) If the trajectories differed, it would point to a bug in the tree search, most likely a pruning test that skips a subtree it shouldn’t.</li>
+  <li>Scans arrive every 130 ms. Brute force needs 131 ms per scan, so it falls slightly behind and gets further behind over time; on a slower robot computer it would be hopeless. The k-d tree needs 2.1 ms, leaving about 128 ms (over 98% of the time) for everything else the robot has to do.</li>
+  <li>Each step of a k-d tree search does more than compute a distance: it makes recursive calls, picks which side to search first, tests whether to prune, and follows pointers to nodes scattered around memory. Brute force runs a tight loop over an array, which the CPU can execute very quickly (it predicts the branches and prefetches the memory). $\Theta()$ ignores these constant factors.</li>
+  <li>Each query saves about $14.7 - 0.16 \approx 14.5$ µs, so the tree pays for itself after about $11{,}000 / 14.5 \approx 760$ queries. That’s fewer than two ICP iterations on a single scan (550 queries each), out of more than 12,000 iterations over the drive.</li>
+</ol>
+
+  </div>
+</details>
+
+<h3 id="which-queries-are-expensive">Which queries are expensive?</h3>
+
+<p>Here’s how many distance computations each k-d tree query needed over the whole drive (7.2 million queries). A query is <em>matched</em> if it found a map point within $d_{\max} = 0.3$ m, and <em>unmatched</em> otherwise.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Queries</th>
+      <th style="text-align: right">Count</th>
+      <th style="text-align: right">Mean</th>
+      <th style="text-align: right">Median</th>
+      <th style="text-align: right">95th percentile</th>
+      <th style="text-align: right">99th percentile</th>
+      <th style="text-align: right">Max</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>All</td>
+      <td style="text-align: right">7,176,928</td>
+      <td style="text-align: right">25.6</td>
+      <td style="text-align: right">23</td>
+      <td style="text-align: right">45</td>
+      <td style="text-align: right">69</td>
+      <td style="text-align: right">128</td>
+    </tr>
+    <tr>
+      <td>Matched</td>
+      <td style="text-align: right">6,380,851</td>
+      <td style="text-align: right">23.8</td>
+      <td style="text-align: right">22</td>
+      <td style="text-align: right">39</td>
+      <td style="text-align: right">51</td>
+      <td style="text-align: right">128</td>
+    </tr>
+    <tr>
+      <td>Unmatched</td>
+      <td style="text-align: right">796,077</td>
+      <td style="text-align: right">39.9</td>
+      <td style="text-align: right">39</td>
+      <td style="text-align: right">74</td>
+      <td style="text-align: right">90</td>
+      <td style="text-align: right">99</td>
+    </tr>
+  </tbody>
+</table>
+
+<blockquote class="notice--success">
+  <p><strong>Exercise 7</strong></p>
+
+  <ol>
+    <li>In the worst case, a k-d tree query can end up checking every point in the tree. How close did we come to that worst case here? Compare the maximum with brute force’s 16,871 for every query.</li>
+    <li>Unmatched queries do <em>more</em> work than matched ones, on average. Explain why. (Think about how the search radius changes during a search in each case.)</li>
+    <li>About 11% of queries are unmatched. Where in the building or in the ICP process do you think those queries come from?</li>
+  </ol>
+</blockquote>
+
+<details class="solution">
+  <summary class="solution__toggle">Show solution</summary>
+  <div class="solution__body">
+    
+<ol>
+  <li>Not close at all. The very worst query in 7.2 million checked 128 points, less than 1% of the map, and 99% of queries checked 69 or fewer. The worst case requires points arranged so that the pruning test almost never succeeds, and real 2D maps don’t look like that.</li>
+  <li>A matched query usually finds a map point a few centimeters away within its first few steps down the tree. From then on the search radius is tiny, so almost every other branch gets pruned. An unmatched query never finds anything closer than $d_{\max}$, so its radius stays at a full 0.3 m for the whole search. A 0.3 m circle overlaps many more cells of the tree’s partition than a 3 cm circle, so the search has to check more branches.</li>
+  <li>From laser beams that hit things that aren’t in the map (people, chairs, doors that were closed when the map was made), from parts of the building the map doesn’t cover well (the map has gaps along some walls), and from early ICP iterations where the pose guess is still off, so some scan points land in empty space.</li>
+</ol>
+
+  </div>
+</details>
+
 
         
       </section>
