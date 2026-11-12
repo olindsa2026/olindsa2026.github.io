@@ -28,7 +28,7 @@ Data Structures and Algorithms is obviously a vast topic.  As we enter the last 
 
 * (we didn't cover the whole book, but you can choose what to fill in)[CLRS Table of Contents](clrs_toc.pdf)
 * (A firehose of potential topics) [Dictionary of Algorithms and Data Structures](https://xlinux.nist.gov/dads/)
-* (Some topics that get covered at the grad level) [MIT Advanced Algorithms Class](https://6.5210.csail.mit.edu/calendar.html)
+* (Some topics that get covered at the grad level) [MIT Advanced Algorithms Class](https://6.5210.csail.mit.edu/)
 * (the research frontier in an incredibly prestigious conference) [Proceedings of the 2023 Annual ACM-SIAM Symposium on Discrete Algorithms (SODA)](https://epubs.siam.org/doi/book/10.1137/1.9781611978971)
 * (specific jumping off points for machine learning fairness) [Fairness and Machine Learning](https://fairmlbook.org/pdf/fairmlbook.pdf)
 * (specific jumping off points for optimization) [Boyd's Book on Convex Optimization](https://web.stanford.edu/~boyd/cvxbook/bv_cvxbook.pdf)
