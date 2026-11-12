@@ -1,8 +1,8 @@
 ---
 title: "Assignment 9: Final Project"
 toc_sticky: true
-published: false
-due_on_class: "final event (12/16 at 1pm)"
+published: true
+due_on_class: "final event (12/15 at 1pm)"
 ---
 
 ## Overview
