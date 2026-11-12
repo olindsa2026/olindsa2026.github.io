@@ -28,15 +28,15 @@ Turn in a project plan that lays out your plan for the project.  Clearly specify
 * **Team**: who is on your team (or let me know if you are soloing).
 * **Learning Goals**: what are you hoping to get out of this project to enrich your learning in this class.
 * **Deliverables**: what deliverables will you create, and what do A-quality, B-quality, and C-quality versions of each deliverable look like.
-* **Project schedule** detail what you are aiming to have done by the following dates (11/20 and 12/8).  If any of these are stretch goals, please indicate this.  You will receive a grade based on your ability to reach your (non-stretch) goals.
+* **Project schedule** detail what you are aiming to have done by the following dates (11/19 and 12/7).  If any of these are stretch goals, please indicate this.  You will receive a grade based on your ability to reach your (non-stretch) goals.
 
-### Check-in 11/20 (5 points)
+### Check-in 11/19 (5 points)
 
-Based on your project plan, we will check-in during class on 11/20.  If you met your goals for this check-in, you will receive full points.  If you did not meet your goals, please provide a justification.  I will assign a grade based on whether your progress up to this point in the project is reasonable.
+Based on your project plan, we will check-in during class on 11/19.  If you met your goals for this check-in, you will receive full points.  If you did not meet your goals, please provide a justification.  I will assign a grade based on whether your progress up to this point in the project is reasonable.
 
-### Check-in 12/8 (5 points)
+### Check-in 12/7 (5 points)
 
-Based on your project plan, we will check-in during class on 12/8.  If you met your goals for this check-in, you will receive full points.  If you did not meet your goals, please provide a justification.  I will assign a grade based on whether your progress up to this point in the project is reasonable.
+Based on your project plan, we will check-in during class on 12/7.  If you met your goals for this check-in, you will receive full points.  If you did not meet your goals, please provide a justification.  I will assign a grade based on whether your progress up to this point in the project is reasonable.
 
 
 ### Final Project Presentation (2 points)
